@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { generateBadgeCode, generateQRDataURL } from "@/lib/qrcode";
+import { sendEmail, buildBadgeEmail } from "@/lib/email";
 
 export async function GET(req: NextRequest) {
   const eventId = req.nextUrl.searchParams.get("eventId");
@@ -79,6 +80,22 @@ export async function POST(req: NextRequest) {
       eventId: body.eventId,
     },
   });
+
+  // Send confirmation email with badge (non-blocking)
+  const eventDate = event.date.toLocaleDateString("en-US", {
+    year: "numeric", month: "long", day: "numeric",
+  });
+  const emailHtml = buildBadgeEmail(
+    `${subscriber.firstName} ${subscriber.lastName}`,
+    event.title,
+    badgeCode,
+    qrData
+  );
+  sendEmail({
+    to: subscriber.email,
+    subject: `Your badge for ${event.title} is ready!`,
+    html: emailHtml,
+  }).catch(() => {}); // Don't fail registration if email fails
 
   return NextResponse.json(
     { ...subscriber, badgeCode },

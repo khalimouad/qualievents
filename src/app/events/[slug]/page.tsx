@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Calendar, Users, MapPin, Clock, ArrowRight, Sparkles, Globe, Zap } from "lucide-react";
+import { Calendar, Users, MapPin, Clock, ArrowRight, Sparkles, Globe, Zap, CalendarPlus } from "lucide-react";
+import { googleCalendarUrl } from "@/lib/calendar";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CountdownTimer from "@/components/CountdownTimer";
@@ -13,11 +14,27 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const event = await prisma.event.findUnique({ where: { slug }, select: { title: true, tagline: true, description: true } });
+  const event = await prisma.event.findUnique({
+    where: { slug },
+    select: { title: true, tagline: true, description: true, venue: true, city: true, date: true },
+  });
   if (!event) return { title: "Event Not Found" };
+  const description = event.tagline || event.description.slice(0, 160);
+  const dateStr = new Date(event.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
   return {
     title: `${event.title} - QualiEvents`,
-    description: event.tagline || event.description.slice(0, 160),
+    description,
+    openGraph: {
+      title: event.title,
+      description: `${dateStr} — ${event.venue}, ${event.city}. ${description}`,
+      type: "website",
+      siteName: "QualiEvents",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: event.title,
+      description: `${dateStr} — ${event.venue}, ${event.city}`,
+    },
   };
 }
 
@@ -46,6 +63,8 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
 
   const registerUrl = `/events/${slug}/register`;
   const badgeUrl = `/events/${slug}/badge`;
+  const calendarIcsUrl = `/api/events/${slug}/calendar`;
+  const googleCalUrl = googleCalendarUrl(event);
 
   return (
     <>
@@ -106,6 +125,25 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
               <Sparkles className="w-4 h-4" /> Register Now <ArrowRight className="w-4 h-4" />
             </Link>
             <a href="#about" className="btn-secondary px-9 py-4 text-base inline-flex items-center justify-center">Learn More</a>
+          </div>
+
+          {/* Add to Calendar */}
+          <div className="mt-6 flex items-center justify-center gap-3 animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.6s" }}>
+            <a
+              href={calendarIcsUrl}
+              className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm transition-colors"
+            >
+              <CalendarPlus className="w-4 h-4" /> Download .ics
+            </a>
+            <span className="text-gray-600">|</span>
+            <a
+              href={googleCalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm transition-colors"
+            >
+              <Calendar className="w-4 h-4" /> Google Calendar
+            </a>
           </div>
         </div>
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-fade-in" style={{ animationDelay: "1.5s", opacity: 0, animationFillMode: "forwards" }}>
