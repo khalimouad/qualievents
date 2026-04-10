@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { Users, UserCheck, QrCode, Mail, Calendar, TrendingUp, Plus, ArrowUpRight, ExternalLink } from "lucide-react";
+import { Users, UserCheck, QrCode, Mail, Calendar, TrendingUp, Plus, ArrowUpRight, ExternalLink, Pencil } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -104,6 +104,9 @@ export default async function AdminDashboard() {
                     </Link>
                   )}
                   <div className="flex-1" />
+                  <Link href={`/admin/events/${event.slug}/edit`} className="flex items-center gap-1 text-xs text-muted hover:text-primary font-medium transition-colors">
+                    <Pencil className="w-3 h-3" /> Edit
+                  </Link>
                   <Link href={`/admin/subscribers?eventId=${event.id}`} className="text-xs text-muted hover:text-secondary font-medium transition-colors">Subscribers</Link>
                   <Link href={`/admin/panelists?eventId=${event.id}`} className="text-xs text-muted hover:text-secondary font-medium transition-colors">Speakers</Link>
                 </div>

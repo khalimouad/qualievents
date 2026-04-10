@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Users, Search, Download, QrCode, Filter } from "lucide-react";
+import { Users, Search, Download, QrCode, Filter, Trash2 } from "lucide-react";
 
 interface Subscriber {
   id: string;
@@ -23,9 +23,17 @@ export default function SubscribersPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const load = () => {
     fetch("/api/subscribers").then((r) => r.json()).then((data) => { setSubscribers(data); setLoading(false); });
-  }, []);
+  };
+
+  const remove = async (id: string) => {
+    if (!confirm("Remove this subscriber? Their badge will also be deleted.")) return;
+    await fetch(`/api/subscribers?id=${id}`, { method: "DELETE" });
+    load();
+  };
+
+  useEffect(() => { load(); }, []);
 
   const filtered = subscribers.filter((s) => {
     const matchesSearch = `${s.firstName} ${s.lastName} ${s.email} ${s.company || ""}`.toLowerCase().includes(search.toLowerCase());
@@ -93,11 +101,12 @@ export default function SubscribersPage() {
                   <th className="px-5 py-3.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">Status</th>
                   <th className="px-5 py-3.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">Badge</th>
                   <th className="px-5 py-3.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider hidden lg:table-cell">Registered</th>
+                  <th className="px-5 py-3.5 w-10"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {filtered.map((sub) => (
-                  <tr key={sub.id} className="hover:bg-gray-50/50 transition-colors">
+                  <tr key={sub.id} className="hover:bg-gray-50/50 transition-colors group">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0">
@@ -130,6 +139,9 @@ export default function SubscribersPage() {
                       ) : <span className="text-gray-300 text-xs">&mdash;</span>}
                     </td>
                     <td className="px-5 py-3.5 text-xs text-muted hidden lg:table-cell">{new Date(sub.createdAt).toLocaleDateString()}</td>
+                    <td className="px-5 py-3.5">
+                      <button onClick={() => remove(sub.id)} className="text-gray-300 hover:text-danger opacity-0 group-hover:opacity-100 transition-all"><Trash2 className="w-3.5 h-3.5" /></button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

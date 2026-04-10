@@ -57,3 +57,18 @@ export async function PUT(
 
   return NextResponse.json(updated);
 }
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ slug: string }> }
+) {
+  const { slug } = await params;
+
+  const event = await prisma.event.findUnique({ where: { slug } });
+  if (!event) {
+    return NextResponse.json({ error: "Event not found" }, { status: 404 });
+  }
+
+  await prisma.event.delete({ where: { slug } });
+  return NextResponse.json({ success: true });
+}

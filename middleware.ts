@@ -74,10 +74,11 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Invitations, newsletters, panelists: admin only
+  // Invitations, newsletters, panelists, sponsors: admin only
   if (pathname.startsWith("/api/invitations") ||
       pathname.startsWith("/api/newsletters") ||
-      pathname.startsWith("/api/panelists")) {
+      pathname.startsWith("/api/panelists") ||
+      pathname.startsWith("/api/sponsors")) {
     const session = verifySession(req);
     if (!session || session.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -101,6 +102,7 @@ export const config = {
   matcher: [
     "/admin/:path*",
     "/scan/:path*",
+    "/api/sponsors/:path*",
     "/api/subscribers/:path*",
     "/api/invitations/:path*",
     "/api/newsletters/:path*",

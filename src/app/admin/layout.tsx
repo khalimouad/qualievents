@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard, Users, UserCheck, Mail, Send, QrCode, ArrowLeft, ChevronRight,
+  LayoutDashboard, Users, UserCheck, Mail, Send, QrCode, ArrowLeft, ChevronRight, Award, LogOut,
 } from "lucide-react";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/subscribers", label: "Subscribers", icon: Users },
   { href: "/admin/panelists", label: "Panelists", icon: UserCheck },
+  { href: "/admin/sponsors", label: "Sponsors", icon: Award },
   { href: "/admin/invitations", label: "Invitations", icon: Send },
   { href: "/admin/newsletters", label: "Newsletters", icon: Mail },
   { href: "/scan", label: "Scanner App", icon: QrCode },
@@ -61,12 +62,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        {/* Back to site */}
-        <div className="p-4 border-t border-gray-100">
+        {/* Footer */}
+        <div className="p-4 border-t border-gray-100 space-y-2">
           <Link href="/" className="flex items-center gap-2 text-muted hover:text-secondary text-sm transition-colors group">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
             Back to Website
           </Link>
+          <button
+            onClick={() => { fetch("/api/auth", { method: "DELETE" }).then(() => window.location.href = "/admin/login"); }}
+            className="flex items-center gap-2 text-muted hover:text-danger text-sm transition-colors w-full"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </button>
         </div>
       </aside>
 

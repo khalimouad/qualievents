@@ -18,6 +18,13 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(subscribers);
 }
 
+export async function DELETE(req: NextRequest) {
+  const id = req.nextUrl.searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "ID required" }, { status: 400 });
+  await prisma.subscriber.delete({ where: { id } });
+  return NextResponse.json({ success: true });
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json();
 
@@ -47,11 +54,10 @@ export async function POST(req: NextRequest) {
   if (!event) {
     return NextResponse.json({ error: "Event not found" }, { status: 404 });
   }
-  if (event._count.subscribers >= event.maxAttendees) {
-    return NextResponse.json({ error: "Event is at full capacity" }, { status: 400 });
-  }
+  const isAtCapacity = event._count.subscribers >= event.maxAttendees;
+  const status = isAtCapacity ? "waitlisted" : "confirmed";
 
-  // Create subscriber
+  // Create subscriber (waitlisted if at capacity)
   const subscriber = await prisma.subscriber.create({
     data: {
       firstName: body.firstName,
@@ -61,10 +67,17 @@ export async function POST(req: NextRequest) {
       company: body.company || null,
       jobTitle: body.jobTitle || null,
       dietaryReqs: body.dietaryReqs || null,
-      status: "confirmed",
+      status,
       eventId: body.eventId,
     },
   });
+
+  if (isAtCapacity) {
+    return NextResponse.json(
+      { ...subscriber, waitlisted: true, message: "Event is at capacity. You've been added to the waitlist." },
+      { status: 201 }
+    );
+  }
 
   // Generate badge
   const badgeCode = generateBadgeCode();

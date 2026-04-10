@@ -34,6 +34,18 @@ export async function GET(req: NextRequest) {
   });
 }
 
+export async function PATCH(req: NextRequest) {
+  const { code } = await req.json();
+  if (!code) return NextResponse.json({ error: "Badge code required" }, { status: 400 });
+
+  const badge = await prisma.badge.findUnique({ where: { code: code.toUpperCase() } });
+  if (!badge) return NextResponse.json({ error: "Badge not found" }, { status: 404 });
+  if (!badge.isScanned) return NextResponse.json({ error: "Badge was not scanned" }, { status: 400 });
+
+  await prisma.badge.update({ where: { id: badge.id }, data: { isScanned: false, scannedAt: null } });
+  return NextResponse.json({ success: true, message: "Check-in reversed" });
+}
+
 export async function POST(req: NextRequest) {
   const { code } = await req.json();
   if (!code) {
