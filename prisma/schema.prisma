@@ -123,3 +123,12 @@ model Sponsor {
   event    Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
   sortOrder Int   @default(0)
 }
+
+model AdminUser {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         String   @default("staff") // admin, staff
+  createdAt    DateTime @default(now())
+}

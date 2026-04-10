@@ -1,19 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
+import { authenticateUser, generateSessionToken } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
-  const { password } = await req.json();
-  const adminPassword = process.env.ADMIN_PASSWORD;
+  const { email, password } = await req.json();
 
-  if (!adminPassword) {
-    return NextResponse.json({ error: "Admin password not configured" }, { status: 500 });
+  if (!email || !password) {
+    return NextResponse.json({ error: "Email and password required" }, { status: 400 });
   }
 
-  if (password !== adminPassword) {
-    return NextResponse.json({ error: "Invalid password" }, { status: 401 });
+  const user = await authenticateUser(email, password);
+  if (!user) {
+    return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
   }
 
-  const response = NextResponse.json({ success: true });
-  response.cookies.set("admin_session", "authenticated", {
+  const token = generateSessionToken(user.id, user.role);
+
+  const response = NextResponse.json({
+    success: true,
+    user: { name: user.name, email: user.email, role: user.role },
+  });
+
+  response.cookies.set("admin_session", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

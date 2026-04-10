@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -116,11 +117,35 @@ async function main() {
     },
   });
 
+  // ---------- Admin Users ----------
+  const adminHash = await bcrypt.hash("admin123", 12);
+  const staffHash = await bcrypt.hash("staff123", 12);
+
+  await prisma.adminUser.create({
+    data: {
+      email: "admin@qualievents.com",
+      name: "Admin User",
+      passwordHash: adminHash,
+      role: "admin",
+    },
+  });
+
+  await prisma.adminUser.create({
+    data: {
+      email: "staff@qualievents.com",
+      name: "Staff Scanner",
+      passwordHash: staffHash,
+      role: "staff",
+    },
+  });
+
   console.log(`Seeded: ${summit.title} (${summit.slug}) - published`);
   console.log(`Seeded: ${design.title} (${design.slug}) - published`);
   console.log(`Seeded: ${startup.title} (${startup.slug}) - draft`);
   console.log(`Seeded ${summitPanelists.length + designPanelists.length} panelists`);
   console.log(`Seeded ${summitSponsors.length + designSponsors.length} sponsors`);
+  console.log("Seeded admin user: admin@qualievents.com / admin123 (role: admin)");
+  console.log("Seeded staff user: staff@qualievents.com / staff123 (role: staff)");
 }
 
 main()
