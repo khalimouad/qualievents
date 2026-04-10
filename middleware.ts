@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 
-const TOKEN_SECRET = process.env.ADMIN_PASSWORD || "qualievents-secret-key";
+const SESSION_SECRET = process.env.SESSION_SECRET || "fallback-dev-secret-change-me";
 
 function verifySession(req: NextRequest): { userId: string; role: string } | null {
   const token = req.cookies.get("admin_session")?.value;
@@ -14,7 +14,7 @@ function verifySession(req: NextRequest): { userId: string; role: string } | nul
 
     const [userId, role, timestamp, hmac] = parts;
     const payload = `${userId}:${role}:${timestamp}`;
-    const expectedHmac = crypto.createHmac("sha256", TOKEN_SECRET).update(payload).digest("hex");
+    const expectedHmac = crypto.createHmac("sha256", SESSION_SECRET).update(payload).digest("hex");
 
     if (hmac !== expectedHmac) return null;
 

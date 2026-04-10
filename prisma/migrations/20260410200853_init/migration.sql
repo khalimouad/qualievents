@@ -1,7 +1,19 @@
 -- CreateTable
+CREATE TABLE "Organization" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "plan" TEXT NOT NULL DEFAULT 'free',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+);
+
+-- CreateTable
 CREATE TABLE "Event" (
     "id" TEXT NOT NULL PRIMARY KEY,
+    "slug" TEXT NOT NULL,
     "title" TEXT NOT NULL,
+    "tagline" TEXT,
     "description" TEXT NOT NULL,
     "date" DATETIME NOT NULL,
     "endDate" DATETIME,
@@ -12,10 +24,13 @@ CREATE TABLE "Event" (
     "latitude" REAL,
     "longitude" REAL,
     "heroImage" TEXT,
+    "themeColor" TEXT,
     "maxAttendees" INTEGER NOT NULL DEFAULT 500,
     "isPublished" BOOLEAN NOT NULL DEFAULT false,
+    "orgId" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Event_orgId_fkey" FOREIGN KEY ("orgId") REFERENCES "Organization" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -109,6 +124,24 @@ CREATE TABLE "Sponsor" (
     CONSTRAINT "Sponsor_eventId_fkey" FOREIGN KEY ("eventId") REFERENCES "Event" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+-- CreateTable
+CREATE TABLE "AdminUser" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "email" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "passwordHash" TEXT NOT NULL,
+    "role" TEXT NOT NULL DEFAULT 'staff',
+    "orgId" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "AdminUser_orgId_fkey" FOREIGN KEY ("orgId") REFERENCES "Organization" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Organization_slug_key" ON "Organization"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Event_slug_key" ON "Event"("slug");
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Subscriber_email_eventId_key" ON "Subscriber"("email", "eventId");
 
@@ -117,3 +150,6 @@ CREATE UNIQUE INDEX "Badge_code_key" ON "Badge"("code");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Badge_subscriberId_key" ON "Badge"("subscriberId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AdminUser_email_key" ON "AdminUser"("email");

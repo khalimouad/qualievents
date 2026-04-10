@@ -7,6 +7,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  plan      String   @default("free") // free, pro, enterprise
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  events Event[]
+  users  AdminUser[]
+}
+
 model Event {
   id           String   @id @default(uuid())
   slug         String   @unique
@@ -25,6 +37,8 @@ model Event {
   themeColor   String?
   maxAttendees Int      @default(500)
   isPublished  Boolean  @default(false)
+  orgId        String?
+  org          Organization? @relation(fields: [orgId], references: [id])
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -130,5 +144,7 @@ model AdminUser {
   name         String
   passwordHash String
   role         String   @default("staff") // admin, staff
+  orgId        String?
+  org          Organization? @relation(fields: [orgId], references: [id])
   createdAt    DateTime @default(now())
 }
