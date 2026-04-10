@@ -76,6 +76,8 @@ export default function ScannerPage() {
 
   const dismissTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastScannedRef = useRef<string>("");
+  const barcodeBufferRef = useRef<string>("");
+  const barcodeTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Load event info
   useEffect(() => {
@@ -152,6 +154,40 @@ export default function ScannerPage() {
     [event, processing, refreshStats]
   );
 
+  // Global keyboard listener for hardware barcode scanners
+  // Hardware scanners "type" characters rapidly (<50ms gap) then press Enter
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if a text input is focused (manual mode handles its own input)
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+
+      if (e.key === "Enter") {
+        const raw = barcodeBufferRef.current.trim();
+        barcodeBufferRef.current = "";
+        if (barcodeTimerRef.current) clearTimeout(barcodeTimerRef.current);
+        if (raw.length >= 6) {
+          const code = extractBadgeCode(raw);
+          if (code) processScan(code);
+        }
+        return;
+      }
+
+      // Only collect printable single characters
+      if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        barcodeBufferRef.current += e.key;
+        // Reset buffer if no new character arrives within 100ms
+        if (barcodeTimerRef.current) clearTimeout(barcodeTimerRef.current);
+        barcodeTimerRef.current = setTimeout(() => {
+          barcodeBufferRef.current = "";
+        }, 100);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [processScan]);
+
   const dismissResult = () => {
     if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
     setResult(null);
@@ -217,7 +253,7 @@ export default function ScannerPage() {
             {event.title}
           </h1>
           <p className="text-[10px] text-gray-500 uppercase tracking-wider">
-            Scanner Active
+            Camera + Barcode Scanner Ready
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -277,6 +313,7 @@ export default function ScannerPage() {
             {/* Hint */}
             <div className="absolute bottom-6 left-0 right-0 text-center">
               <p className="text-white/60 text-sm">Point camera at a badge QR code</p>
+              <p className="text-white/30 text-xs mt-1">Hardware barcode scanner also supported</p>
             </div>
           </div>
         )}
