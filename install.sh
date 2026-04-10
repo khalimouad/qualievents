@@ -37,6 +37,10 @@ print_info() {
   echo -e "  ${BLUE}→${NC} $1"
 }
 
+print_warn() {
+  echo -e "  ${YELLOW}!${NC} $1"
+}
+
 prompt_with_default() {
   local prompt="$1"
   local default="$2"
@@ -92,10 +96,106 @@ check_prerequisites() {
   print_success "Node.js $(node -v) and npm $(npm -v) found"
 }
 
+# ─── SSL Setup ───
+setup_ssl() {
+  local domain="$1"
+  local email="$2"
+
+  echo ""
+  print_info "Installing Nginx and Certbot..."
+
+  # Detect package manager
+  if command -v apt-get &>/dev/null; then
+    sudo apt-get update -qq
+    sudo apt-get install -y -qq nginx certbot python3-certbot-nginx >/dev/null 2>&1
+  elif command -v yum &>/dev/null; then
+    sudo yum install -y -q nginx certbot python3-certbot-nginx >/dev/null 2>&1
+  elif command -v dnf &>/dev/null; then
+    sudo dnf install -y -q nginx certbot python3-certbot-nginx >/dev/null 2>&1
+  else
+    print_warn "Could not detect package manager. Install nginx and certbot manually."
+    return 1
+  fi
+  print_success "Nginx and Certbot installed"
+
+  # Write Nginx config
+  print_info "Configuring Nginx reverse proxy..."
+  sudo tee /etc/nginx/sites-available/qualievents >/dev/null << NGINXEOF
+server {
+    listen 80;
+    server_name $domain;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_cache_bypass \$http_upgrade;
+        proxy_read_timeout 86400;
+    }
+}
+NGINXEOF
+
+  # Enable site
+  sudo ln -sf /etc/nginx/sites-available/qualievents /etc/nginx/sites-enabled/
+  sudo rm -f /etc/nginx/sites-enabled/default 2>/dev/null
+  sudo nginx -t >/dev/null 2>&1
+  sudo systemctl reload nginx
+  print_success "Nginx configured for $domain"
+
+  # Get SSL certificate
+  print_info "Obtaining SSL certificate from Let's Encrypt..."
+  sudo certbot --nginx -d "$domain" --non-interactive --agree-tos -m "$email" --redirect 2>&1 | tail -5
+  print_success "SSL certificate installed for $domain"
+
+  # Auto-renewal
+  sudo systemctl enable certbot.timer 2>/dev/null || true
+  print_success "Auto-renewal enabled"
+
+  return 0
+}
+
+# ─── Create systemd service ───
+create_service() {
+  local app_dir="$(pwd)"
+  local node_path="$(which node)"
+
+  print_info "Creating systemd service..."
+  sudo tee /etc/systemd/system/qualievents.service >/dev/null << SVCEOF
+[Unit]
+Description=QualiEvents Application
+After=network.target
+
+[Service]
+Type=simple
+User=$(whoami)
+WorkingDirectory=$app_dir
+ExecStart=$node_path $app_dir/node_modules/.bin/next start -p 3000
+Restart=on-failure
+RestartSec=10
+Environment=NODE_ENV=production
+EnvironmentFile=$app_dir/.env
+
+[Install]
+WantedBy=multi-user.target
+SVCEOF
+
+  sudo systemctl daemon-reload
+  sudo systemctl enable qualievents
+  print_success "Systemd service created (qualievents.service)"
+}
+
 # ─── MAIN ───
 print_banner
 
-TOTAL_STEPS=7
+TOTAL_STEPS=8
+SETUP_SSL="n"
+SETUP_DOMAIN=""
+APP_PORT=3000
 
 # Step 1: Choose mode
 print_step 1 "Deployment Mode"
@@ -124,7 +224,6 @@ fi
 # Step 2: Organization
 print_step 2 "Organization"
 prompt_with_default "Organization name" "My Company" ORG_NAME
-# Generate slug from name
 DEFAULT_SLUG=$(echo "$ORG_NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//' | sed 's/-$//')
 prompt_with_default "Organization slug (URL-safe)" "$DEFAULT_SLUG" ORG_SLUG
 print_success "Organization: $ORG_NAME ($ORG_SLUG)"
@@ -176,14 +275,40 @@ else
   print_info "Email skipped. Configure SMTP_* in .env later."
 fi
 
-# Step 6: App URL
-print_step 6 "Application URL"
-if [ "$DEPLOY_MODE" = "saas" ]; then
-  DEFAULT_URL="https://${ORG_SLUG}.qualievents.com"
+# Step 6: Domain & SSL (optional)
+print_step 6 "Domain & SSL (Optional)"
+echo ""
+echo -e "  ${DIM}Set up a custom domain with free SSL via Let's Encrypt.${NC}"
+echo -e "  ${DIM}Requires: a domain pointing to this server + sudo access.${NC}"
+echo -e "  ${DIM}Skip this to use localhost or configure later.${NC}"
+echo ""
+read -rp "  Configure domain & SSL? (y/n) [n]: " setup_domain_choice
+setup_domain_choice="${setup_domain_choice:-n}"
+
+if [ "$setup_domain_choice" = "y" ] || [ "$setup_domain_choice" = "Y" ]; then
+  SETUP_SSL="y"
+  prompt_with_default "Domain name" "events.${ORG_SLUG}.com" SETUP_DOMAIN
+  prompt_with_default "Email for SSL certificate" "$ADMIN_EMAIL" SSL_EMAIL
+  APP_URL="https://$SETUP_DOMAIN"
+  print_success "Domain: $SETUP_DOMAIN (SSL via Let's Encrypt)"
 else
-  DEFAULT_URL="http://localhost:3000"
+  SETUP_DOMAIN=""
+  APP_URL="http://localhost:3000"
+  print_info "Domain skipped. Using localhost:3000"
 fi
-prompt_with_default "App URL" "$DEFAULT_URL" APP_URL
+
+# Step 7: Final options
+print_step 7 "Final Options"
+
+# Custom app URL override (only if no domain was set)
+if [ -z "$SETUP_DOMAIN" ]; then
+  if [ "$DEPLOY_MODE" = "saas" ]; then
+    DEFAULT_URL="https://${ORG_SLUG}.qualievents.com"
+  else
+    DEFAULT_URL="http://localhost:3000"
+  fi
+  prompt_with_default "App URL" "$DEFAULT_URL" APP_URL
+fi
 print_success "URL: $APP_URL"
 
 # Seed demo data?
@@ -192,12 +317,14 @@ read -rp "  Include demo events and sample data? (y/n) [y]: " seed_demo
 seed_demo="${seed_demo:-y}"
 if [ "$seed_demo" = "y" ] || [ "$seed_demo" = "Y" ]; then
   SEED_DEMO_DATA="true"
+  print_success "Demo data will be included"
 else
   SEED_DEMO_DATA="false"
+  print_info "Clean install (no demo data)"
 fi
 
-# Step 7: Install
-print_step 7 "Installing"
+# Step 8: Install
+print_step 8 "Installing"
 
 # Generate session secret
 SESSION_SECRET=$(openssl rand -hex 32 2>/dev/null || node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
@@ -211,12 +338,13 @@ fi
 
 # Write .env
 cat > .env << ENVEOF
+# ============================================
 # QualiEvents Configuration
 # Generated by install.sh on $(date)
 # Mode: $DEPLOY_MODE
+# ============================================
 
 DEPLOY_MODE="$DEPLOY_MODE"
-DB_PROVIDER="$DB_PROVIDER"
 DATABASE_URL="$DATABASE_URL"
 NEXT_PUBLIC_APP_URL="$APP_URL"
 SESSION_SECRET="$SESSION_SECRET"
@@ -229,6 +357,9 @@ ORG_SLUG="$ORG_SLUG"
 ADMIN_EMAIL="$ADMIN_EMAIL"
 ADMIN_PASS="$ADMIN_PASS"
 ADMIN_NAME="$ADMIN_NAME"
+
+# Domain & SSL
+DOMAIN="$SETUP_DOMAIN"
 
 # Email (SMTP)
 SMTP_HOST="$SMTP_HOST"
@@ -276,6 +407,39 @@ print_info "Building application..."
 npm run build 2>&1 | tail -3
 print_success "Application built"
 
+# SSL & Nginx setup (if chosen)
+if [ "$SETUP_SSL" = "y" ] && [ -n "$SETUP_DOMAIN" ]; then
+  echo ""
+  print_info "Setting up domain & SSL..."
+
+  # Check if running as root or has sudo
+  if [ "$EUID" -ne 0 ] && ! sudo -n true 2>/dev/null; then
+    echo ""
+    print_warn "SSL setup requires sudo access."
+    read -rp "  Continue with SSL setup? (will prompt for sudo password) (y/n) [y]: " ssl_continue
+    ssl_continue="${ssl_continue:-y}"
+    if [ "$ssl_continue" != "y" ] && [ "$ssl_continue" != "Y" ]; then
+      print_info "SSL setup skipped. You can set it up manually later."
+      SETUP_SSL="n"
+    fi
+  fi
+
+  if [ "$SETUP_SSL" = "y" ]; then
+    if setup_ssl "$SETUP_DOMAIN" "$SSL_EMAIL"; then
+      print_success "SSL setup complete!"
+
+      # Create systemd service for auto-start
+      create_service
+    else
+      print_warn "SSL setup failed. App will still work on http://localhost:3000"
+      print_info "To set up SSL manually later:"
+      echo -e "    ${DIM}1. Install nginx and certbot${NC}"
+      echo -e "    ${DIM}2. Point your domain to this server's IP${NC}"
+      echo -e "    ${DIM}3. Run: sudo certbot --nginx -d $SETUP_DOMAIN${NC}"
+    fi
+  fi
+fi
+
 # ─── Summary ───
 echo ""
 echo -e "${GREEN}${BOLD}  ╔═══════════════════════════════════════╗${NC}"
@@ -285,7 +449,13 @@ echo ""
 echo -e "  ${BOLD}Mode:${NC}          $( [ "$DEPLOY_MODE" = "saas" ] && echo -e "${BLUE}SaaS (Multi-tenant)${NC}" || echo -e "${GREEN}On-Premise${NC}" )"
 echo -e "  ${BOLD}Organization:${NC}  $ORG_NAME"
 echo -e "  ${BOLD}Database:${NC}      $( [ "$DB_PROVIDER" = "postgresql" ] && echo "PostgreSQL" || echo "SQLite" )"
-echo -e "  ${BOLD}URL:${NC}           $APP_URL"
+echo -e "  ${BOLD}URL:${NC}           ${CYAN}$APP_URL${NC}"
+
+if [ -n "$SETUP_DOMAIN" ] && [ "$SETUP_SSL" = "y" ]; then
+  echo -e "  ${BOLD}Domain:${NC}        ${CYAN}$SETUP_DOMAIN${NC}"
+  echo -e "  ${BOLD}SSL:${NC}           ${GREEN}Let's Encrypt (auto-renewal)${NC}"
+fi
+
 echo ""
 echo -e "  ${BOLD}Admin Login:${NC}"
 echo -e "  Email:    ${CYAN}$ADMIN_EMAIL${NC}"
@@ -298,11 +468,29 @@ if [ "$SEED_DEMO_DATA" = "true" ]; then
   echo ""
 fi
 echo -e "  ${BOLD}Quick Start:${NC}"
-echo -e "  ${CYAN}npm run dev${NC}        Start development server"
-echo -e "  ${CYAN}npm start${NC}          Start production server"
+if [ -n "$SETUP_DOMAIN" ] && [ "$SETUP_SSL" = "y" ]; then
+  echo -e "  ${CYAN}sudo systemctl start qualievents${NC}   Start the app"
+  echo -e "  ${CYAN}sudo systemctl status qualievents${NC}  Check status"
+  echo -e "  ${CYAN}sudo systemctl stop qualievents${NC}    Stop the app"
+else
+  echo -e "  ${CYAN}npm run dev${NC}        Start development server"
+  echo -e "  ${CYAN}npm start${NC}          Start production server"
+fi
 echo ""
 echo -e "  ${BOLD}URLs:${NC}"
 echo -e "  Home:     ${CYAN}$APP_URL${NC}"
 echo -e "  Admin:    ${CYAN}$APP_URL/admin${NC}"
 echo -e "  Scanner:  ${CYAN}$APP_URL/scan${NC}"
+echo ""
+
+if [ -n "$SETUP_DOMAIN" ] && [ "$SETUP_SSL" = "y" ]; then
+  echo -e "  ${BOLD}SSL Certificate:${NC}"
+  echo -e "  ${DIM}Renews automatically via certbot.timer${NC}"
+  echo -e "  ${DIM}Check: sudo certbot certificates${NC}"
+  echo -e "  ${DIM}Manual renew: sudo certbot renew${NC}"
+  echo ""
+fi
+
+echo -e "  ${DIM}Config file: .env${NC}"
+echo -e "  ${DIM}Reinstall:   bash install.sh${NC}"
 echo ""
