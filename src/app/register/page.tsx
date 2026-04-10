@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Check, User, Briefcase, Utensils } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, User, Briefcase, Utensils, Calendar, Sparkles, PartyPopper } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 interface EventOption {
@@ -20,31 +20,17 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({
-    eventId: "",
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    company: "",
-    jobTitle: "",
-    dietaryReqs: "",
+    eventId: "", firstName: "", lastName: "", email: "", phone: "", company: "", jobTitle: "", dietaryReqs: "",
   });
 
   useEffect(() => {
-    fetch("/api/events")
-      .then((r) => r.json())
-      .then((data) => {
-        setEvents(data);
-        if (data.length === 1) {
-          setForm((f) => ({ ...f, eventId: data[0].id }));
-        }
-      });
+    fetch("/api/events").then((r) => r.json()).then((data) => {
+      setEvents(data);
+      if (data.length === 1) setForm((f) => ({ ...f, eventId: data[0].id }));
+    });
   }, []);
 
-  const updateForm = (field: string, value: string) => {
-    setForm((f) => ({ ...f, [field]: value }));
-    setError("");
-  };
+  const updateForm = (field: string, value: string) => { setForm((f) => ({ ...f, [field]: value })); setError(""); };
 
   const validateStep = () => {
     if (step === 1 && !form.eventId) return "Please select an event";
@@ -57,59 +43,41 @@ export default function RegisterPage() {
     return "";
   };
 
-  const nextStep = () => {
-    const err = validateStep();
-    if (err) {
-      setError(err);
-      return;
-    }
-    setStep((s) => s + 1);
-  };
+  const nextStep = () => { const err = validateStep(); if (err) { setError(err); return; } setStep((s) => s + 1); };
 
   const submit = async () => {
-    setLoading(true);
-    setError("");
+    setLoading(true); setError("");
     try {
-      const res = await fetch("/api/subscribers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+      const res = await fetch("/api/subscribers", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Registration failed");
       setSuccess(true);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Registration failed");
-    } finally {
-      setLoading(false);
-    }
+    } catch (e) { setError(e instanceof Error ? e.message : "Registration failed"); }
+    finally { setLoading(false); }
   };
 
   if (success) {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 pt-16">
-          <div className="max-w-md w-full mx-4">
-            <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Check className="w-10 h-10 text-green-600" />
+        <div className="min-h-screen flex items-center justify-center bg-background pt-16">
+          <div className="max-w-md w-full mx-4 animate-scale-in">
+            <div className="bg-white rounded-[24px] shadow-xl p-10 text-center border border-gray-100">
+              <div className="relative w-24 h-24 mx-auto mb-8">
+                <div className="absolute inset-0 rounded-full bg-success/10 animate-ping" style={{ animationDuration: "2s" }} />
+                <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-success to-emerald-600 flex items-center justify-center shadow-lg shadow-success/30">
+                  <PartyPopper className="w-10 h-10 text-white" />
+                </div>
               </div>
-              <h1 className="text-2xl font-bold text-secondary mb-4">Registration Successful!</h1>
-              <p className="text-gray-600 mb-6">
-                Thank you for registering. You will receive a confirmation email shortly with your badge details.
+              <h1 className="text-2xl font-bold text-secondary mb-3">You&apos;re In!</h1>
+              <p className="text-muted mb-8 leading-relaxed">
+                Registration successful. Check your email for a confirmation and your badge details.
               </p>
               <div className="space-y-3">
-                <Link
-                  href="/badge"
-                  className="block w-full bg-primary hover:bg-primary-dark text-white py-3 rounded-xl font-medium transition"
-                >
+                <Link href="/badge" className="btn-primary w-full py-3.5 text-center block text-sm">
                   Get Your Badge
                 </Link>
-                <Link
-                  href="/"
-                  className="block w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-medium transition"
-                >
+                <Link href="/" className="block w-full bg-gray-50 hover:bg-gray-100 text-gray-600 py-3.5 rounded-[10px] text-sm font-medium transition-colors">
                   Back to Home
                 </Link>
               </div>
@@ -121,237 +89,190 @@ export default function RegisterPage() {
   }
 
   const steps = [
-    { num: 1, label: "Event", icon: <User className="w-4 h-4" /> },
+    { num: 1, label: "Event", icon: <Calendar className="w-4 h-4" /> },
     { num: 2, label: "Personal", icon: <User className="w-4 h-4" /> },
     { num: 3, label: "Professional", icon: <Briefcase className="w-4 h-4" /> },
-    { num: 4, label: "Preferences", icon: <Utensils className="w-4 h-4" /> },
+    { num: 4, label: "Confirm", icon: <Check className="w-4 h-4" /> },
   ];
 
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gray-50 pt-24 pb-12">
+      <div className="min-h-screen bg-background pt-24 pb-16">
         <div className="max-w-2xl mx-auto px-4">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-secondary mb-2">Register for the Event</h1>
-            <p className="text-gray-600">Fill in the form below to secure your spot</p>
+          {/* Header */}
+          <div className="text-center mb-10">
+            <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">Secure Your Spot</span>
+            <h1 className="text-3xl sm:text-4xl font-bold text-secondary mt-2 mb-2">Register for the Event</h1>
+            <p className="text-muted">Complete the steps below to confirm your attendance</p>
           </div>
 
           {/* Step indicator */}
-          <div className="flex items-center justify-center mb-8">
+          <div className="flex items-center justify-center mb-10">
             {steps.map((s, i) => (
               <div key={s.num} className="flex items-center">
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition ${
-                    step >= s.num
-                      ? "bg-primary text-white"
-                      : "bg-gray-200 text-gray-500"
-                  }`}
-                >
-                  {step > s.num ? <Check className="w-5 h-5" /> : s.num}
+                <div className="flex flex-col items-center gap-1.5">
+                  <div
+                    className={`w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold transition-all duration-300 ${
+                      step > s.num
+                        ? "bg-success text-white shadow-md shadow-success/20"
+                        : step === s.num
+                        ? "bg-gradient-to-br from-primary to-primary-dark text-white shadow-lg shadow-primary/25"
+                        : "bg-gray-100 text-gray-400"
+                    }`}
+                  >
+                    {step > s.num ? <Check className="w-5 h-5" /> : s.icon}
+                  </div>
+                  <span className={`text-[10px] font-medium uppercase tracking-wider ${step >= s.num ? "text-secondary" : "text-gray-400"}`}>
+                    {s.label}
+                  </span>
                 </div>
                 {i < steps.length - 1 && (
-                  <div
-                    className={`w-12 sm:w-20 h-1 mx-1 rounded ${
-                      step > s.num ? "bg-primary" : "bg-gray-200"
-                    }`}
-                  />
+                  <div className={`w-10 sm:w-16 h-0.5 mx-2 rounded-full transition-colors duration-500 -mt-5 ${step > s.num ? "bg-success" : "bg-gray-200"}`} />
                 )}
               </div>
             ))}
           </div>
 
-          <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+          {/* Form card */}
+          <div className="bg-white rounded-[24px] shadow-lg p-7 sm:p-10 border border-gray-100">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6">
+              <div className="bg-red-50 border border-red-100 text-red-600 px-5 py-3.5 rounded-xl mb-6 text-sm font-medium flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
                 {error}
               </div>
             )}
 
             {/* Step 1: Select Event */}
             {step === 1 && (
-              <div>
-                <h2 className="text-xl font-bold text-secondary mb-6">Select an Event</h2>
+              <div className="animate-fade-in">
+                <h2 className="text-xl font-bold text-secondary mb-2">Choose Your Event</h2>
+                <p className="text-muted text-sm mb-6">Select the event you want to attend</p>
                 <div className="space-y-3">
                   {events.map((ev) => (
                     <label
                       key={ev.id}
-                      className={`block p-4 border-2 rounded-xl cursor-pointer transition ${
+                      className={`block p-5 border-2 rounded-2xl cursor-pointer transition-all duration-300 ${
                         form.eventId === ev.id
-                          ? "border-primary bg-primary/5"
-                          : "border-gray-200 hover:border-gray-300"
+                          ? "border-primary bg-primary/[0.03] shadow-sm shadow-primary/10"
+                          : "border-gray-100 hover:border-gray-200 hover:bg-gray-50/50"
                       }`}
                     >
-                      <input
-                        type="radio"
-                        name="event"
-                        value={ev.id}
-                        checked={form.eventId === ev.id}
-                        onChange={(e) => updateForm("eventId", e.target.value)}
-                        className="sr-only"
-                      />
-                      <div className="font-bold text-secondary">{ev.title}</div>
-                      <div className="text-sm text-gray-500 mt-1">
-                        {new Date(ev.date).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}{" "}
-                        - {ev.venue}, {ev.city}
+                      <input type="radio" name="event" value={ev.id} checked={form.eventId === ev.id} onChange={(e) => updateForm("eventId", e.target.value)} className="sr-only" />
+                      <div className="flex items-center gap-4">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${form.eventId === ev.id ? "bg-primary text-white" : "bg-gray-100 text-gray-400"}`}>
+                          <Calendar className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <div className="font-bold text-secondary">{ev.title}</div>
+                          <div className="text-sm text-muted mt-0.5">
+                            {new Date(ev.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })} &middot; {ev.venue}, {ev.city}
+                          </div>
+                        </div>
                       </div>
                     </label>
                   ))}
-                  {events.length === 0 && (
-                    <p className="text-gray-500 text-center py-8">No events available for registration.</p>
-                  )}
+                  {events.length === 0 && <p className="text-muted text-center py-12">No events available for registration.</p>}
                 </div>
               </div>
             )}
 
             {/* Step 2: Personal Info */}
             {step === 2 && (
-              <div>
-                <h2 className="text-xl font-bold text-secondary mb-6">Personal Information</h2>
+              <div className="animate-fade-in">
+                <h2 className="text-xl font-bold text-secondary mb-2">Personal Details</h2>
+                <p className="text-muted text-sm mb-6">Tell us who you are</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      First Name *
-                    </label>
-                    <input
-                      type="text"
-                      value={form.firstName}
-                      onChange={(e) => updateForm("firstName", e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition"
-                      placeholder="John"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Last Name *
-                    </label>
-                    <input
-                      type="text"
-                      value={form.lastName}
-                      onChange={(e) => updateForm("lastName", e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition"
-                      placeholder="Doe"
-                    />
-                  </div>
+                  {[
+                    { label: "First Name", field: "firstName", required: true, placeholder: "John" },
+                    { label: "Last Name", field: "lastName", required: true, placeholder: "Doe" },
+                  ].map((f) => (
+                    <div key={f.field}>
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{f.label} {f.required && <span className="text-primary">*</span>}</label>
+                      <input type="text" value={form[f.field as keyof typeof form]} onChange={(e) => updateForm(f.field, e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm" placeholder={f.placeholder} />
+                    </div>
+                  ))}
                 </div>
                 <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={(e) => updateForm("email", e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition"
-                    placeholder="john@example.com"
-                  />
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Email <span className="text-primary">*</span></label>
+                  <input type="email" value={form.email} onChange={(e) => updateForm("email", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm" placeholder="john@example.com" />
                 </div>
                 <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                  <input
-                    type="tel"
-                    value={form.phone}
-                    onChange={(e) => updateForm("phone", e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition"
-                    placeholder="+33 6 12 34 56 78"
-                  />
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Phone</label>
+                  <input type="tel" value={form.phone} onChange={(e) => updateForm("phone", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm" placeholder="+33 6 12 34 56 78" />
                 </div>
               </div>
             )}
 
             {/* Step 3: Professional Info */}
             {step === 3 && (
-              <div>
-                <h2 className="text-xl font-bold text-secondary mb-6">Professional Information</h2>
+              <div className="animate-fade-in">
+                <h2 className="text-xl font-bold text-secondary mb-2">Professional Info</h2>
+                <p className="text-muted text-sm mb-6">Optional details about your work</p>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Company</label>
-                    <input
-                      type="text"
-                      value={form.company}
-                      onChange={(e) => updateForm("company", e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition"
-                      placeholder="Acme Inc."
-                    />
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Company</label>
+                    <input type="text" value={form.company} onChange={(e) => updateForm("company", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm" placeholder="Acme Inc." />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
-                    <input
-                      type="text"
-                      value={form.jobTitle}
-                      onChange={(e) => updateForm("jobTitle", e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition"
-                      placeholder="Software Engineer"
-                    />
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Job Title</label>
+                    <input type="text" value={form.jobTitle} onChange={(e) => updateForm("jobTitle", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm" placeholder="Software Engineer" />
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Step 4: Preferences */}
+            {/* Step 4: Confirm */}
             {step === 4 && (
-              <div>
-                <h2 className="text-xl font-bold text-secondary mb-6">Preferences</h2>
+              <div className="animate-fade-in">
+                <h2 className="text-xl font-bold text-secondary mb-2">Almost Done</h2>
+                <p className="text-muted text-sm mb-6">Review your information and confirm</p>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Dietary Requirements
-                  </label>
-                  <textarea
-                    value={form.dietaryReqs}
-                    onChange={(e) => updateForm("dietaryReqs", e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition resize-none"
-                    rows={3}
-                    placeholder="Any allergies or dietary restrictions..."
-                  />
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Dietary Requirements</label>
+                  <textarea value={form.dietaryReqs} onChange={(e) => updateForm("dietaryReqs", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm resize-none" rows={3} placeholder="Any allergies or dietary restrictions..." />
                 </div>
-
-                <div className="mt-6 bg-gray-50 rounded-xl p-4">
-                  <h3 className="font-bold text-secondary mb-3">Review Your Information</h3>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <span className="text-gray-500">Name:</span>
-                    <span className="font-medium">{form.firstName} {form.lastName}</span>
-                    <span className="text-gray-500">Email:</span>
-                    <span className="font-medium">{form.email}</span>
-                    {form.phone && (<><span className="text-gray-500">Phone:</span><span className="font-medium">{form.phone}</span></>)}
-                    {form.company && (<><span className="text-gray-500">Company:</span><span className="font-medium">{form.company}</span></>)}
-                    {form.jobTitle && (<><span className="text-gray-500">Job Title:</span><span className="font-medium">{form.jobTitle}</span></>)}
+                <div className="mt-6 bg-gray-50 rounded-2xl p-5 border border-gray-100">
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Summary</h3>
+                  <div className="space-y-2.5">
+                    {[
+                      { label: "Name", value: `${form.firstName} ${form.lastName}` },
+                      { label: "Email", value: form.email },
+                      ...(form.phone ? [{ label: "Phone", value: form.phone }] : []),
+                      ...(form.company ? [{ label: "Company", value: form.company }] : []),
+                      ...(form.jobTitle ? [{ label: "Role", value: form.jobTitle }] : []),
+                    ].map((item) => (
+                      <div key={item.label} className="flex justify-between text-sm">
+                        <span className="text-muted">{item.label}</span>
+                        <span className="font-medium text-secondary">{item.value}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
             )}
 
             {/* Navigation */}
-            <div className="flex justify-between mt-8">
+            <div className="flex items-center justify-between mt-10 pt-6 border-t border-gray-100">
               {step > 1 ? (
-                <button
-                  onClick={() => setStep((s) => s - 1)}
-                  className="flex items-center gap-2 text-gray-600 hover:text-gray-800 font-medium transition"
-                >
+                <button onClick={() => setStep((s) => s - 1)} className="flex items-center gap-2 text-muted hover:text-secondary font-medium transition-colors text-sm">
                   <ArrowLeft className="w-4 h-4" /> Back
                 </button>
               ) : (
-                <Link href="/" className="flex items-center gap-2 text-gray-600 hover:text-gray-800 font-medium transition">
+                <Link href="/" className="flex items-center gap-2 text-muted hover:text-secondary font-medium transition-colors text-sm">
                   <ArrowLeft className="w-4 h-4" /> Home
                 </Link>
               )}
-
               {step < 4 ? (
-                <button
-                  onClick={nextStep}
-                  className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-xl font-medium transition"
-                >
-                  Next <ArrowRight className="w-4 h-4" />
+                <button onClick={nextStep} className="btn-primary px-7 py-3 text-sm inline-flex items-center gap-2">
+                  Continue <ArrowRight className="w-4 h-4" />
                 </button>
               ) : (
-                <button
-                  onClick={submit}
-                  disabled={loading}
-                  className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-xl font-bold transition disabled:opacity-50"
-                >
-                  {loading ? "Registering..." : "Complete Registration"}
-                  {!loading && <Check className="w-5 h-5" />}
+                <button onClick={submit} disabled={loading} className="btn-primary px-8 py-3 text-sm inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                  {loading ? (
+                    <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Processing...</>
+                  ) : (
+                    <><Sparkles className="w-4 h-4" /> Complete Registration</>
+                  )}
                 </button>
               )}
             </div>

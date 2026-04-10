@@ -1,78 +1,113 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Sparkles } from "lucide-react";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const navLinks = [
+    { href: "#about", label: "About" },
+    { href: "#speakers", label: "Speakers" },
+    { href: "#location", label: "Location" },
+    { href: "#sponsors", label: "Sponsors" },
+  ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-secondary/95 backdrop-blur-sm border-b border-white/10">
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        scrolled
+          ? "glass-dark shadow-lg py-2"
+          : "bg-transparent py-4"
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">Q</span>
+        <div className="flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="relative">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow duration-300">
+                <span className="text-white font-bold text-lg">Q</span>
+              </div>
+              <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-transparent blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
-            <span className="text-white font-bold text-xl">QualiEvents</span>
+            <div className="flex flex-col">
+              <span className="text-white font-bold text-lg leading-tight tracking-tight">
+                Quali<span className="text-primary">Events</span>
+              </span>
+              <span className="text-[10px] text-gray-400 uppercase tracking-[0.2em] leading-none hidden sm:block">
+                Premium Events
+              </span>
+            </div>
           </Link>
 
-          {/* Desktop menu */}
-          <div className="hidden md:flex items-center space-x-8">
-            <a href="#about" className="text-gray-300 hover:text-white transition">
-              About
-            </a>
-            <a href="#speakers" className="text-gray-300 hover:text-white transition">
-              Speakers
-            </a>
-            <a href="#location" className="text-gray-300 hover:text-white transition">
-              Location
-            </a>
-            <a href="#sponsors" className="text-gray-300 hover:text-white transition">
-              Sponsors
-            </a>
+          {/* Desktop nav */}
+          <div className="hidden md:flex items-center gap-1">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="relative px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors duration-300 rounded-lg hover:bg-white/5 group"
+              >
+                {link.label}
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-primary rounded-full group-hover:w-6 transition-all duration-300" />
+              </a>
+            ))}
+            <div className="w-px h-6 bg-white/10 mx-3" />
             <Link
               href="/register"
-              className="bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-lg font-medium transition"
+              className="btn-primary px-5 py-2.5 text-sm inline-flex items-center gap-2"
             >
+              <Sparkles className="w-3.5 h-3.5" />
               Register Now
             </Link>
           </div>
 
-          {/* Mobile menu button */}
+          {/* Mobile toggle */}
           <button
-            className="md:hidden text-white"
+            className="md:hidden relative w-10 h-10 flex items-center justify-center rounded-xl text-white hover:bg-white/10 transition-colors"
             onClick={() => setIsOpen(!isOpen)}
           >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
+            <div className="relative w-5 h-5">
+              <span className={`absolute left-0 w-5 h-0.5 bg-white rounded-full transition-all duration-300 ${isOpen ? "top-2.5 rotate-45" : "top-1"}`} />
+              <span className={`absolute left-0 top-2.5 w-5 h-0.5 bg-white rounded-full transition-all duration-300 ${isOpen ? "opacity-0 scale-0" : "opacity-100"}`} />
+              <span className={`absolute left-0 w-5 h-0.5 bg-white rounded-full transition-all duration-300 ${isOpen ? "top-2.5 -rotate-45" : "top-4"}`} />
+            </div>
           </button>
         </div>
 
         {/* Mobile menu */}
-        {isOpen && (
-          <div className="md:hidden pb-4 space-y-2">
-            <a href="#about" className="block text-gray-300 hover:text-white py-2 transition" onClick={() => setIsOpen(false)}>
-              About
-            </a>
-            <a href="#speakers" className="block text-gray-300 hover:text-white py-2 transition" onClick={() => setIsOpen(false)}>
-              Speakers
-            </a>
-            <a href="#location" className="block text-gray-300 hover:text-white py-2 transition" onClick={() => setIsOpen(false)}>
-              Location
-            </a>
-            <a href="#sponsors" className="block text-gray-300 hover:text-white py-2 transition" onClick={() => setIsOpen(false)}>
-              Sponsors
-            </a>
-            <Link
-              href="/register"
-              className="block bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-lg font-medium text-center transition"
-              onClick={() => setIsOpen(false)}
-            >
-              Register Now
-            </Link>
+        <div className={`md:hidden overflow-hidden transition-all duration-400 ease-in-out ${isOpen ? "max-h-80 opacity-100 mt-4" : "max-h-0 opacity-0"}`}>
+          <div className="glass rounded-2xl p-4 space-y-1">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="block px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all duration-200 text-sm font-medium"
+                onClick={() => setIsOpen(false)}
+              >
+                {link.label}
+              </a>
+            ))}
+            <div className="pt-2">
+              <Link
+                href="/register"
+                className="btn-primary w-full py-3 text-sm text-center block"
+                onClick={() => setIsOpen(false)}
+              >
+                Register Now
+              </Link>
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </nav>
   );
