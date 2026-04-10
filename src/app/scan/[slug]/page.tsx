@@ -7,19 +7,18 @@ import dynamic from "next/dynamic";
 import {
   ArrowLeft,
   Camera,
-  CameraOff,
-  Keyboard,
   Search,
   CheckCircle,
   XCircle,
   AlertTriangle,
   RefreshCw,
   Scan,
-  Users,
   X,
+  Zap,
+  SwitchCamera,
 } from "lucide-react";
 
-const Scanner = dynamic(
+const QrScanner = dynamic(
   () => import("@yudiel/react-qr-scanner").then((m) => m.Scanner),
   { ssr: false }
 );
@@ -29,11 +28,7 @@ interface ScanResult {
   alreadyScanned: boolean;
   scannedAt?: string;
   eventId?: string;
-  subscriber?: {
-    name: string;
-    email: string;
-    company: string | null;
-  };
+  subscriber?: { name: string; email: string; company: string | null };
   message?: string;
   error?: string;
 }
@@ -47,6 +42,8 @@ interface EventInfo {
   city: string;
   themeColor: string | null;
 }
+
+type ScanMode = null | "camera" | "external";
 
 function extractBadgeCode(scannedText: string): string | null {
   try {
@@ -64,8 +61,8 @@ export default function ScannerPage() {
   const { slug } = useParams<{ slug: string }>();
 
   const [event, setEvent] = useState<EventInfo | null>(null);
+  const [mode, setMode] = useState<ScanMode>(null);
   const [cameraActive, setCameraActive] = useState(true);
-  const [manualMode, setManualMode] = useState(false);
   const [manualCode, setManualCode] = useState("");
   const [result, setResult] = useState<ScanResult | null>(null);
   const [wrongEvent, setWrongEvent] = useState(false);
@@ -78,17 +75,15 @@ export default function ScannerPage() {
   const lastScannedRef = useRef<string>("");
   const barcodeBufferRef = useRef<string>("");
   const barcodeTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const externalInputRef = useRef<HTMLInputElement>(null);
 
-  // Load event info
+  // Load event
   useEffect(() => {
     fetch(`/api/events/${slug}`)
       .then((r) => r.json())
       .then((data) => {
-        if (data.error) {
-          setError("Event not found");
-        } else {
-          setEvent(data);
-        }
+        if (data.error) setError("Event not found");
+        else setEvent(data);
       });
   }, [slug]);
 
@@ -100,15 +95,13 @@ export default function ScannerPage() {
       .then(setTotalStats);
   }, [event]);
 
-  useEffect(() => {
-    refreshStats();
-  }, [refreshStats]);
+  useEffect(() => { refreshStats(); }, [refreshStats]);
 
   // Process a scanned code
   const processScan = useCallback(
     async (code: string) => {
       if (!event || processing) return;
-      if (code === lastScannedRef.current) return; // debounce same code
+      if (code === lastScannedRef.current) return;
       lastScannedRef.current = code;
 
       setProcessing(true);
@@ -116,7 +109,6 @@ export default function ScannerPage() {
       setResult(null);
       setWrongEvent(false);
 
-      // Haptic feedback
       if (navigator.vibrate) navigator.vibrate(100);
 
       try {
@@ -145,20 +137,17 @@ export default function ScannerPage() {
         setProcessing(false);
       }
 
-      // Auto-dismiss after 3.5s
       if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
-      dismissTimerRef.current = setTimeout(() => {
-        dismissResult();
-      }, 3500);
+      dismissTimerRef.current = setTimeout(() => dismissResult(), 3500);
     },
     [event, processing, refreshStats]
   );
 
-  // Global keyboard listener for hardware barcode scanners
-  // Hardware scanners "type" characters rapidly (<50ms gap) then press Enter
+  // Global keyboard listener for external barcode scanners
   useEffect(() => {
+    if (mode !== "external") return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if a text input is focused (manual mode handles its own input)
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
 
@@ -173,10 +162,8 @@ export default function ScannerPage() {
         return;
       }
 
-      // Only collect printable single characters
       if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
         barcodeBufferRef.current += e.key;
-        // Reset buffer if no new character arrives within 100ms
         if (barcodeTimerRef.current) clearTimeout(barcodeTimerRef.current);
         barcodeTimerRef.current = setTimeout(() => {
           barcodeBufferRef.current = "";
@@ -186,7 +173,7 @@ export default function ScannerPage() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [processScan]);
+  }, [mode, processScan]);
 
   const dismissResult = () => {
     if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
@@ -194,6 +181,10 @@ export default function ScannerPage() {
     setWrongEvent(false);
     lastScannedRef.current = "";
     setCameraActive(true);
+    // Re-focus the external input after dismissal
+    if (mode === "external") {
+      setTimeout(() => externalInputRef.current?.focus(), 100);
+    }
   };
 
   const handleQrScan = useCallback(
@@ -207,22 +198,31 @@ export default function ScannerPage() {
     [processing, result, processScan]
   );
 
-  const handleManualSubmit = () => {
+  const handleExternalInputSubmit = () => {
     if (!manualCode.trim()) return;
-    const code = manualCode.trim().toUpperCase();
+    const raw = manualCode.trim();
+    const code = extractBadgeCode(raw) || raw.toUpperCase();
     processScan(code);
     setManualCode("");
   };
 
+  const switchMode = () => {
+    setMode(null);
+    setResult(null);
+    setWrongEvent(false);
+    lastScannedRef.current = "";
+    setCameraActive(true);
+    setManualCode("");
+  };
+
+  // Error / loading states
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
         <div className="text-center">
           <XCircle className="w-12 h-12 mx-auto mb-4 text-red-400" />
           <p className="text-white font-bold text-lg mb-2">Event Not Found</p>
-          <Link href="/scan" className="text-primary text-sm font-medium">
-            Back to Events
-          </Link>
+          <Link href="/scan" className="text-primary text-sm font-medium">Back to Events</Link>
         </div>
       </div>
     );
@@ -238,22 +238,114 @@ export default function ScannerPage() {
 
   const themeColor = event.themeColor || "#e94560";
 
+  // ─── MODE SELECTION SCREEN ───
+  if (mode === null) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        {/* Header */}
+        <header className="px-5 pt-8 pb-2">
+          <Link href="/scan" className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm mb-6">
+            <ArrowLeft className="w-4 h-4" /> Back
+          </Link>
+          <div className="flex items-center gap-4 mb-2">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-lg shadow-primary/30">
+              <Scan className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-white">{event.title}</h1>
+              <p className="text-gray-500 text-xs">Choose your scanning method</p>
+            </div>
+          </div>
+        </header>
+
+        {/* Mode buttons */}
+        <main className="flex-1 flex items-center justify-center px-5 pb-10">
+          <div className="w-full max-w-md space-y-4">
+            {/* External Scanner */}
+            <button
+              onClick={() => setMode("external")}
+              className="w-full group relative"
+            >
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-[22px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm" />
+              <div className="relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/8 hover:border-white/20 transition-all duration-300 text-left">
+                <div className="flex items-center gap-5">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform duration-300">
+                    <Zap className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-lg font-bold text-white mb-1">External Scanner</h2>
+                    <p className="text-gray-400 text-sm leading-relaxed">
+                      Use a USB or Bluetooth barcode scanner gun. Just point and scan — the device types automatically.
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
+                  <div className="w-1 h-1 rounded-full bg-amber-500" />
+                  Fastest for high-volume check-in
+                </div>
+              </div>
+            </button>
+
+            {/* Camera */}
+            <button
+              onClick={() => setMode("camera")}
+              className="w-full group relative"
+            >
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-400/20 to-indigo-400/20 rounded-[22px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm" />
+              <div className="relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/8 hover:border-white/20 transition-all duration-300 text-left">
+                <div className="flex items-center gap-5">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform duration-300">
+                    <Camera className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-lg font-bold text-white mb-1">Camera</h2>
+                    <p className="text-gray-400 text-sm leading-relaxed">
+                      Use your phone or tablet camera to scan QR codes on badges in real time.
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
+                  <div className="w-1 h-1 rounded-full bg-blue-500" />
+                  Best for mobile devices
+                </div>
+              </div>
+            </button>
+          </div>
+        </main>
+
+        {/* Stats preview */}
+        <footer className="px-5 py-4 border-t border-white/5">
+          <div className="flex items-center justify-center gap-8 text-center">
+            <div>
+              <p className="text-lg font-bold text-emerald-400">{totalStats.scanned}</p>
+              <p className="text-[9px] text-gray-500 uppercase tracking-wider">Checked In</p>
+            </div>
+            <div className="w-px h-8 bg-white/5" />
+            <div>
+              <p className="text-lg font-bold text-gray-400">{totalStats.total}</p>
+              <p className="text-[9px] text-gray-500 uppercase tracking-wider">Total Badges</p>
+            </div>
+          </div>
+        </footer>
+      </div>
+    );
+  }
+
+  // ─── ACTIVE SCANNER (camera or external) ───
   return (
     <div className="min-h-screen flex flex-col relative">
       {/* Header */}
       <header className="relative z-20 flex items-center gap-3 px-4 py-3 bg-secondary/95 backdrop-blur-sm border-b border-white/5">
-        <Link
-          href="/scan"
+        <button
+          onClick={switchMode}
           className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
         >
-          <ArrowLeft className="w-4 h-4 text-gray-400" />
-        </Link>
+          <SwitchCamera className="w-4 h-4 text-gray-400" />
+        </button>
         <div className="flex-1 min-w-0">
-          <h1 className="text-sm font-bold text-white truncate">
-            {event.title}
-          </h1>
+          <h1 className="text-sm font-bold text-white truncate">{event.title}</h1>
           <p className="text-[10px] text-gray-500 uppercase tracking-wider">
-            Camera + Barcode Scanner Ready
+            {mode === "camera" ? "Camera Mode" : "External Scanner Mode"}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -264,24 +356,15 @@ export default function ScannerPage() {
             <Scan className="w-3 h-3" />
             {sessionCount}
           </div>
-          <button
-            onClick={() => setManualMode(!manualMode)}
-            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
-              manualMode
-                ? "bg-primary text-white"
-                : "bg-white/5 text-gray-400 hover:bg-white/10"
-            }`}
-          >
-            {manualMode ? <Camera className="w-4 h-4" /> : <Keyboard className="w-4 h-4" />}
-          </button>
         </div>
       </header>
 
-      {/* Camera / Manual Input */}
+      {/* Main area */}
       <div className="flex-1 relative bg-black">
-        {!manualMode && cameraActive && !result && (
+        {/* ── CAMERA MODE ── */}
+        {mode === "camera" && cameraActive && !result && (
           <div className="absolute inset-0">
-            <Scanner
+            <QrScanner
               onScan={handleQrScan}
               allowMultiple={true}
               scanDelay={500}
@@ -291,78 +374,85 @@ export default function ScannerPage() {
                 video: { objectFit: "cover" as const },
               }}
             />
-            {/* Crosshair overlay */}
+            {/* Crosshair */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="w-64 h-64 relative">
-                {/* Corner brackets */}
                 <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 rounded-tl-lg" style={{ borderColor: themeColor }} />
                 <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 rounded-tr-lg" style={{ borderColor: themeColor }} />
                 <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 rounded-bl-lg" style={{ borderColor: themeColor }} />
                 <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 rounded-br-lg" style={{ borderColor: themeColor }} />
-                {/* Scan line */}
                 <div
                   className="absolute left-2 right-2 h-0.5 animate-bounce opacity-50"
-                  style={{
-                    backgroundColor: themeColor,
-                    top: "50%",
-                    boxShadow: `0 0 10px ${themeColor}`,
-                  }}
+                  style={{ backgroundColor: themeColor, top: "50%", boxShadow: `0 0 10px ${themeColor}` }}
                 />
               </div>
             </div>
-            {/* Hint */}
             <div className="absolute bottom-6 left-0 right-0 text-center">
               <p className="text-white/60 text-sm">Point camera at a badge QR code</p>
-              <p className="text-white/30 text-xs mt-1">Hardware barcode scanner also supported</p>
             </div>
           </div>
         )}
 
-        {!manualMode && !cameraActive && !result && (
+        {mode === "camera" && !cameraActive && !result && (
           <div className="absolute inset-0 flex items-center justify-center bg-secondary">
             <div className="w-8 h-8 border-2 border-gray-600 border-t-primary rounded-full animate-spin" />
           </div>
         )}
 
-        {manualMode && !result && (
+        {/* ── EXTERNAL SCANNER MODE ── */}
+        {mode === "external" && !result && (
           <div className="absolute inset-0 flex items-center justify-center bg-secondary p-6">
-            <div className="w-full max-w-sm">
-              <div className="text-center mb-8">
-                <Keyboard className="w-10 h-10 mx-auto mb-3 text-gray-500" />
-                <p className="text-gray-400 text-sm">Enter badge code manually</p>
+            <div className="w-full max-w-md text-center">
+              {/* Animated scanner icon */}
+              <div className="relative w-28 h-28 mx-auto mb-8">
+                <div className="absolute inset-0 rounded-3xl bg-amber-500/5 animate-ping" style={{ animationDuration: "3s" }} />
+                <div className="relative w-28 h-28 rounded-3xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 flex items-center justify-center">
+                  <Zap className="w-12 h-12 text-amber-400" />
+                </div>
               </div>
-              <input
-                type="text"
-                value={manualCode}
-                onChange={(e) => setManualCode(e.target.value.toUpperCase())}
-                onKeyDown={(e) => e.key === "Enter" && handleManualSubmit()}
-                className="w-full px-4 py-5 bg-white/5 border border-white/10 rounded-2xl text-center text-3xl font-bold tracking-[0.3em] text-white uppercase outline-none focus:border-primary/50 transition-colors"
-                placeholder="A1B2C3D4"
-                maxLength={8}
-                autoFocus
-              />
-              <button
-                onClick={handleManualSubmit}
-                disabled={!manualCode.trim() || processing}
-                className="w-full mt-4 py-4 rounded-xl font-semibold text-sm transition-all disabled:opacity-30"
-                style={{ backgroundColor: themeColor, color: "white" }}
-              >
-                {processing ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Scanning...
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    <Search className="w-4 h-4" /> Scan Badge
-                  </span>
-                )}
-              </button>
+
+              <h2 className="text-xl font-bold text-white mb-2">Ready to Scan</h2>
+              <p className="text-gray-400 text-sm mb-8 max-w-xs mx-auto leading-relaxed">
+                Point your external barcode scanner at a badge QR code. The scan will be processed automatically.
+              </p>
+
+              {/* Pulsing status indicator */}
+              <div className="inline-flex items-center gap-2.5 bg-amber-500/10 border border-amber-500/20 rounded-full px-5 py-2.5 mb-8">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500" />
+                </span>
+                <span className="text-amber-400 text-sm font-medium">Listening for scanner input...</span>
+              </div>
+
+              {/* Manual fallback input */}
+              <div className="border-t border-white/5 pt-6">
+                <p className="text-gray-600 text-xs uppercase tracking-wider mb-3 font-medium">Or enter code manually</p>
+                <div className="flex gap-2">
+                  <input
+                    ref={externalInputRef}
+                    type="text"
+                    value={manualCode}
+                    onChange={(e) => setManualCode(e.target.value.toUpperCase())}
+                    onKeyDown={(e) => e.key === "Enter" && handleExternalInputSubmit()}
+                    className="flex-1 px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-center text-lg font-bold tracking-[0.2em] text-white uppercase outline-none focus:border-amber-500/30 transition-colors"
+                    placeholder="A1B2C3D4"
+                    maxLength={8}
+                  />
+                  <button
+                    onClick={handleExternalInputSubmit}
+                    disabled={!manualCode.trim() || processing}
+                    className="px-5 py-3.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-semibold text-sm transition-colors disabled:opacity-30 flex items-center gap-2"
+                  >
+                    <Search className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
 
-        {/* Result Overlay */}
+        {/* ── RESULT OVERLAY ── */}
         {result && (
           <div className="absolute inset-0 flex items-center justify-center p-6 bg-secondary/95 backdrop-blur-sm animate-fade-in z-10">
             <div className="w-full max-w-sm">
@@ -373,22 +463,15 @@ export default function ScannerPage() {
                 <X className="w-5 h-5" />
               </button>
 
-              {/* Invalid badge */}
+              {/* Invalid */}
               {!result.valid && (
                 <div className="text-center animate-scale-in">
                   <div className="w-24 h-24 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-6">
                     <XCircle className="w-12 h-12 text-red-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-red-400 mb-2">
-                    Invalid Badge
-                  </h2>
-                  <p className="text-gray-400 text-sm">
-                    {result.error || "This badge code was not recognized"}
-                  </p>
-                  <button
-                    onClick={dismissResult}
-                    className="mt-8 px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-colors"
-                  >
+                  <h2 className="text-2xl font-bold text-red-400 mb-2">Invalid Badge</h2>
+                  <p className="text-gray-400 text-sm">{result.error || "Badge code not recognized"}</p>
+                  <button onClick={dismissResult} className="mt-8 px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-colors">
                     Try Again
                   </button>
                 </div>
@@ -400,21 +483,10 @@ export default function ScannerPage() {
                   <div className="w-24 h-24 rounded-full bg-orange-500/10 flex items-center justify-center mx-auto mb-6">
                     <AlertTriangle className="w-12 h-12 text-orange-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-orange-400 mb-2">
-                    Wrong Event
-                  </h2>
-                  <p className="text-gray-400 text-sm mb-2">
-                    This badge belongs to a different event
-                  </p>
-                  {result.subscriber && (
-                    <p className="text-gray-500 text-xs">
-                      {result.subscriber.name}
-                    </p>
-                  )}
-                  <button
-                    onClick={dismissResult}
-                    className="mt-8 px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-colors"
-                  >
+                  <h2 className="text-2xl font-bold text-orange-400 mb-2">Wrong Event</h2>
+                  <p className="text-gray-400 text-sm mb-2">This badge belongs to a different event</p>
+                  {result.subscriber && <p className="text-gray-500 text-xs">{result.subscriber.name}</p>}
+                  <button onClick={dismissResult} className="mt-8 px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-colors">
                     Continue Scanning
                   </button>
                 </div>
@@ -426,34 +498,18 @@ export default function ScannerPage() {
                   <div className="w-24 h-24 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-6">
                     <AlertTriangle className="w-12 h-12 text-amber-400" />
                   </div>
-                  <h2 className="text-xl font-bold text-amber-400 mb-1">
-                    Already Checked In
-                  </h2>
+                  <h2 className="text-xl font-bold text-amber-400 mb-1">Already Checked In</h2>
                   {result.subscriber && (
                     <div className="mt-4 bg-white/5 rounded-2xl p-5 text-left border border-white/5">
-                      <p className="font-bold text-white text-lg">
-                        {result.subscriber.name}
-                      </p>
-                      <p className="text-gray-400 text-sm">
-                        {result.subscriber.email}
-                      </p>
-                      {result.subscriber.company && (
-                        <p className="text-gray-500 text-xs mt-0.5">
-                          {result.subscriber.company}
-                        </p>
-                      )}
+                      <p className="font-bold text-white text-lg">{result.subscriber.name}</p>
+                      <p className="text-gray-400 text-sm">{result.subscriber.email}</p>
+                      {result.subscriber.company && <p className="text-gray-500 text-xs mt-0.5">{result.subscriber.company}</p>}
                     </div>
                   )}
                   {result.scannedAt && (
-                    <p className="text-gray-600 text-xs mt-3">
-                      First scanned:{" "}
-                      {new Date(result.scannedAt).toLocaleTimeString()}
-                    </p>
+                    <p className="text-gray-600 text-xs mt-3">First scanned: {new Date(result.scannedAt).toLocaleTimeString()}</p>
                   )}
-                  <button
-                    onClick={dismissResult}
-                    className="mt-6 px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-colors"
-                  >
+                  <button onClick={dismissResult} className="mt-6 px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-colors">
                     Continue Scanning
                   </button>
                 </div>
@@ -462,41 +518,18 @@ export default function ScannerPage() {
               {/* Success */}
               {result.valid && !wrongEvent && !result.alreadyScanned && (
                 <div className="text-center animate-scale-in">
-                  <div
-                    className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6"
-                    style={{ backgroundColor: `${themeColor}15` }}
-                  >
-                    <CheckCircle
-                      className="w-12 h-12"
-                      style={{ color: themeColor }}
-                    />
+                  <div className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6" style={{ backgroundColor: `${themeColor}15` }}>
+                    <CheckCircle className="w-12 h-12" style={{ color: themeColor }} />
                   </div>
-                  <h2
-                    className="text-2xl font-bold mb-1"
-                    style={{ color: themeColor }}
-                  >
-                    Welcome!
-                  </h2>
+                  <h2 className="text-2xl font-bold mb-1" style={{ color: themeColor }}>Welcome!</h2>
                   {result.subscriber && (
                     <div className="mt-4 bg-white/5 rounded-2xl p-5 text-left border border-white/5">
-                      <p className="font-bold text-white text-xl">
-                        {result.subscriber.name}
-                      </p>
-                      <p className="text-gray-400 text-sm mt-0.5">
-                        {result.subscriber.email}
-                      </p>
-                      {result.subscriber.company && (
-                        <p className="text-gray-500 text-sm mt-0.5">
-                          {result.subscriber.company}
-                        </p>
-                      )}
+                      <p className="font-bold text-white text-xl">{result.subscriber.name}</p>
+                      <p className="text-gray-400 text-sm mt-0.5">{result.subscriber.email}</p>
+                      {result.subscriber.company && <p className="text-gray-500 text-sm mt-0.5">{result.subscriber.company}</p>}
                     </div>
                   )}
-                  <button
-                    onClick={dismissResult}
-                    className="mt-6 px-8 py-3 rounded-xl text-sm font-semibold text-white transition-all"
-                    style={{ backgroundColor: themeColor }}
-                  >
+                  <button onClick={dismissResult} className="mt-6 px-8 py-3 rounded-xl text-sm font-semibold text-white transition-all" style={{ backgroundColor: themeColor }}>
                     Scan Next
                   </button>
                 </div>
@@ -512,32 +545,19 @@ export default function ScannerPage() {
           <div className="flex items-center gap-4">
             <div className="text-center">
               <p className="text-lg font-bold text-white">{sessionCount}</p>
-              <p className="text-[9px] text-gray-500 uppercase tracking-wider">
-                Session
-              </p>
+              <p className="text-[9px] text-gray-500 uppercase tracking-wider">Session</p>
             </div>
             <div className="w-px h-8 bg-white/5" />
             <div className="text-center">
-              <p className="text-lg font-bold text-emerald-400">
-                {totalStats.scanned}
-              </p>
-              <p className="text-[9px] text-gray-500 uppercase tracking-wider">
-                Checked In
-              </p>
+              <p className="text-lg font-bold text-emerald-400">{totalStats.scanned}</p>
+              <p className="text-[9px] text-gray-500 uppercase tracking-wider">Checked In</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-gray-400">
-                {totalStats.total}
-              </p>
-              <p className="text-[9px] text-gray-500 uppercase tracking-wider">
-                Total
-              </p>
+              <p className="text-lg font-bold text-gray-400">{totalStats.total}</p>
+              <p className="text-[9px] text-gray-500 uppercase tracking-wider">Total</p>
             </div>
           </div>
-          <button
-            onClick={refreshStats}
-            className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 transition-colors"
-          >
+          <button onClick={refreshStats} className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 transition-colors">
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
