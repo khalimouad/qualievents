@@ -12,7 +12,7 @@ const navItems = [
   { href: "/admin/panelists", label: "Panelists", icon: UserCheck },
   { href: "/admin/invitations", label: "Invitations", icon: Send },
   { href: "/admin/newsletters", label: "Newsletters", icon: Mail },
-  { href: "/admin/scan", label: "Scan Badges", icon: QrCode },
+  { href: "/scan", label: "Scanner App", icon: QrCode },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

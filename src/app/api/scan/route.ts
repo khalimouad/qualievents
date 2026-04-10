@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
     valid: true,
     alreadyScanned: badge.isScanned,
     scannedAt: badge.scannedAt,
+    eventId: badge.eventId,
     subscriber: {
       name: `${badge.subscriber.firstName} ${badge.subscriber.lastName}`,
       email: badge.subscriber.email,
@@ -56,6 +57,7 @@ export async function POST(req: NextRequest) {
       valid: true,
       alreadyScanned: true,
       scannedAt: badge.scannedAt,
+      eventId: badge.eventId,
       subscriber: {
         name: `${badge.subscriber.firstName} ${badge.subscriber.lastName}`,
         email: badge.subscriber.email,
@@ -73,6 +75,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     valid: true,
     alreadyScanned: false,
+    eventId: badge.eventId,
     subscriber: {
       name: `${badge.subscriber.firstName} ${badge.subscriber.lastName}`,
       email: badge.subscriber.email,
