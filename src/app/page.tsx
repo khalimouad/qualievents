@@ -1,334 +1,207 @@
 import Link from "next/link";
-import { Calendar, Users, MapPin, Clock, ArrowRight, Sparkles, Mic2, Globe, Zap } from "lucide-react";
+import { Calendar, MapPin, Users, ArrowRight, Sparkles, ArrowUpRight, Zap } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import CountdownTimer from "@/components/CountdownTimer";
-import SpeakerCard from "@/components/SpeakerCard";
-import SponsorBadge from "@/components/SponsorBadge";
-import EventMap from "@/components/EventMap";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const event = await prisma.event.findFirst({
+  const events = await prisma.event.findMany({
     where: { isPublished: true },
     include: {
-      panelists: { orderBy: { sortOrder: "asc" } },
-      sponsors: { orderBy: { sortOrder: "asc" } },
-      _count: { select: { subscribers: true } },
+      _count: { select: { subscribers: true, panelists: true } },
+      panelists: { take: 3, orderBy: { sortOrder: "asc" }, select: { firstName: true, lastName: true } },
     },
+    orderBy: { date: "asc" },
   });
 
-  if (!event) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-secondary via-secondary-light to-accent noise-overlay grid-pattern">
-        <div className="relative z-10 text-center px-4">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center mx-auto mb-8 shadow-lg shadow-primary/30 animate-float">
-            <span className="text-white font-bold text-3xl">Q</span>
-          </div>
-          <h1 className="text-4xl font-bold text-white mb-3">QualiEvents</h1>
-          <p className="text-gray-400 mb-10 max-w-sm mx-auto">No events published yet. Create your first event to get started.</p>
-          <Link href="/admin" className="btn-primary px-8 py-3.5 text-base inline-flex items-center gap-2">
-            Go to Admin Panel <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  const eventDate = new Date(event.date);
-  const formattedDate = eventDate.toLocaleDateString("en-US", {
-    weekday: "long", year: "numeric", month: "long", day: "numeric",
-  });
-
-  const platinumSponsors = event.sponsors.filter((s) => s.tier === "platinum");
-  const goldSponsors = event.sponsors.filter((s) => s.tier === "gold");
-  const silverSponsors = event.sponsors.filter((s) => s.tier === "silver");
-  const bronzeSponsors = event.sponsors.filter((s) => s.tier === "bronze");
+  const upcomingEvents = events.filter((e) => new Date(e.date) > new Date());
+  const pastEvents = events.filter((e) => new Date(e.date) <= new Date());
 
   return (
     <>
       <Navbar />
 
-      {/* ============ HERO ============ */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-secondary noise-overlay">
-        {/* Grid pattern */}
+      {/* HERO */}
+      <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-secondary noise-overlay">
         <div className="absolute inset-0 grid-pattern" />
-
-        {/* Ambient orbs */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 -left-20 w-[500px] h-[500px] bg-primary/8 rounded-full blur-[100px] animate-float-slow" />
-          <div className="absolute bottom-1/4 -right-20 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[80px] animate-float" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-primary/3 rounded-full blur-[120px]" />
+          <div className="absolute top-1/4 -left-32 w-[600px] h-[600px] bg-primary/6 rounded-full blur-[120px] animate-float-slow" />
+          <div className="absolute bottom-1/4 -right-32 w-[500px] h-[500px] bg-accent/8 rounded-full blur-[100px] animate-float" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/3 rounded-full blur-[150px]" />
         </div>
 
-        {/* Floating decorative elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-[15%] w-2 h-2 bg-primary/30 rounded-full animate-float" style={{ animationDelay: "0s" }} />
-          <div className="absolute top-40 right-[20%] w-1.5 h-1.5 bg-white/20 rounded-full animate-float" style={{ animationDelay: "1s" }} />
-          <div className="absolute bottom-40 left-[25%] w-1 h-1 bg-primary/40 rounded-full animate-float" style={{ animationDelay: "2s" }} />
-          <div className="absolute top-60 right-[10%] w-2.5 h-2.5 bg-accent/20 rounded-full animate-float-slow" style={{ animationDelay: "0.5s" }} />
-        </div>
+        <div className="relative z-10 max-w-6xl mx-auto px-4 pt-28 pb-20 w-full">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 glass rounded-full px-4 py-2 mb-8 animate-fade-in-down">
+              <Zap className="w-3.5 h-3.5 text-primary" />
+              <span className="text-gray-300 text-sm font-medium">Premium Event Management Platform</span>
+            </div>
 
-        <div className="relative z-10 max-w-5xl mx-auto px-4 text-center pt-28 pb-20">
-          {/* Date badge */}
-          <div className="inline-flex items-center gap-2.5 glass rounded-full px-5 py-2.5 mb-10 animate-fade-in-down">
-            <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-            <Calendar className="w-3.5 h-3.5 text-primary" />
-            <span className="text-gray-300 text-sm font-medium">{formattedDate}</span>
-          </div>
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white leading-[1.05] tracking-tight mb-6 animate-fade-in-up">
+              Create <span className="text-gradient">Unforgettable</span> Event Experiences
+            </h1>
 
-          {/* Title */}
-          <h1 className="text-5xl sm:text-6xl md:text-8xl font-bold text-white mb-8 leading-[0.95] tracking-tight animate-fade-in-up">
-            {event.title.split(" ").map((word, i) => (
-              <span key={i}>
-                {i === event.title.split(" ").length - 1 ? (
-                  <span className="text-gradient">{word}</span>
-                ) : (
-                  word
-                )}{" "}
-              </span>
-            ))}
-          </h1>
-
-          {/* Description */}
-          <p className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up stagger-2" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.2s" }}>
-            {event.description}
-          </p>
-
-          {/* Meta pills */}
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-14 animate-fade-in-up stagger-3" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.3s" }}>
-            {[
-              { icon: <MapPin className="w-4 h-4" />, text: `${event.venue}, ${event.city}` },
-              { icon: <Users className="w-4 h-4" />, text: `${event._count.subscribers} / ${event.maxAttendees}` },
-              { icon: <Clock className="w-4 h-4" />, text: "3 Days" },
-            ].map((pill) => (
-              <div key={pill.text} className="glass rounded-full px-4 py-2 flex items-center gap-2 text-sm">
-                <span className="text-primary">{pill.icon}</span>
-                <span className="text-gray-300">{pill.text}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Countdown */}
-          <div className="mb-14 animate-fade-in-up stagger-4" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.4s" }}>
-            <CountdownTimer targetDate={event.date.toISOString()} />
-          </div>
-
-          {/* CTAs */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up stagger-5" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.5s" }}>
-            <Link
-              href="/register"
-              className="btn-primary px-9 py-4 text-base inline-flex items-center justify-center gap-2.5 animate-pulse-glow"
-            >
-              <Sparkles className="w-4 h-4" />
-              Register Now
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-            <a
-              href="#about"
-              className="btn-secondary px-9 py-4 text-base inline-flex items-center justify-center"
-            >
-              Learn More
-            </a>
-          </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-fade-in" style={{ animationDelay: "1.5s", opacity: 0, animationFillMode: "forwards" }}>
-          <div className="w-5 h-9 border border-white/20 rounded-full flex items-start justify-center p-1.5">
-            <div className="w-0.5 h-2.5 bg-white/40 rounded-full animate-bounce" />
-          </div>
-        </div>
-      </section>
-
-      {/* ============ ABOUT ============ */}
-      <section id="about" className="py-24 sm:py-32 bg-white relative overflow-hidden">
-        {/* Subtle gradient background */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/3 rounded-full blur-[100px]" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent/3 rounded-full blur-[100px]" />
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">Why Attend</span>
-            <h2 className="text-3xl sm:text-5xl font-bold text-secondary mt-3 mb-5">
-              About the Event
-            </h2>
-            <p className="text-muted max-w-xl mx-auto">
-              Three days of immersive learning, networking, and innovation
+            <p className="text-lg text-gray-400 max-w-xl mb-10 leading-relaxed animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.2s" }}>
+              Registration, QR badges, speaker management, invitations, newsletters &mdash; everything you need to deliver world-class events.
             </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.3s" }}>
+              <a href="#events" className="btn-primary px-8 py-4 text-base inline-flex items-center justify-center gap-2">
+                <Sparkles className="w-4 h-4" /> Explore Events <ArrowRight className="w-4 h-4" />
+              </a>
+              <Link href="/admin" className="btn-secondary px-8 py-4 text-base inline-flex items-center justify-center">
+                Admin Dashboard
+              </Link>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+          {/* Stats */}
+          <div className="mt-20 grid grid-cols-3 gap-6 max-w-lg animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.5s" }}>
             {[
-              {
-                icon: <Users className="w-6 h-6" />,
-                title: "Networking",
-                desc: `Connect with ${event.maxAttendees}+ professionals, industry leaders, and innovators from around the world.`,
-                color: "from-blue-500 to-indigo-600",
-                shadowColor: "shadow-blue-500/20",
-              },
-              {
-                icon: <Zap className="w-6 h-6" />,
-                title: "Workshops",
-                desc: "Hands-on sessions with expert practitioners covering the latest trends and technologies.",
-                color: "from-primary to-primary-dark",
-                shadowColor: "shadow-primary/20",
-              },
-              {
-                icon: <Globe className="w-6 h-6" />,
-                title: "Venue",
-                desc: `Hosted at the prestigious ${event.venue} in the heart of ${event.city}, ${event.country}.`,
-                color: "from-accent to-accent-light",
-                shadowColor: "shadow-accent/20",
-              },
-            ].map((card) => (
-              <div key={card.title} className="group relative">
-                <div className="absolute -inset-0.5 bg-gradient-to-br from-gray-100 to-transparent rounded-[22px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative bg-white rounded-[20px] p-8 border border-gray-100 card-hover">
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${card.color} flex items-center justify-center mb-6 shadow-lg ${card.shadowColor} group-hover:scale-110 transition-transform duration-500`}>
-                    <span className="text-white">{card.icon}</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-secondary mb-3">{card.title}</h3>
-                  <p className="text-muted leading-relaxed">{card.desc}</p>
-                </div>
+              { value: events.length, label: "Events" },
+              { value: events.reduce((sum, e) => sum + e._count.subscribers, 0), label: "Attendees" },
+              { value: events.reduce((sum, e) => sum + e._count.panelists, 0), label: "Speakers" },
+            ].map((stat) => (
+              <div key={stat.label} className="text-center">
+                <div className="text-3xl sm:text-4xl font-bold text-white">{stat.value}</div>
+                <div className="text-xs text-gray-500 uppercase tracking-wider mt-1">{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ============ SPEAKERS ============ */}
-      {event.panelists.length > 0 && (
-        <section id="speakers" className="py-24 sm:py-32 bg-background relative">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">Meet Our Experts</span>
-              <h2 className="text-3xl sm:text-5xl font-bold text-secondary mt-3 mb-5">Speakers & Panelists</h2>
-              <p className="text-muted max-w-xl mx-auto">
-                Learn from the brilliant minds shaping the future of technology and innovation
-              </p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {event.panelists.map((panelist) => (
-                <SpeakerCard key={panelist.id} {...panelist} />
-              ))}
-            </div>
+      {/* EVENTS */}
+      <section id="events" className="py-24 sm:py-32 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">Discover</span>
+            <h2 className="text-3xl sm:text-5xl font-bold text-secondary mt-3 mb-5">Upcoming Events</h2>
+            <p className="text-muted max-w-xl mx-auto">Find your next experience and register today</p>
           </div>
-        </section>
-      )}
 
-      {/* ============ LOCATION ============ */}
-      {event.latitude && event.longitude && (
-        <section id="location" className="py-24 sm:py-32 bg-white relative">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">Where to Find Us</span>
-              <h2 className="text-3xl sm:text-5xl font-bold text-secondary mt-3 mb-5">Event Location</h2>
-              <p className="text-muted">
-                Join us at the heart of {event.city}
-              </p>
+          {upcomingEvents.length === 0 ? (
+            <div className="text-center py-16">
+              <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-200" />
+              <p className="text-muted">No upcoming events. Check back soon!</p>
             </div>
-            <EventMap
-              latitude={event.latitude}
-              longitude={event.longitude}
-              venue={event.venue}
-              address={event.address}
-              city={event.city}
-              country={event.country}
-            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {upcomingEvents.map((event) => {
+                const daysUntil = Math.ceil((new Date(event.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                return (
+                  <Link
+                    key={event.id}
+                    href={`/events/${event.slug}`}
+                    className="group relative"
+                  >
+                    <div className="absolute -inset-0.5 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 rounded-[22px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
+                    <div className="relative bg-white rounded-[20px] border border-gray-100 overflow-hidden card-hover">
+                      {/* Color bar */}
+                      <div className="h-2 bg-gradient-to-r from-primary to-accent" style={event.themeColor ? { background: `linear-gradient(135deg, ${event.themeColor}, ${event.themeColor}88)` } : undefined} />
+
+                      <div className="p-6">
+                        {/* Date badge */}
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="inline-flex items-center gap-1.5 bg-primary/5 text-primary rounded-full px-3 py-1 text-xs font-semibold">
+                            <Calendar className="w-3 h-3" />
+                            {new Date(event.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                          </div>
+                          {daysUntil > 0 && (
+                            <span className="text-[10px] font-semibold text-muted uppercase tracking-wider">
+                              in {daysUntil}d
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Content */}
+                        <h3 className="text-lg font-bold text-secondary mb-1 group-hover:text-primary transition-colors">
+                          {event.title}
+                        </h3>
+                        {event.tagline && (
+                          <p className="text-sm text-primary/70 font-medium mb-2">{event.tagline}</p>
+                        )}
+                        <p className="text-sm text-muted line-clamp-2 mb-4">{event.description}</p>
+
+                        {/* Location */}
+                        <div className="flex items-center gap-1.5 text-xs text-muted mb-4">
+                          <MapPin className="w-3 h-3" />
+                          {event.venue}, {event.city}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+                          <div className="flex items-center gap-3 text-xs text-muted">
+                            <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {event._count.subscribers}/{event.maxAttendees}</span>
+                            <span>{event._count.panelists} speakers</span>
+                          </div>
+                          <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover:bg-primary group-hover:text-white text-gray-400 flex items-center justify-center transition-all">
+                            <ArrowUpRight className="w-4 h-4" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+
+          {pastEvents.length > 0 && (
+            <div className="mt-20">
+              <h3 className="text-center text-xs uppercase tracking-[0.2em] text-muted font-semibold mb-8">Past Events</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {pastEvents.map((event) => (
+                  <Link key={event.id} href={`/events/${event.slug}`} className="bg-gray-50 rounded-xl p-5 border border-gray-100 hover:bg-gray-100 transition-colors group">
+                    <p className="text-xs text-muted mb-1">
+                      {new Date(event.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    </p>
+                    <h4 className="font-semibold text-secondary text-sm group-hover:text-primary transition-colors">{event.title}</h4>
+                    <p className="text-xs text-muted mt-1">{event.venue}, {event.city} &middot; {event._count.subscribers} attendees</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* FEATURES */}
+      <section className="py-24 sm:py-32 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">Platform</span>
+            <h2 className="text-3xl sm:text-5xl font-bold text-secondary mt-3 mb-5">Everything You Need</h2>
           </div>
-        </section>
-      )}
-
-      {/* ============ SPONSORS ============ */}
-      {event.sponsors.length > 0 && (
-        <section id="sponsors" className="py-24 sm:py-32 bg-background relative">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">Our Partners</span>
-              <h2 className="text-3xl sm:text-5xl font-bold text-secondary mt-3 mb-5">Sponsors</h2>
-              <p className="text-muted max-w-xl mx-auto">
-                Proudly supported by world-class organizations
-              </p>
-            </div>
-
-            <div className="space-y-14">
-              {platinumSponsors.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-3 justify-center mb-6">
-                    <div className="h-px w-12 bg-gradient-to-r from-transparent to-gray-200" />
-                    <span className="text-xs uppercase tracking-[0.2em] text-gray-400 font-semibold">Platinum</span>
-                    <div className="h-px w-12 bg-gradient-to-l from-transparent to-gray-200" />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-2xl mx-auto">
-                    {platinumSponsors.map((s) => <SponsorBadge key={s.id} {...s} />)}
-                  </div>
-                </div>
-              )}
-              {goldSponsors.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-3 justify-center mb-6">
-                    <div className="h-px w-12 bg-gradient-to-r from-transparent to-gray-200" />
-                    <span className="text-xs uppercase tracking-[0.2em] text-gray-400 font-semibold">Gold</span>
-                    <div className="h-px w-12 bg-gradient-to-l from-transparent to-gray-200" />
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
-                    {goldSponsors.map((s) => <SponsorBadge key={s.id} {...s} />)}
-                  </div>
-                </div>
-              )}
-              {silverSponsors.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-3 justify-center mb-6">
-                    <div className="h-px w-12 bg-gradient-to-r from-transparent to-gray-200" />
-                    <span className="text-xs uppercase tracking-[0.2em] text-gray-400 font-semibold">Silver</span>
-                    <div className="h-px w-12 bg-gradient-to-l from-transparent to-gray-200" />
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
-                    {silverSponsors.map((s) => <SponsorBadge key={s.id} {...s} />)}
-                  </div>
-                </div>
-              )}
-              {bronzeSponsors.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-3 justify-center mb-6">
-                    <div className="h-px w-12 bg-gradient-to-r from-transparent to-gray-200" />
-                    <span className="text-xs uppercase tracking-[0.2em] text-gray-400 font-semibold">Bronze</span>
-                    <div className="h-px w-12 bg-gradient-to-l from-transparent to-gray-200" />
-                  </div>
-                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 max-w-3xl mx-auto">
-                    {bronzeSponsors.map((s) => <SponsorBadge key={s.id} {...s} />)}
-                  </div>
-                </div>
-              )}
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { title: "Registration", desc: "Multi-step forms with real-time validation and capacity management." },
+              { title: "QR Badges", desc: "Auto-generated QR codes for seamless check-in at the event." },
+              { title: "Invitations", desc: "Bulk email and SMS invitations with tracking." },
+              { title: "Newsletters", desc: "Compose and send updates to all your subscribers." },
+            ].map((f) => (
+              <div key={f.title} className="bg-white rounded-2xl p-6 border border-gray-100 card-hover">
+                <h3 className="font-bold text-secondary mb-2">{f.title}</h3>
+                <p className="text-sm text-muted leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
-      {/* ============ CTA ============ */}
+      {/* CTA */}
       <section className="relative py-28 overflow-hidden bg-secondary noise-overlay">
         <div className="absolute inset-0 grid-pattern" />
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[100px]" />
-        </div>
         <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
           <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6 leading-tight">
-            Ready to <span className="text-gradient">Join Us</span>?
+            Ready to <span className="text-gradient">Get Started</span>?
           </h2>
-          <p className="text-gray-400 text-lg mb-10 max-w-xl mx-auto leading-relaxed">
-            Don&apos;t miss this opportunity. Secure your spot now and be part of an unforgettable experience.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/register" className="btn-primary px-9 py-4 text-base inline-flex items-center justify-center gap-2.5">
-              <Sparkles className="w-4 h-4" /> Register Now <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link href="/badge" className="btn-secondary px-9 py-4 text-base inline-flex items-center justify-center">
-              Get Your Badge
-            </Link>
-          </div>
+          <p className="text-gray-400 text-lg mb-10 max-w-xl mx-auto">Create your first event and start managing attendees in minutes.</p>
+          <Link href="/admin/events/new" className="btn-primary px-9 py-4 text-base inline-flex items-center justify-center gap-2.5">
+            <Sparkles className="w-4 h-4" /> Create an Event <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </section>
 

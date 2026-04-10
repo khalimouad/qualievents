@@ -8,22 +8,25 @@ datasource db {
 }
 
 model Event {
-  id          String   @id @default(uuid())
-  title       String
-  description String
-  date        DateTime
-  endDate     DateTime?
-  venue       String
-  address     String
-  city        String
-  country     String
-  latitude    Float?
-  longitude   Float?
-  heroImage   String?
-  maxAttendees Int     @default(500)
-  isPublished Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(uuid())
+  slug         String   @unique
+  title        String
+  tagline      String?
+  description  String
+  date         DateTime
+  endDate      DateTime?
+  venue        String
+  address      String
+  city         String
+  country      String
+  latitude     Float?
+  longitude    Float?
+  heroImage    String?
+  themeColor   String?
+  maxAttendees Int      @default(500)
+  isPublished  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   subscribers  Subscriber[]
   panelists    Panelist[]
