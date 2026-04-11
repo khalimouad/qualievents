@@ -17,6 +17,7 @@ import {
   Zap,
   SwitchCamera,
 } from "lucide-react";
+import { t } from "@/lib/i18n";
 
 const QrScanner = dynamic(
   () => import("@yudiel/react-qr-scanner").then((m) => m.Scanner),
@@ -82,7 +83,7 @@ export default function ScannerPage() {
     fetch(`/api/events/${slug}`)
       .then((r) => r.json())
       .then((data) => {
-        if (data.error) setError("Event not found");
+        if (data.error) setError(t.eventNotFound);
         else setEvent(data);
       });
   }, [slug]);
@@ -132,7 +133,7 @@ export default function ScannerPage() {
           }
         }
       } catch {
-        setResult({ valid: false, alreadyScanned: false, error: "Network error" });
+        setResult({ valid: false, alreadyScanned: false, error: "Erreur réseau" });
       } finally {
         setProcessing(false);
       }
@@ -221,8 +222,8 @@ export default function ScannerPage() {
       <div className="min-h-screen flex items-center justify-center p-6">
         <div className="text-center">
           <XCircle className="w-12 h-12 mx-auto mb-4 text-red-400" />
-          <p className="text-white font-bold text-lg mb-2">Event Not Found</p>
-          <Link href="/scan" className="text-primary text-sm font-medium">Back to Events</Link>
+          <p className="text-white font-bold text-lg mb-2">{t.eventNotFound}</p>
+          <Link href="/scan" className="text-primary text-sm font-medium">{t.backToEvents}</Link>
         </div>
       </div>
     );
@@ -245,7 +246,7 @@ export default function ScannerPage() {
         {/* Header */}
         <header className="px-5 pt-8 pb-2">
           <Link href="/scan" className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm mb-6">
-            <ArrowLeft className="w-4 h-4" /> Back
+            <ArrowLeft className="w-4 h-4" /> {t.scanner.back}
           </Link>
           <div className="flex items-center gap-4 mb-2">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-lg shadow-primary/30">
@@ -253,7 +254,7 @@ export default function ScannerPage() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-white">{event.title}</h1>
-              <p className="text-gray-500 text-xs">Choose your scanning method</p>
+              <p className="text-gray-500 text-xs">{t.scanner.chooseMethod}</p>
             </div>
           </div>
         </header>
@@ -273,15 +274,15 @@ export default function ScannerPage() {
                     <Zap className="w-8 h-8 text-white" />
                   </div>
                   <div className="flex-1">
-                    <h2 className="text-lg font-bold text-white mb-1">External Scanner</h2>
+                    <h2 className="text-lg font-bold text-white mb-1">{t.scanner.externalScanner}</h2>
                     <p className="text-gray-400 text-sm leading-relaxed">
-                      Use a USB or Bluetooth barcode scanner gun. Just point and scan — the device types automatically.
+                      {t.scanner.externalScannerDesc}
                     </p>
                   </div>
                 </div>
                 <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
                   <div className="w-1 h-1 rounded-full bg-amber-500" />
-                  Fastest for high-volume check-in
+                  {t.scanner.externalFastest}
                 </div>
               </div>
             </button>
@@ -298,15 +299,15 @@ export default function ScannerPage() {
                     <Camera className="w-8 h-8 text-white" />
                   </div>
                   <div className="flex-1">
-                    <h2 className="text-lg font-bold text-white mb-1">Camera</h2>
+                    <h2 className="text-lg font-bold text-white mb-1">{t.scanner.camera}</h2>
                     <p className="text-gray-400 text-sm leading-relaxed">
-                      Use your phone or tablet camera to scan QR codes on badges in real time.
+                      {t.scanner.cameraDesc}
                     </p>
                   </div>
                 </div>
                 <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
                   <div className="w-1 h-1 rounded-full bg-blue-500" />
-                  Best for mobile devices
+                  {t.scanner.cameraBest}
                 </div>
               </div>
             </button>
@@ -318,12 +319,12 @@ export default function ScannerPage() {
           <div className="flex items-center justify-center gap-8 text-center">
             <div>
               <p className="text-lg font-bold text-emerald-400">{totalStats.scanned}</p>
-              <p className="text-[9px] text-gray-500 uppercase tracking-wider">Checked In</p>
+              <p className="text-[9px] text-gray-500 uppercase tracking-wider">{t.scanner.checkedInCount}</p>
             </div>
             <div className="w-px h-8 bg-white/5" />
             <div>
               <p className="text-lg font-bold text-gray-400">{totalStats.total}</p>
-              <p className="text-[9px] text-gray-500 uppercase tracking-wider">Total Badges</p>
+              <p className="text-[9px] text-gray-500 uppercase tracking-wider">{t.scanner.totalCount}</p>
             </div>
           </div>
         </footer>
@@ -345,7 +346,7 @@ export default function ScannerPage() {
         <div className="flex-1 min-w-0">
           <h1 className="text-sm font-bold text-white truncate">{event.title}</h1>
           <p className="text-[10px] text-gray-500 uppercase tracking-wider">
-            {mode === "camera" ? "Camera Mode" : "External Scanner Mode"}
+            {mode === "camera" ? t.scanner.cameraMode : t.scanner.externalMode}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -388,7 +389,7 @@ export default function ScannerPage() {
               </div>
             </div>
             <div className="absolute bottom-6 left-0 right-0 text-center">
-              <p className="text-white/60 text-sm">Point camera at a badge QR code</p>
+              <p className="text-white/60 text-sm">{t.scanner.pointCamera}</p>
             </div>
           </div>
         )}
@@ -411,9 +412,9 @@ export default function ScannerPage() {
                 </div>
               </div>
 
-              <h2 className="text-xl font-bold text-white mb-2">Ready to Scan</h2>
+              <h2 className="text-xl font-bold text-white mb-2">{t.scanner.readyToScan}</h2>
               <p className="text-gray-400 text-sm mb-8 max-w-xs mx-auto leading-relaxed">
-                Point your external barcode scanner at a badge QR code. The scan will be processed automatically.
+                {t.scanner.readyToScanSub}
               </p>
 
               {/* Pulsing status indicator */}
@@ -422,12 +423,12 @@ export default function ScannerPage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500" />
                 </span>
-                <span className="text-amber-400 text-sm font-medium">Listening for scanner input...</span>
+                <span className="text-amber-400 text-sm font-medium">{t.scanner.listening}</span>
               </div>
 
               {/* Manual fallback input */}
               <div className="border-t border-white/5 pt-6">
-                <p className="text-gray-600 text-xs uppercase tracking-wider mb-3 font-medium">Or enter code manually</p>
+                <p className="text-gray-600 text-xs uppercase tracking-wider mb-3 font-medium">{t.scanner.orEnterManually}</p>
                 <div className="flex gap-2">
                   <input
                     ref={externalInputRef}
@@ -469,10 +470,10 @@ export default function ScannerPage() {
                   <div className="w-24 h-24 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-6">
                     <XCircle className="w-12 h-12 text-red-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-red-400 mb-2">Invalid Badge</h2>
-                  <p className="text-gray-400 text-sm">{result.error || "Badge code not recognized"}</p>
+                  <h2 className="text-2xl font-bold text-red-400 mb-2">{t.scanner.invalidBadge}</h2>
+                  <p className="text-gray-400 text-sm">{result.error || t.scanner.invalidBadgeSub}</p>
                   <button onClick={dismissResult} className="mt-8 px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-colors">
-                    Try Again
+                    {t.scanner.tryAgain}
                   </button>
                 </div>
               )}
@@ -483,11 +484,11 @@ export default function ScannerPage() {
                   <div className="w-24 h-24 rounded-full bg-orange-500/10 flex items-center justify-center mx-auto mb-6">
                     <AlertTriangle className="w-12 h-12 text-orange-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-orange-400 mb-2">Wrong Event</h2>
-                  <p className="text-gray-400 text-sm mb-2">This badge belongs to a different event</p>
+                  <h2 className="text-2xl font-bold text-orange-400 mb-2">{t.scanner.wrongEvent}</h2>
+                  <p className="text-gray-400 text-sm mb-2">{t.scanner.wrongEventSub}</p>
                   {result.subscriber && <p className="text-gray-500 text-xs">{result.subscriber.name}</p>}
                   <button onClick={dismissResult} className="mt-8 px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-colors">
-                    Continue Scanning
+                    {t.scanner.continueScanning}
                   </button>
                 </div>
               )}
@@ -498,7 +499,7 @@ export default function ScannerPage() {
                   <div className="w-24 h-24 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-6">
                     <AlertTriangle className="w-12 h-12 text-amber-400" />
                   </div>
-                  <h2 className="text-xl font-bold text-amber-400 mb-1">Already Checked In</h2>
+                  <h2 className="text-xl font-bold text-amber-400 mb-1">{t.scanner.alreadyCheckedIn}</h2>
                   {result.subscriber && (
                     <div className="mt-4 bg-white/5 rounded-2xl p-5 text-left border border-white/5">
                       <p className="font-bold text-white text-lg">{result.subscriber.name}</p>
@@ -507,10 +508,10 @@ export default function ScannerPage() {
                     </div>
                   )}
                   {result.scannedAt && (
-                    <p className="text-gray-600 text-xs mt-3">First scanned: {new Date(result.scannedAt).toLocaleTimeString()}</p>
+                    <p className="text-gray-600 text-xs mt-3">{t.scanner.firstScanned}: {new Date(result.scannedAt).toLocaleTimeString()}</p>
                   )}
                   <button onClick={dismissResult} className="mt-6 px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-colors">
-                    Continue Scanning
+                    {t.scanner.continueScanning}
                   </button>
                 </div>
               )}
@@ -521,7 +522,7 @@ export default function ScannerPage() {
                   <div className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6" style={{ backgroundColor: `${themeColor}15` }}>
                     <CheckCircle className="w-12 h-12" style={{ color: themeColor }} />
                   </div>
-                  <h2 className="text-2xl font-bold mb-1" style={{ color: themeColor }}>Welcome!</h2>
+                  <h2 className="text-2xl font-bold mb-1" style={{ color: themeColor }}>{t.scanner.welcome}</h2>
                   {result.subscriber && (
                     <div className="mt-4 bg-white/5 rounded-2xl p-5 text-left border border-white/5">
                       <p className="font-bold text-white text-xl">{result.subscriber.name}</p>
@@ -530,7 +531,7 @@ export default function ScannerPage() {
                     </div>
                   )}
                   <button onClick={dismissResult} className="mt-6 px-8 py-3 rounded-xl text-sm font-semibold text-white transition-all" style={{ backgroundColor: themeColor }}>
-                    Scan Next
+                    {t.scanner.scanNext}
                   </button>
                 </div>
               )}
@@ -545,16 +546,16 @@ export default function ScannerPage() {
           <div className="flex items-center gap-4">
             <div className="text-center">
               <p className="text-lg font-bold text-white">{sessionCount}</p>
-              <p className="text-[9px] text-gray-500 uppercase tracking-wider">Session</p>
+              <p className="text-[9px] text-gray-500 uppercase tracking-wider">{t.scanner.sessionCount}</p>
             </div>
             <div className="w-px h-8 bg-white/5" />
             <div className="text-center">
               <p className="text-lg font-bold text-emerald-400">{totalStats.scanned}</p>
-              <p className="text-[9px] text-gray-500 uppercase tracking-wider">Checked In</p>
+              <p className="text-[9px] text-gray-500 uppercase tracking-wider">{t.scanner.checkedInCount}</p>
             </div>
             <div className="text-center">
               <p className="text-lg font-bold text-gray-400">{totalStats.total}</p>
-              <p className="text-[9px] text-gray-500 uppercase tracking-wider">Total</p>
+              <p className="text-[9px] text-gray-500 uppercase tracking-wider">{t.scanner.totalCount}</p>
             </div>
           </div>
           <button onClick={refreshStats} className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 transition-colors">

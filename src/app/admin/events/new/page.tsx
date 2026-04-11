@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import Link from "next/link";
 import ImageUpload from "@/components/ImageUpload";
+import { t } from "@/lib/i18n";
 
 export default function NewEventPage() {
   const router = useRouter();
@@ -20,15 +21,15 @@ export default function NewEventPage() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title || !form.description || !form.date || !form.venue || !form.address || !form.city || !form.country) {
-      setError("Please fill in all required fields"); return;
+      setError("Veuillez remplir tous les champs obligatoires"); return;
     }
     setLoading(true); setError("");
     try {
       const res = await fetch("/api/events", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to create event");
+      if (!res.ok) throw new Error(data.error || "Échec de la création");
       router.push(`/admin/events/${data.slug}`);
-    } catch (e) { setError(e instanceof Error ? e.message : "Failed to create event"); }
+    } catch (e) { setError(e instanceof Error ? e.message : "Échec de la création"); }
     finally { setLoading(false); }
   };
 
@@ -38,12 +39,12 @@ export default function NewEventPage() {
   return (
     <div>
       <Link href="/admin" className="inline-flex items-center gap-1.5 text-muted hover:text-secondary mb-3 transition-colors text-xs font-medium">
-        <ArrowLeft className="w-3 h-3" /> Back to Dashboard
+        <ArrowLeft className="w-3 h-3" /> {t.admin.backToDashboard}
       </Link>
 
       <div className="mb-4">
-        <h1 className="text-xl font-bold text-secondary">Create New Event</h1>
-        <p className="text-muted text-xs mt-0.5">Fill in the details to create a new event page</p>
+        <h1 className="text-xl font-bold text-secondary">{t.admin.createEvent}</h1>
+        <p className="text-muted text-xs mt-0.5">Remplissez les détails pour créer une nouvelle page d&apos;événement</p>
       </div>
 
       <form onSubmit={submit} className="max-w-3xl">
@@ -54,61 +55,61 @@ export default function NewEventPage() {
         )}
 
         <div className="bg-white rounded-xl border border-gray-100 p-4 space-y-3">
-          <h2 className="text-[10px] uppercase tracking-[0.15em] text-muted font-semibold">Basic Information</h2>
+          <h2 className="text-[10px] uppercase tracking-[0.15em] text-muted font-semibold">{t.admin.basicInfo}</h2>
           <div>
-            <label className={labelClass}>Event Title <span className="text-primary">*</span></label>
-            <input value={form.title} onChange={(e) => update("title", e.target.value)} className={inputClass} placeholder="QualiEvents Summit 2026" required />
+            <label className={labelClass}>{t.admin.title} <span className="text-primary">*</span></label>
+            <input value={form.title} onChange={(e) => update("title", e.target.value)} className={inputClass} placeholder="Ex : QualiEvents Summit 2026" required />
           </div>
           <div>
-            <label className={labelClass}>Tagline</label>
-            <input value={form.tagline} onChange={(e) => update("tagline", e.target.value)} className={inputClass} placeholder="Where Innovation Meets Opportunity" />
+            <label className={labelClass}>{t.admin.tagline}</label>
+            <input value={form.tagline} onChange={(e) => update("tagline", e.target.value)} className={inputClass} placeholder="Ex : Là où l'innovation rencontre l'opportunité" />
           </div>
           <div>
-            <label className={labelClass}>Description <span className="text-primary">*</span></label>
-            <textarea value={form.description} onChange={(e) => update("description", e.target.value)} className={`${inputClass} resize-none`} rows={3} placeholder="Describe your event..." required />
+            <label className={labelClass}>{t.admin.description} <span className="text-primary">*</span></label>
+            <textarea value={form.description} onChange={(e) => update("description", e.target.value)} className={`${inputClass} resize-none`} rows={3} placeholder="Décrivez votre événement..." required />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className={labelClass}>Start Date <span className="text-primary">*</span></label>
+              <label className={labelClass}>{t.admin.startDate} <span className="text-primary">*</span></label>
               <input type="datetime-local" value={form.date} onChange={(e) => update("date", e.target.value)} className={inputClass} required />
             </div>
             <div>
-              <label className={labelClass}>End Date</label>
+              <label className={labelClass}>{t.admin.endDate}</label>
               <input type="datetime-local" value={form.endDate} onChange={(e) => update("endDate", e.target.value)} className={inputClass} />
             </div>
           </div>
-          <ImageUpload value={form.heroImage} onChange={(url) => update("heroImage", url)} type="events" label="Hero Image" />
+          <ImageUpload value={form.heroImage} onChange={(url) => update("heroImage", url)} type="events" label={t.admin.heroImage} />
         </div>
 
         <div className="bg-white rounded-xl border border-gray-100 p-4 space-y-3 mt-3">
-          <h2 className="text-[10px] uppercase tracking-[0.15em] text-muted font-semibold">Venue & Location</h2>
+          <h2 className="text-[10px] uppercase tracking-[0.15em] text-muted font-semibold">{t.admin.venueAndLocation}</h2>
           <div>
-            <label className={labelClass}>Venue Name <span className="text-primary">*</span></label>
-            <input value={form.venue} onChange={(e) => update("venue", e.target.value)} className={inputClass} placeholder="Palais des Congres" required />
+            <label className={labelClass}>{t.admin.venueName} <span className="text-primary">*</span></label>
+            <input value={form.venue} onChange={(e) => update("venue", e.target.value)} className={inputClass} placeholder="Palais des Congrès" required />
           </div>
           <div>
-            <label className={labelClass}>Address <span className="text-primary">*</span></label>
+            <label className={labelClass}>{t.admin.address} <span className="text-primary">*</span></label>
             <input value={form.address} onChange={(e) => update("address", e.target.value)} className={inputClass} placeholder="2 Place de la Porte Maillot" required />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div><label className={labelClass}>City <span className="text-primary">*</span></label><input value={form.city} onChange={(e) => update("city", e.target.value)} className={inputClass} placeholder="Paris" required /></div>
-            <div><label className={labelClass}>Country <span className="text-primary">*</span></label><input value={form.country} onChange={(e) => update("country", e.target.value)} className={inputClass} placeholder="France" required /></div>
+            <div><label className={labelClass}>{t.admin.city} <span className="text-primary">*</span></label><input value={form.city} onChange={(e) => update("city", e.target.value)} className={inputClass} placeholder="Paris" required /></div>
+            <div><label className={labelClass}>{t.admin.country} <span className="text-primary">*</span></label><input value={form.country} onChange={(e) => update("country", e.target.value)} className={inputClass} placeholder="France" required /></div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div><label className={labelClass}>Latitude</label><input value={form.latitude} onChange={(e) => update("latitude", e.target.value)} className={inputClass} placeholder="48.8789" /></div>
-            <div><label className={labelClass}>Longitude</label><input value={form.longitude} onChange={(e) => update("longitude", e.target.value)} className={inputClass} placeholder="2.2830" /></div>
+            <div><label className={labelClass}>{t.admin.latitude}</label><input value={form.latitude} onChange={(e) => update("latitude", e.target.value)} className={inputClass} placeholder="48.8789" /></div>
+            <div><label className={labelClass}>{t.admin.longitude}</label><input value={form.longitude} onChange={(e) => update("longitude", e.target.value)} className={inputClass} placeholder="2.2830" /></div>
           </div>
         </div>
 
         <div className="bg-white rounded-xl border border-gray-100 p-4 space-y-3 mt-3">
-          <h2 className="text-[10px] uppercase tracking-[0.15em] text-muted font-semibold">Settings</h2>
+          <h2 className="text-[10px] uppercase tracking-[0.15em] text-muted font-semibold">{t.admin.settings}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className={labelClass}>Max Attendees</label>
+              <label className={labelClass}>{t.admin.maxAttendees}</label>
               <input type="number" value={form.maxAttendees} onChange={(e) => update("maxAttendees", e.target.value)} className={inputClass} min="1" />
             </div>
             <div>
-              <label className={labelClass}>Theme Color</label>
+              <label className={labelClass}>{t.admin.themeColor}</label>
               <div className="flex gap-2">
                 <input type="color" value={form.themeColor} onChange={(e) => update("themeColor", e.target.value)} className="w-10 h-10 rounded-lg border border-gray-200 cursor-pointer" />
                 <input value={form.themeColor} onChange={(e) => update("themeColor", e.target.value)} className={`${inputClass} flex-1`} />
@@ -117,14 +118,14 @@ export default function NewEventPage() {
           </div>
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" checked={form.isPublished} onChange={(e) => update("isPublished", e.target.checked)} className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" />
-            <span className="text-xs text-secondary">Publish immediately</span>
+            <span className="text-xs text-secondary">{t.admin.publishImmediately}</span>
           </label>
         </div>
 
         <div className="flex items-center justify-end gap-2 mt-4">
-          <Link href="/admin" className="px-4 py-2 text-xs text-muted hover:text-secondary font-medium transition-colors">Cancel</Link>
+          <Link href="/admin" className="px-4 py-2 text-xs text-muted hover:text-secondary font-medium transition-colors">{t.common.cancel}</Link>
           <button type="submit" disabled={loading} className="btn-primary px-5 py-2 text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
-            {loading ? <><span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Creating...</> : <><Sparkles className="w-3 h-3" /> Create Event</>}
+            {loading ? <><span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> {t.register.processing}</> : <><Sparkles className="w-3 h-3" /> {t.admin.createEvent}</>}
           </button>
         </div>
       </form>

@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from "react";
 import { UserCheck, Plus, Trash2, X } from "lucide-react";
 import ImageUpload from "@/components/ImageUpload";
+import { t } from "@/lib/i18n";
 
 interface Panelist {
   id: string; firstName: string; lastName: string; email: string; bio: string;
@@ -44,7 +45,7 @@ export default function EventPanelistsPage({ params }: { params: Promise<{ slug:
   };
 
   const remove = async (id: string) => {
-    if (!confirm("Remove this panelist?")) return;
+    if (!confirm("Retirer ce panéliste ?")) return;
     await fetch(`/api/panelists?id=${id}`, { method: "DELETE" });
     load();
   };
@@ -55,27 +56,27 @@ export default function EventPanelistsPage({ params }: { params: Promise<{ slug:
   return (
     <div>
       <div className="flex items-center justify-between gap-3 mb-3">
-        <p className="text-xs text-muted">{panelists.length} panelists</p>
+        <p className="text-xs text-muted">{panelists.length} panélistes</p>
         <button onClick={() => setShowForm(!showForm)} className="btn-primary px-3 py-1.5 text-xs inline-flex items-center gap-1.5">
-          {showForm ? <><X className="w-3 h-3" /> Cancel</> : <><Plus className="w-3 h-3" /> Add</>}
+          {showForm ? <><X className="w-3 h-3" /> {t.common.cancel}</> : <><Plus className="w-3 h-3" /> {t.common.add}</>}
         </button>
       </div>
 
       {showForm && (
         <form onSubmit={submit} className="bg-white rounded-xl border border-gray-100 p-4 mb-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div><label className={labelClass}>First Name *</label><input required value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} className={`${inputClass} w-full`} /></div>
-            <div><label className={labelClass}>Last Name *</label><input required value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} className={`${inputClass} w-full`} /></div>
-            <div><label className={labelClass}>Email *</label><input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={`${inputClass} w-full`} /></div>
-            <div><label className={labelClass}>Company</label><input value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} className={`${inputClass} w-full`} /></div>
-            <div><label className={labelClass}>Job Title</label><input value={form.jobTitle} onChange={(e) => setForm({ ...form, jobTitle: e.target.value })} className={`${inputClass} w-full`} /></div>
-            <div><label className={labelClass}>Topic</label><input value={form.topic} onChange={(e) => setForm({ ...form, topic: e.target.value })} className={`${inputClass} w-full`} /></div>
+            <div><label className={labelClass}>{t.register.firstName} *</label><input required value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} className={`${inputClass} w-full`} /></div>
+            <div><label className={labelClass}>{t.register.lastName} *</label><input required value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} className={`${inputClass} w-full`} /></div>
+            <div><label className={labelClass}>{t.register.email} *</label><input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={`${inputClass} w-full`} /></div>
+            <div><label className={labelClass}>{t.register.company}</label><input value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} className={`${inputClass} w-full`} /></div>
+            <div><label className={labelClass}>{t.register.jobTitle}</label><input value={form.jobTitle} onChange={(e) => setForm({ ...form, jobTitle: e.target.value })} className={`${inputClass} w-full`} /></div>
+            <div><label className={labelClass}>Sujet</label><input value={form.topic} onChange={(e) => setForm({ ...form, topic: e.target.value })} className={`${inputClass} w-full`} /></div>
             <div><label className={labelClass}>LinkedIn</label><input value={form.linkedin} onChange={(e) => setForm({ ...form, linkedin: e.target.value })} className={`${inputClass} w-full`} /></div>
             <div><label className={labelClass}>Twitter</label><input value={form.twitter} onChange={(e) => setForm({ ...form, twitter: e.target.value })} className={`${inputClass} w-full`} /></div>
           </div>
-          <div className="mt-3"><label className={labelClass}>Bio *</label><textarea required value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} className={`${inputClass} w-full resize-none`} rows={2} /></div>
+          <div className="mt-3"><label className={labelClass}>Biographie *</label><textarea required value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} className={`${inputClass} w-full resize-none`} rows={2} /></div>
           <div className="mt-3"><ImageUpload value={form.photo} onChange={(url) => setForm({ ...form, photo: url })} type="panelists" label="Photo" /></div>
-          <button type="submit" className="btn-primary mt-3 px-4 py-2 text-xs">Add Panelist</button>
+          <button type="submit" className="btn-primary mt-3 px-4 py-2 text-xs">Ajouter le panéliste</button>
         </form>
       )}
 
@@ -84,7 +85,7 @@ export default function EventPanelistsPage({ params }: { params: Promise<{ slug:
       ) : panelists.length === 0 ? (
         <div className="bg-white rounded-xl border border-gray-100 p-8 text-center">
           <UserCheck className="w-8 h-8 mx-auto mb-2 text-gray-200" />
-          <p className="text-muted text-xs">No panelists yet</p>
+          <p className="text-muted text-xs">Aucun panéliste pour le moment</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

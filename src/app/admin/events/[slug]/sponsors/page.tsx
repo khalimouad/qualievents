@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from "react";
 import { Award, Plus, Trash2, X } from "lucide-react";
 import ImageUpload from "@/components/ImageUpload";
+import { t } from "@/lib/i18n";
 
 interface Sponsor { id: string; name: string; logo: string | null; website: string | null; tier: string }
 
@@ -37,7 +38,7 @@ export default function EventSponsorsPage({ params }: { params: Promise<{ slug: 
   };
 
   const remove = async (id: string) => {
-    if (!confirm("Remove this sponsor?")) return;
+    if (!confirm("Retirer ce sponsor ?")) return;
     await fetch(`/api/sponsors?id=${id}`, { method: "DELETE" });
     load();
   };
@@ -51,24 +52,24 @@ export default function EventSponsorsPage({ params }: { params: Promise<{ slug: 
       <div className="flex items-center justify-between gap-3 mb-3">
         <p className="text-xs text-muted">{sponsors.length} sponsors</p>
         <button onClick={() => setShowForm(!showForm)} className="btn-primary px-3 py-1.5 text-xs inline-flex items-center gap-1.5">
-          {showForm ? <><X className="w-3 h-3" /> Cancel</> : <><Plus className="w-3 h-3" /> Add</>}
+          {showForm ? <><X className="w-3 h-3" /> {t.common.cancel}</> : <><Plus className="w-3 h-3" /> {t.common.add}</>}
         </button>
       </div>
 
       {showForm && (
         <form onSubmit={submit} className="bg-white rounded-xl border border-gray-100 p-4 mb-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div><label className={labelClass}>Name *</label><input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={`${inputClass} w-full`} /></div>
+            <div><label className={labelClass}>Nom *</label><input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={`${inputClass} w-full`} /></div>
             <div>
-              <label className={labelClass}>Tier</label>
+              <label className={labelClass}>Niveau</label>
               <select value={form.tier} onChange={(e) => setForm({ ...form, tier: e.target.value })} className={`${inputClass} w-full`}>
-                <option value="platinum">Platinum</option><option value="gold">Gold</option><option value="silver">Silver</option><option value="bronze">Bronze</option>
+                <option value="platinum">Platine</option><option value="gold">Or</option><option value="silver">Argent</option><option value="bronze">Bronze</option>
               </select>
             </div>
-            <div className="sm:col-span-2"><label className={labelClass}>Website</label><input value={form.website} onChange={(e) => setForm({ ...form, website: e.target.value })} className={`${inputClass} w-full`} placeholder="https://example.com" /></div>
+            <div className="sm:col-span-2"><label className={labelClass}>Site web</label><input value={form.website} onChange={(e) => setForm({ ...form, website: e.target.value })} className={`${inputClass} w-full`} placeholder="https://exemple.com" /></div>
           </div>
           <div className="mt-3"><ImageUpload value={form.logo} onChange={(url) => setForm({ ...form, logo: url })} type="sponsors" label="Logo" /></div>
-          <button type="submit" className="btn-primary mt-3 px-4 py-2 text-xs">Add Sponsor</button>
+          <button type="submit" className="btn-primary mt-3 px-4 py-2 text-xs">Ajouter le sponsor</button>
         </form>
       )}
 
@@ -77,7 +78,7 @@ export default function EventSponsorsPage({ params }: { params: Promise<{ slug: 
       ) : sponsors.length === 0 ? (
         <div className="bg-white rounded-xl border border-gray-100 p-8 text-center">
           <Award className="w-8 h-8 mx-auto mb-2 text-gray-200" />
-          <p className="text-muted text-xs">No sponsors yet</p>
+          <p className="text-muted text-xs">Aucun sponsor pour le moment</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check, User, Briefcase, Calendar, Sparkles, PartyPopper } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { t } from "@/lib/i18n";
 
 interface EventInfo {
   id: string;
@@ -34,10 +35,10 @@ export default function EventRegisterPage() {
 
   const validateStep = () => {
     if (step === 1) {
-      if (!form.firstName.trim()) return "First name is required";
-      if (!form.lastName.trim()) return "Last name is required";
-      if (!form.email.trim()) return "Email is required";
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return "Invalid email format";
+      if (!form.firstName.trim()) return "Le prénom est obligatoire";
+      if (!form.lastName.trim()) return "Le nom est obligatoire";
+      if (!form.email.trim()) return "L'email est obligatoire";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return "Format d'email invalide";
     }
     return "";
   };
@@ -50,9 +51,9 @@ export default function EventRegisterPage() {
     try {
       const res = await fetch("/api/subscribers", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, eventId: event.id }) });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Registration failed");
+      if (!res.ok) throw new Error(data.error || "Échec de l'inscription");
       setSuccess(true);
-    } catch (e) { setError(e instanceof Error ? e.message : "Registration failed"); }
+    } catch (e) { setError(e instanceof Error ? e.message : "Échec de l'inscription"); }
     finally { setLoading(false); }
   };
 
@@ -69,11 +70,11 @@ export default function EventRegisterPage() {
                   <PartyPopper className="w-10 h-10 text-white" />
                 </div>
               </div>
-              <h1 className="text-2xl font-bold text-secondary mb-3">You&apos;re In!</h1>
-              <p className="text-muted mb-8 leading-relaxed">Registration successful for <strong>{event?.title}</strong>. Check your email for confirmation.</p>
+              <h1 className="text-2xl font-bold text-secondary mb-3">{t.register.youreIn}</h1>
+              <p className="text-muted mb-8 leading-relaxed">{t.register.successMsg} <strong>{event?.title}</strong>. {t.register.successSub}</p>
               <div className="space-y-3">
-                <Link href={`/events/${slug}/badge`} className="btn-primary w-full py-3.5 text-center block text-sm">Get Your Badge</Link>
-                <Link href={`/events/${slug}`} className="block w-full bg-gray-50 hover:bg-gray-100 text-gray-600 py-3.5 rounded-[10px] text-sm font-medium transition-colors">Back to Event</Link>
+                <Link href={`/events/${slug}/badge`} className="btn-primary w-full py-3.5 text-center block text-sm">{t.nav.getBadge}</Link>
+                <Link href={`/events/${slug}`} className="block w-full bg-gray-50 hover:bg-gray-100 text-gray-600 py-3.5 rounded-[10px] text-sm font-medium transition-colors">{t.register.backToEvent}</Link>
               </div>
             </div>
           </div>
@@ -83,9 +84,9 @@ export default function EventRegisterPage() {
   }
 
   const steps = [
-    { num: 1, label: "Personal", icon: <User className="w-4 h-4" /> },
-    { num: 2, label: "Professional", icon: <Briefcase className="w-4 h-4" /> },
-    { num: 3, label: "Confirm", icon: <Check className="w-4 h-4" /> },
+    { num: 1, label: t.register.stepPersonal, icon: <User className="w-4 h-4" /> },
+    { num: 2, label: t.register.stepProfessional, icon: <Briefcase className="w-4 h-4" /> },
+    { num: 3, label: t.register.stepConfirm, icon: <Check className="w-4 h-4" /> },
   ];
 
   return (
@@ -101,7 +102,7 @@ export default function EventRegisterPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-secondary text-sm truncate">{event.title}</p>
-                <p className="text-muted text-xs">{new Date(event.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} &middot; {event.venue}, {event.city}</p>
+                <p className="text-muted text-xs">{new Date(event.date).toLocaleDateString("fr-FR", { month: "long", day: "numeric", year: "numeric" })} &middot; {event.venue}, {event.city}</p>
               </div>
               <Link href={`/events/${slug}`} className="text-muted hover:text-secondary text-xs font-medium flex-shrink-0">
                 <ArrowLeft className="w-4 h-4" />
@@ -110,8 +111,8 @@ export default function EventRegisterPage() {
           )}
 
           <div className="text-center mb-10">
-            <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">Secure Your Spot</span>
-            <h1 className="text-3xl sm:text-4xl font-bold text-secondary mt-2 mb-2">Register</h1>
+            <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.register.secureSpot}</span>
+            <h1 className="text-3xl sm:text-4xl font-bold text-secondary mt-2 mb-2">{t.register.title}</h1>
           </div>
 
           {/* Steps */}
@@ -138,23 +139,23 @@ export default function EventRegisterPage() {
 
             {step === 1 && (
               <div className="animate-fade-in space-y-4">
-                <h2 className="text-xl font-bold text-secondary mb-6">Personal Details</h2>
+                <h2 className="text-xl font-bold text-secondary mb-6">{t.register.personalDetails}</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">First Name <span className="text-primary">*</span></label>
-                    <input type="text" value={form.firstName} onChange={(e) => updateForm("firstName", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm" placeholder="John" />
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{t.register.firstName} <span className="text-primary">*</span></label>
+                    <input type="text" value={form.firstName} onChange={(e) => updateForm("firstName", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm" placeholder="Jean" />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Last Name <span className="text-primary">*</span></label>
-                    <input type="text" value={form.lastName} onChange={(e) => updateForm("lastName", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm" placeholder="Doe" />
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{t.register.lastName} <span className="text-primary">*</span></label>
+                    <input type="text" value={form.lastName} onChange={(e) => updateForm("lastName", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm" placeholder="Dupont" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Email <span className="text-primary">*</span></label>
-                  <input type="email" value={form.email} onChange={(e) => updateForm("email", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm" placeholder="john@example.com" />
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{t.register.email} <span className="text-primary">*</span></label>
+                  <input type="email" value={form.email} onChange={(e) => updateForm("email", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm" placeholder="jean@exemple.com" />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Phone</label>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{t.register.phone}</label>
                   <input type="tel" value={form.phone} onChange={(e) => updateForm("phone", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm" placeholder="+33 6 12 34 56 78" />
                 </div>
               </div>
@@ -162,33 +163,33 @@ export default function EventRegisterPage() {
 
             {step === 2 && (
               <div className="animate-fade-in space-y-4">
-                <h2 className="text-xl font-bold text-secondary mb-6">Professional Info</h2>
+                <h2 className="text-xl font-bold text-secondary mb-6">{t.register.professionalInfo}</h2>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Company</label>
-                  <input type="text" value={form.company} onChange={(e) => updateForm("company", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm" placeholder="Acme Inc." />
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{t.register.company}</label>
+                  <input type="text" value={form.company} onChange={(e) => updateForm("company", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm" placeholder="Acme SARL" />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Job Title</label>
-                  <input type="text" value={form.jobTitle} onChange={(e) => updateForm("jobTitle", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm" placeholder="Software Engineer" />
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{t.register.jobTitle}</label>
+                  <input type="text" value={form.jobTitle} onChange={(e) => updateForm("jobTitle", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm" placeholder="Ingénieur" />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Dietary Requirements</label>
-                  <textarea value={form.dietaryReqs} onChange={(e) => updateForm("dietaryReqs", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm resize-none" rows={2} placeholder="Any allergies or restrictions..." />
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{t.register.dietaryReqs}</label>
+                  <textarea value={form.dietaryReqs} onChange={(e) => updateForm("dietaryReqs", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm resize-none" rows={2} placeholder={t.register.dietaryPlaceholder} />
                 </div>
               </div>
             )}
 
             {step === 3 && (
               <div className="animate-fade-in">
-                <h2 className="text-xl font-bold text-secondary mb-6">Review & Confirm</h2>
+                <h2 className="text-xl font-bold text-secondary mb-6">{t.register.reviewConfirm}</h2>
                 <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100">
                   <div className="space-y-2.5">
                     {[
-                      { label: "Name", value: `${form.firstName} ${form.lastName}` },
-                      { label: "Email", value: form.email },
-                      ...(form.phone ? [{ label: "Phone", value: form.phone }] : []),
-                      ...(form.company ? [{ label: "Company", value: form.company }] : []),
-                      ...(form.jobTitle ? [{ label: "Role", value: form.jobTitle }] : []),
+                      { label: t.register.name, value: `${form.firstName} ${form.lastName}` },
+                      { label: t.register.email, value: form.email },
+                      ...(form.phone ? [{ label: t.register.phone, value: form.phone }] : []),
+                      ...(form.company ? [{ label: t.register.company, value: form.company }] : []),
+                      ...(form.jobTitle ? [{ label: t.register.role, value: form.jobTitle }] : []),
                     ].map((item) => (
                       <div key={item.label} className="flex justify-between text-sm">
                         <span className="text-muted">{item.label}</span>
@@ -202,15 +203,15 @@ export default function EventRegisterPage() {
 
             <div className="flex items-center justify-between mt-10 pt-6 border-t border-gray-100">
               {step > 1 ? (
-                <button onClick={() => setStep((s) => s - 1)} className="flex items-center gap-2 text-muted hover:text-secondary font-medium transition-colors text-sm"><ArrowLeft className="w-4 h-4" /> Back</button>
+                <button onClick={() => setStep((s) => s - 1)} className="flex items-center gap-2 text-muted hover:text-secondary font-medium transition-colors text-sm"><ArrowLeft className="w-4 h-4" /> {t.common.back}</button>
               ) : (
-                <Link href={`/events/${slug}`} className="flex items-center gap-2 text-muted hover:text-secondary font-medium transition-colors text-sm"><ArrowLeft className="w-4 h-4" /> Event</Link>
+                <Link href={`/events/${slug}`} className="flex items-center gap-2 text-muted hover:text-secondary font-medium transition-colors text-sm"><ArrowLeft className="w-4 h-4" /> {t.register.eventCtx}</Link>
               )}
               {step < 3 ? (
-                <button onClick={nextStep} className="btn-primary px-7 py-3 text-sm inline-flex items-center gap-2">Continue <ArrowRight className="w-4 h-4" /></button>
+                <button onClick={nextStep} className="btn-primary px-7 py-3 text-sm inline-flex items-center gap-2">{t.common.continue} <ArrowRight className="w-4 h-4" /></button>
               ) : (
                 <button onClick={submit} disabled={loading} className="btn-primary px-8 py-3 text-sm inline-flex items-center gap-2 disabled:opacity-50">
-                  {loading ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Processing...</> : <><Sparkles className="w-4 h-4" /> Complete Registration</>}
+                  {loading ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> {t.register.processing}</> : <><Sparkles className="w-4 h-4" /> {t.register.complete}</>}
                 </button>
               )}
             </div>

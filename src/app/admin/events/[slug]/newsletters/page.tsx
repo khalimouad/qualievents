@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import { Mail, Plus, X, Send, FileText } from "lucide-react";
+import { t } from "@/lib/i18n";
 
 interface Newsletter {
   id: string; subject: string; content: string; status: string;
@@ -46,26 +47,26 @@ export default function EventNewslettersPage({ params }: { params: Promise<{ slu
       <div className="flex items-center justify-between gap-3 mb-3">
         <p className="text-xs text-muted">{newsletters.length} newsletters</p>
         <button onClick={() => setShowForm(!showForm)} className="btn-primary px-3 py-1.5 text-xs inline-flex items-center gap-1.5">
-          {showForm ? <><X className="w-3 h-3" /> Cancel</> : <><Plus className="w-3 h-3" /> Compose</>}
+          {showForm ? <><X className="w-3 h-3" /> {t.common.cancel}</> : <><Plus className="w-3 h-3" /> Rédiger</>}
         </button>
       </div>
 
       {showForm && (
         <div className="bg-white rounded-xl border border-gray-100 p-4 mb-3 space-y-3">
           <div>
-            <label className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1 block">Subject</label>
-            <input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-xs" placeholder="Subject line" />
+            <label className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1 block">Objet</label>
+            <input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-xs" placeholder="Ligne d'objet" />
           </div>
           <div>
-            <label className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1 block">Content (HTML)</label>
-            <textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} rows={6} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-xs resize-none" placeholder="<p>Newsletter content...</p>" />
+            <label className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1 block">Contenu (HTML)</label>
+            <textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} rows={6} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-xs resize-none" placeholder="<p>Contenu de la newsletter...</p>" />
           </div>
           <div className="flex gap-2">
             <button onClick={() => submit(false)} disabled={sending} className="bg-gray-50 hover:bg-gray-100 text-secondary border border-gray-200 px-4 py-2 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 flex items-center gap-1.5">
-              <FileText className="w-3 h-3" /> Save Draft
+              <FileText className="w-3 h-3" /> Brouillon
             </button>
             <button onClick={() => submit(true)} disabled={sending} className="btn-primary px-4 py-2 text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
-              <Send className="w-3 h-3" /> {sending ? "Sending..." : "Send Now"}
+              <Send className="w-3 h-3" /> {sending ? "Envoi..." : "Envoyer"}
             </button>
           </div>
         </div>
@@ -77,7 +78,7 @@ export default function EventNewslettersPage({ params }: { params: Promise<{ slu
         ) : newsletters.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-100 p-8 text-center">
             <Mail className="w-8 h-8 mx-auto mb-2 text-gray-200" />
-            <p className="text-muted text-xs">No newsletters yet</p>
+            <p className="text-muted text-xs">Aucune newsletter pour le moment</p>
           </div>
         ) : (
           newsletters.map((nl) => (

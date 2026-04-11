@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, use } from "react";
-import { Send, Plus, X, Mail, MessageSquare, Check, AlertCircle } from "lucide-react";
+import { Send, Plus, X, Mail, Check, AlertCircle } from "lucide-react";
+import { t } from "@/lib/i18n";
 
 interface Invitation {
   id: string; email: string; phone: string | null; name: string;
@@ -57,24 +58,24 @@ export default function EventInvitationsPage({ params }: { params: Promise<{ slu
       <div className="flex items-center justify-between gap-3 mb-3">
         <p className="text-xs text-muted">{invitations.length} invitations</p>
         <button onClick={() => setShowForm(!showForm)} className="btn-primary px-3 py-1.5 text-xs inline-flex items-center gap-1.5">
-          {showForm ? <><X className="w-3 h-3" /> Cancel</> : <><Plus className="w-3 h-3" /> Send</>}
+          {showForm ? <><X className="w-3 h-3" /> {t.common.cancel}</> : <><Plus className="w-3 h-3" /> Envoyer</>}
         </button>
       </div>
 
       {showForm && (
         <div className="bg-white rounded-xl border border-gray-100 p-4 mb-3">
           <label className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1 block">
-            Invitees (one per line: Name, Email, Phone)
+            Invités (un par ligne : Nom, Email, Téléphone)
           </label>
           <textarea
             value={bulkText}
             onChange={(e) => setBulkText(e.target.value)}
             rows={5}
             className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-xs font-mono resize-none"
-            placeholder={"John Doe, john@example.com, +33612345678\nJane Smith, jane@example.com"}
+            placeholder={"Jean Dupont, jean@exemple.com, +33612345678\nMarie Durand, marie@exemple.com"}
           />
           <button onClick={send} disabled={sending || !bulkText.trim()} className="btn-primary mt-3 px-4 py-2 text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
-            <Send className="w-3 h-3" /> {sending ? "Sending..." : "Send Invitations"}
+            <Send className="w-3 h-3" /> {sending ? "Envoi..." : "Envoyer les invitations"}
           </button>
         </div>
       )}
@@ -85,17 +86,17 @@ export default function EventInvitationsPage({ params }: { params: Promise<{ slu
         ) : invitations.length === 0 ? (
           <div className="p-8 text-center">
             <Send className="w-8 h-8 mx-auto mb-2 text-gray-200" />
-            <p className="text-muted text-xs">No invitations sent yet</p>
+            <p className="text-muted text-xs">Aucune invitation envoyée pour le moment</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-100">
-                  <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">Name</th>
-                  <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">Email</th>
-                  <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">Status</th>
-                  <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider hidden lg:table-cell">Sent</th>
+                  <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">{t.register.name}</th>
+                  <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">{t.register.email}</th>
+                  <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">Statut</th>
+                  <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider hidden lg:table-cell">Envoyée</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">

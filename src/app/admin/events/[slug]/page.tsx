@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import { Users, UserCheck, Award, Send, Mail, QrCode, TrendingUp, MapPin } from "lucide-react";
+import { Users, UserCheck, Award, Send, Mail, TrendingUp } from "lucide-react";
 import Link from "next/link";
+import { t } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -21,12 +22,12 @@ export default async function EventOverviewPage({ params }: { params: Promise<{ 
   const capacityPct = Math.round((event._count.subscribers / event.maxAttendees) * 100);
 
   const stats = [
-    { label: "Subscribers", value: event._count.subscribers, max: event.maxAttendees, icon: Users, color: "from-blue-500 to-indigo-600", href: `/admin/events/${slug}/subscribers` },
-    { label: "Checked In", value: scanned, max: event._count.badges, icon: TrendingUp, color: "from-emerald-500 to-green-600", href: `/admin/events/${slug}/subscribers` },
-    { label: "Panelists", value: event._count.panelists, icon: UserCheck, color: "from-violet-500 to-purple-600", href: `/admin/events/${slug}/panelists` },
-    { label: "Sponsors", value: event._count.sponsors, icon: Award, color: "from-amber-500 to-orange-600", href: `/admin/events/${slug}/sponsors` },
-    { label: "Invitations", value: event._count.invitations, icon: Send, color: "from-pink-500 to-rose-600", href: `/admin/events/${slug}/invitations` },
-    { label: "Newsletters", value: event._count.newsletters, icon: Mail, color: "from-cyan-500 to-blue-600", href: `/admin/events/${slug}/newsletters` },
+    { label: t.admin.stats.subscribers, value: event._count.subscribers, max: event.maxAttendees, icon: Users, color: "from-blue-500 to-indigo-600", href: `/admin/events/${slug}/subscribers` },
+    { label: t.admin.stats.checkedIn, value: scanned, max: event._count.badges, icon: TrendingUp, color: "from-emerald-500 to-green-600", href: `/admin/events/${slug}/subscribers` },
+    { label: t.admin.stats.panelists, value: event._count.panelists, icon: UserCheck, color: "from-violet-500 to-purple-600", href: `/admin/events/${slug}/panelists` },
+    { label: t.admin.sponsors, value: event._count.sponsors, icon: Award, color: "from-amber-500 to-orange-600", href: `/admin/events/${slug}/sponsors` },
+    { label: t.admin.invitations, value: event._count.invitations, icon: Send, color: "from-pink-500 to-rose-600", href: `/admin/events/${slug}/invitations` },
+    { label: t.admin.newsletters, value: event._count.newsletters, icon: Mail, color: "from-cyan-500 to-blue-600", href: `/admin/events/${slug}/newsletters` },
   ];
 
   return (
@@ -61,10 +62,10 @@ export default async function EventOverviewPage({ params }: { params: Promise<{ 
       <div className="bg-white rounded-xl border border-gray-100 p-4 mb-4">
         <div className="flex items-center justify-between mb-2">
           <div>
-            <h2 className="text-xs uppercase tracking-[0.15em] text-muted font-semibold">Capacity</h2>
+            <h2 className="text-xs uppercase tracking-[0.15em] text-muted font-semibold">{t.admin.capacity}</h2>
             <p className="text-sm text-secondary mt-0.5">
-              <strong>{event._count.subscribers}</strong> of <strong>{event.maxAttendees}</strong> seats filled
-              {waitlisted > 0 && <span className="text-warning ml-2">· {waitlisted} on waitlist</span>}
+              <strong>{event._count.subscribers}</strong> / <strong>{event.maxAttendees}</strong> {t.admin.seatsFilled}
+              {waitlisted > 0 && <span className="text-warning ml-2">· {waitlisted} {t.admin.onWaitlist}</span>}
             </p>
           </div>
           <span className={`text-lg font-bold ${capacityPct >= 100 ? "text-danger" : capacityPct >= 80 ? "text-warning" : "text-success"}`}>{capacityPct}%</span>
@@ -79,14 +80,14 @@ export default async function EventOverviewPage({ params }: { params: Promise<{ 
 
       {/* Event details */}
       <div className="bg-white rounded-xl border border-gray-100 p-4">
-        <h2 className="text-xs uppercase tracking-[0.15em] text-muted font-semibold mb-3">Details</h2>
+        <h2 className="text-xs uppercase tracking-[0.15em] text-muted font-semibold mb-3">{t.admin.details}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
           <div>
-            <p className="text-[10px] text-muted uppercase tracking-wider">Date</p>
-            <p className="text-secondary font-medium">{new Date(event.date).toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
+            <p className="text-[10px] text-muted uppercase tracking-wider">{t.admin.date}</p>
+            <p className="text-secondary font-medium">{new Date(event.date).toLocaleDateString("fr-FR", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
           </div>
           <div>
-            <p className="text-[10px] text-muted uppercase tracking-wider">Venue</p>
+            <p className="text-[10px] text-muted uppercase tracking-wider">{t.admin.venue}</p>
             <p className="text-secondary font-medium">{event.venue}</p>
             <p className="text-xs text-muted">{event.address}, {event.city}</p>
           </div>

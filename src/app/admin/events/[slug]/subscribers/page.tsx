@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, use } from "react";
-import { Users, Search, Download, QrCode, Filter, Trash2 } from "lucide-react";
+import { Users, Search, Download, QrCode, Trash2 } from "lucide-react";
+import { t } from "@/lib/i18n";
 
 interface Subscriber {
   id: string;
@@ -19,7 +20,7 @@ interface Subscriber {
 export default function EventSubscribersPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
-  const [eventId, setEventId] = useState<string>("");
+  const [_eventId, setEventId] = useState<string>("");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [loading, setLoading] = useState(true);
@@ -35,7 +36,7 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
   };
 
   const remove = async (id: string) => {
-    if (!confirm("Remove this subscriber? Their badge will also be deleted.")) return;
+    if (!confirm("Retirer cet abonné ? Son badge sera également supprimé.")) return;
     await fetch(`/api/subscribers?id=${id}`, { method: "DELETE" });
     load();
   };
@@ -62,23 +63,23 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
   return (
     <div>
       <div className="flex items-center justify-between gap-3 mb-3">
-        <p className="text-xs text-muted">{subscribers.length} total</p>
+        <p className="text-xs text-muted">{subscribers.length} au total</p>
         <button onClick={downloadCSV} className="btn-primary px-3 py-1.5 text-xs inline-flex items-center gap-1.5">
-          <Download className="w-3 h-3" /> Export CSV
+          <Download className="w-3 h-3" /> {t.common.export} CSV
         </button>
       </div>
 
       <div className="bg-white rounded-xl border border-gray-100 p-3 mb-3 flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
-          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, email, company..." className="w-full pl-8 pr-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-xs" />
+          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher nom, email, entreprise..." className="w-full pl-8 pr-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-xs" />
         </div>
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-xs">
-          <option value="all">All</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="pending">Pending</option>
-          <option value="waitlisted">Waitlisted</option>
-          <option value="cancelled">Cancelled</option>
+          <option value="all">Tous</option>
+          <option value="confirmed">Confirmés</option>
+          <option value="pending">En attente</option>
+          <option value="waitlisted">Liste d&apos;attente</option>
+          <option value="cancelled">Annulés</option>
         </select>
       </div>
 
@@ -88,17 +89,17 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center">
             <Users className="w-8 h-8 mx-auto mb-2 text-gray-200" />
-            <p className="text-muted text-xs">No subscribers yet</p>
+            <p className="text-muted text-xs">Aucun abonné pour le moment</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-100">
-                  <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">Name</th>
-                  <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">Email</th>
-                  <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider hidden md:table-cell">Company</th>
-                  <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">Status</th>
+                  <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">{t.register.name}</th>
+                  <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">{t.register.email}</th>
+                  <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider hidden md:table-cell">{t.register.company}</th>
+                  <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">Statut</th>
                   <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">Badge</th>
                   <th className="px-4 py-2.5 w-8"></th>
                 </tr>
