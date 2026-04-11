@@ -96,10 +96,43 @@ check_prerequisites() {
   print_success "Node.js $(node -v) and npm $(npm -v) found"
 }
 
+# ─── Detect Server IP ───
+# Tries multiple sources: public IP services first, then local interface
+detect_server_ip() {
+  local ip=""
+
+  # Try public IP detection (external services)
+  for service in "https://ifconfig.me" "https://icanhazip.com" "https://api.ipify.org" "https://ipinfo.io/ip"; do
+    ip=$(curl -s --max-time 3 "$service" 2>/dev/null | tr -d '[:space:]')
+    if [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+      echo "$ip"
+      return 0
+    fi
+  done
+
+  # Fallback: local IP from default route interface
+  ip=$(ip route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="src") print $(i+1)}' | head -1)
+  if [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "$ip"
+    return 0
+  fi
+
+  # Last resort: hostname -I
+  ip=$(hostname -I 2>/dev/null | awk '{print $1}')
+  if [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "$ip"
+    return 0
+  fi
+
+  echo ""
+  return 1
+}
+
 # ─── SSL Setup ───
 setup_ssl() {
   local domain="$1"
   local email="$2"
+  local port="${3:-3000}"
 
   echo ""
   print_info "Installing Nginx and Certbot..."
@@ -126,7 +159,7 @@ server {
     server_name $domain;
 
     location / {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:${port};
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -174,7 +207,7 @@ After=network.target
 Type=simple
 User=$(whoami)
 WorkingDirectory=$app_dir
-ExecStart=$node_path $app_dir/node_modules/.bin/next start -p 3000
+ExecStart=$node_path $app_dir/node_modules/.bin/next start -p ${APP_PORT:-3000} -H 0.0.0.0
 Restart=on-failure
 RestartSec=10
 Environment=NODE_ENV=production
@@ -275,12 +308,22 @@ else
   print_info "Email skipped. Configure SMTP_* in .env later."
 fi
 
+# Detect server IP early so it can be used in steps 6 and 7
+print_info "Detecting server IP address..."
+SERVER_IP=$(detect_server_ip)
+if [ -n "$SERVER_IP" ]; then
+  print_success "Detected IP: $SERVER_IP"
+else
+  print_warn "Could not detect server IP automatically"
+  SERVER_IP=""
+fi
+
 # Step 6: Domain & SSL (optional)
 print_step 6 "Domain & SSL (Optional)"
 echo ""
 echo -e "  ${DIM}Set up a custom domain with free SSL via Let's Encrypt.${NC}"
 echo -e "  ${DIM}Requires: a domain pointing to this server + sudo access.${NC}"
-echo -e "  ${DIM}Skip this to use localhost or configure later.${NC}"
+echo -e "  ${DIM}Skip this to use the server IP directly.${NC}"
 echo ""
 read -rp "  Configure domain & SSL? (y/n) [n]: " setup_domain_choice
 setup_domain_choice="${setup_domain_choice:-n}"
@@ -293,19 +336,33 @@ if [ "$setup_domain_choice" = "y" ] || [ "$setup_domain_choice" = "Y" ]; then
   print_success "Domain: $SETUP_DOMAIN (SSL via Let's Encrypt)"
 else
   SETUP_DOMAIN=""
-  APP_URL="http://localhost:3000"
-  print_info "Domain skipped. Using localhost:3000"
+  if [ -n "$SERVER_IP" ]; then
+    APP_URL="http://$SERVER_IP:3000"
+    print_info "Using auto-detected IP: $APP_URL"
+  else
+    APP_URL="http://localhost:3000"
+    print_info "Using localhost (could not detect IP)"
+  fi
 fi
 
 # Step 7: Final options
 print_step 7 "Final Options"
 
+# Port (skipped if SSL via Nginx — Nginx handles 80/443 -> 3000)
+if [ "$SETUP_SSL" = "y" ]; then
+  APP_PORT=3000
+else
+  prompt_with_default "Application port" "3000" APP_PORT
+fi
+
 # Custom app URL override (only if no domain was set)
 if [ -z "$SETUP_DOMAIN" ]; then
   if [ "$DEPLOY_MODE" = "saas" ]; then
     DEFAULT_URL="https://${ORG_SLUG}.qualievents.com"
+  elif [ -n "$SERVER_IP" ]; then
+    DEFAULT_URL="http://${SERVER_IP}:${APP_PORT}"
   else
-    DEFAULT_URL="http://localhost:3000"
+    DEFAULT_URL="http://localhost:${APP_PORT}"
   fi
   prompt_with_default "App URL" "$DEFAULT_URL" APP_URL
 fi
@@ -347,6 +404,8 @@ cat > .env << ENVEOF
 DEPLOY_MODE="$DEPLOY_MODE"
 DATABASE_URL="$DATABASE_URL"
 NEXT_PUBLIC_APP_URL="$APP_URL"
+PORT="$APP_PORT"
+HOSTNAME="0.0.0.0"
 SESSION_SECRET="$SESSION_SECRET"
 
 # Organization
@@ -425,13 +484,13 @@ if [ "$SETUP_SSL" = "y" ] && [ -n "$SETUP_DOMAIN" ]; then
   fi
 
   if [ "$SETUP_SSL" = "y" ]; then
-    if setup_ssl "$SETUP_DOMAIN" "$SSL_EMAIL"; then
+    if setup_ssl "$SETUP_DOMAIN" "$SSL_EMAIL" "$APP_PORT"; then
       print_success "SSL setup complete!"
 
       # Create systemd service for auto-start
       create_service
     else
-      print_warn "SSL setup failed. App will still work on http://localhost:3000"
+      print_warn "SSL setup failed. App will still work on $APP_URL"
       print_info "To set up SSL manually later:"
       echo -e "    ${DIM}1. Install nginx and certbot${NC}"
       echo -e "    ${DIM}2. Point your domain to this server's IP${NC}"
