@@ -15,6 +15,12 @@ export async function POST(req: NextRequest) {
 
   const token = generateSessionToken(user.id, user.role);
 
+  // Detect HTTPS from the actual request, not env var.
+  // Honors x-forwarded-proto for reverse proxies (Nginx, Caddy, Cloudflare).
+  const isHttps =
+    req.nextUrl.protocol === "https:" ||
+    req.headers.get("x-forwarded-proto") === "https";
+
   const response = NextResponse.json({
     success: true,
     user: { name: user.name, email: user.email, role: user.role },
@@ -22,7 +28,7 @@ export async function POST(req: NextRequest) {
 
   response.cookies.set("admin_session", token, {
     httpOnly: true,
-    secure: process.env.NEXT_PUBLIC_APP_URL?.startsWith("https") ?? false,
+    secure: isHttps,
     sameSite: "lax",
     path: "/",
     maxAge: 60 * 60 * 24, // 24 hours
