@@ -50,6 +50,7 @@ export async function PUT(
       latitude: body.latitude !== undefined ? parseFloat(body.latitude) : event.latitude,
       longitude: body.longitude !== undefined ? parseFloat(body.longitude) : event.longitude,
       themeColor: body.themeColor !== undefined ? body.themeColor : event.themeColor,
+      heroImage: body.heroImage !== undefined ? body.heroImage : event.heroImage,
       maxAttendees: body.maxAttendees ? parseInt(body.maxAttendees) : event.maxAttendees,
       isPublished: body.isPublished !== undefined ? body.isPublished : event.isPublished,
     },

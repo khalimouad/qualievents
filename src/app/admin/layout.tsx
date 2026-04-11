@@ -2,17 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard, Users, UserCheck, Mail, Send, QrCode, ArrowLeft, ChevronRight, Award, LogOut,
-} from "lucide-react";
+import { LayoutDashboard, QrCode, ArrowLeft, ChevronRight, LogOut } from "lucide-react";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/subscribers", label: "Subscribers", icon: Users },
-  { href: "/admin/panelists", label: "Panelists", icon: UserCheck },
-  { href: "/admin/sponsors", label: "Sponsors", icon: Award },
-  { href: "/admin/invitations", label: "Invitations", icon: Send },
-  { href: "/admin/newsletters", label: "Newsletters", icon: Mail },
   { href: "/scan", label: "Scanner App", icon: QrCode },
 ];
 
@@ -22,87 +15,74 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-screen flex bg-background">
       {/* Sidebar */}
-      <aside className="w-[260px] bg-white border-r border-gray-100 hidden lg:flex flex-col">
-        {/* Logo */}
-        <div className="p-6 pb-4">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-sm">
-              <span className="text-white font-bold text-sm">Q</span>
+      <aside className="w-[220px] bg-white border-r border-gray-100 hidden lg:flex flex-col">
+        <div className="p-4 pb-3">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-sm">
+              <span className="text-white font-bold text-xs">Q</span>
             </div>
             <div>
-              <span className="text-secondary font-bold text-base">Quali<span className="text-primary">Events</span></span>
-              <p className="text-[10px] text-muted uppercase tracking-widest">Admin Panel</p>
+              <span className="text-secondary font-bold text-sm">Quali<span className="text-primary">Events</span></span>
+              <p className="text-[9px] text-muted uppercase tracking-widest">Admin</p>
             </div>
           </Link>
         </div>
 
-        {/* Nav items */}
-        <nav className="flex-1 px-3 py-2 space-y-0.5">
-          <p className="px-3 py-2 text-[10px] text-muted uppercase tracking-[0.15em] font-semibold">Navigation</p>
+        <nav className="flex-1 px-2 py-1 space-y-0.5">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+            const isActive = pathname === item.href || (item.href === "/admin" && pathname.startsWith("/admin/events"));
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
-                  isActive
-                    ? "bg-primary/5 text-primary"
-                    : "text-muted hover:bg-gray-50 hover:text-secondary"
+                className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium transition-all ${
+                  isActive ? "bg-primary/5 text-primary" : "text-muted hover:bg-gray-50 hover:text-secondary"
                 }`}
               >
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isActive ? "bg-primary/10" : "bg-gray-50 group-hover:bg-gray-100"}`}>
-                  <Icon className="w-4 h-4" />
-                </div>
+                <Icon className="w-3.5 h-3.5" />
                 <span className="flex-1">{item.label}</span>
-                {isActive && <ChevronRight className="w-3.5 h-3.5 text-primary/50" />}
+                {isActive && <ChevronRight className="w-3 h-3 text-primary/50" />}
               </Link>
             );
           })}
         </nav>
 
-        {/* Footer */}
-        <div className="p-4 border-t border-gray-100 space-y-2">
-          <Link href="/" className="flex items-center gap-2 text-muted hover:text-secondary text-sm transition-colors group">
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-            Back to Website
+        <div className="p-3 border-t border-gray-100 space-y-1.5">
+          <Link href="/" className="flex items-center gap-2 text-muted hover:text-secondary text-xs transition-colors">
+            <ArrowLeft className="w-3 h-3" /> Back to Site
           </Link>
           <button
             onClick={() => { fetch("/api/auth", { method: "DELETE" }).then(() => window.location.href = "/admin/login"); }}
-            className="flex items-center gap-2 text-muted hover:text-danger text-sm transition-colors w-full"
+            className="flex items-center gap-2 text-muted hover:text-danger text-xs transition-colors w-full"
           >
-            <LogOut className="w-4 h-4" />
-            Logout
+            <LogOut className="w-3 h-3" /> Logout
           </button>
         </div>
       </aside>
 
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100">
-        <div className="flex items-center justify-between p-3.5">
+        <div className="flex items-center justify-between p-3">
           <Link href="/admin" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
-              <span className="text-white font-bold text-xs">Q</span>
+            <div className="w-7 h-7 rounded-md bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
+              <span className="text-white font-bold text-[10px]">Q</span>
             </div>
-            <span className="font-bold text-secondary text-sm">Admin</span>
+            <span className="font-bold text-secondary text-xs">Admin</span>
           </Link>
-          <Link href="/" className="text-muted hover:text-secondary text-sm font-medium flex items-center gap-1">
-            <ArrowLeft className="w-3.5 h-3.5" /> Site
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/" className="text-muted hover:text-secondary text-xs">Site</Link>
+            <button onClick={() => { fetch("/api/auth", { method: "DELETE" }).then(() => window.location.href = "/admin/login"); }} className="text-muted hover:text-danger">
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
-        <div className="flex overflow-x-auto px-3 pb-3 gap-1.5 no-scrollbar">
+        <div className="flex px-3 pb-2 gap-1.5">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+            const isActive = pathname === item.href || (item.href === "/admin" && pathname.startsWith("/admin/events"));
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
-                  isActive ? "bg-primary/10 text-primary" : "bg-gray-50 text-muted"
-                }`}
-              >
+              <Link key={item.href} href={item.href} className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-medium transition-all ${isActive ? "bg-primary/10 text-primary" : "bg-gray-50 text-muted"}`}>
                 <Icon className="w-3 h-3" />
                 {item.label}
               </Link>
@@ -111,11 +91,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </div>
 
-      {/* Main content */}
-      <main className="flex-1 p-5 lg:p-8 pt-[110px] lg:pt-8 overflow-auto">
-        <div className="max-w-7xl mx-auto">
-          {children}
-        </div>
+      <main className="flex-1 p-4 lg:p-6 pt-[90px] lg:pt-6 overflow-auto">
+        <div className="max-w-6xl mx-auto">{children}</div>
       </main>
     </div>
   );

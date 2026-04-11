@@ -1,0 +1,59 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { ArrowLeft, LayoutGrid, Users, UserCheck, Award, Send, Mail, Pencil, ExternalLink } from "lucide-react";
+import { prisma } from "@/lib/prisma";
+import EventTabs from "./tabs";
+
+export default async function EventAdminLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const event = await prisma.event.findUnique({
+    where: { slug },
+    select: { title: true, slug: true, isPublished: true, date: true, city: true },
+  });
+
+  if (!event) notFound();
+
+  return (
+    <div>
+      {/* Header */}
+      <div className="mb-4">
+        <Link href="/admin" className="inline-flex items-center gap-1.5 text-muted hover:text-secondary text-xs font-medium mb-2 transition-colors">
+          <ArrowLeft className="w-3 h-3" /> All Events
+        </Link>
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold text-secondary truncate">{event.title}</h1>
+            <p className="text-xs text-muted mt-0.5">
+              {new Date(event.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })} · {event.city}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${event.isPublished ? "bg-success/10 text-success" : "bg-gray-100 text-muted"}`}>
+              {event.isPublished ? "Live" : "Draft"}
+            </span>
+            {event.isPublished && (
+              <Link href={`/events/${slug}`} target="_blank" className="flex items-center gap-1 text-[11px] text-muted hover:text-primary font-medium transition-colors">
+                <ExternalLink className="w-3 h-3" /> View
+              </Link>
+            )}
+            <Link href={`/admin/events/${slug}/edit`} className="flex items-center gap-1 text-[11px] text-muted hover:text-primary font-medium transition-colors">
+              <Pencil className="w-3 h-3" /> Edit
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <EventTabs slug={slug} />
+
+      {/* Content */}
+      <div className="mt-4">{children}</div>
+    </div>
+  );
+}

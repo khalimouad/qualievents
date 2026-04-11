@@ -44,3 +44,7 @@ next-env.d.ts
 
 *.db
 *.db-journal
+
+# Uploaded files
+/public/uploads/*
+!/public/uploads/.gitkeep
