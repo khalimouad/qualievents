@@ -1,20 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
-import crypto from "crypto";
 
 const SESSION_SECRET = process.env.SESSION_SECRET || "fallback-dev-secret-change-me";
 
-function verifySession(req: NextRequest): { userId: string; role: string } | null {
+// Web Crypto API HMAC (works in Edge Runtime)
+async function hmacHex(secret: string, message: string): Promise<string> {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(message));
+  return Array.from(new Uint8Array(sig))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function verifySession(
+  req: NextRequest
+): Promise<{ userId: string; role: string } | null> {
   const token = req.cookies.get("admin_session")?.value;
   if (!token) return null;
 
   try {
-    const decoded = Buffer.from(token, "base64").toString("utf-8");
+    // atob is available in Edge Runtime (Buffer is not)
+    const decoded = atob(token);
     const parts = decoded.split(":");
     if (parts.length !== 4) return null;
 
     const [userId, role, timestamp, hmac] = parts;
     const payload = `${userId}:${role}:${timestamp}`;
-    const expectedHmac = crypto.createHmac("sha256", SESSION_SECRET).update(payload).digest("hex");
+    const expectedHmac = await hmacHex(SESSION_SECRET, payload);
 
     if (hmac !== expectedHmac) return null;
 
@@ -27,7 +45,7 @@ function verifySession(req: NextRequest): { userId: string; role: string } | nul
   }
 }
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const method = req.method;
 
@@ -37,7 +55,7 @@ export function middleware(req: NextRequest) {
 
   // ── ADMIN PAGES: require admin role ──
   if (pathname.startsWith("/admin")) {
-    const session = verifySession(req);
+    const session = await verifySession(req);
     if (!session || session.role !== "admin") {
       return NextResponse.redirect(new URL("/admin/login", req.url));
     }
@@ -46,7 +64,7 @@ export function middleware(req: NextRequest) {
 
   // ── SCANNER PAGES: require any authenticated user (admin or staff) ──
   if (pathname.startsWith("/scan")) {
-    const session = verifySession(req);
+    const session = await verifySession(req);
     if (!session) {
       return NextResponse.redirect(new URL("/admin/login", req.url));
     }
@@ -57,7 +75,7 @@ export function middleware(req: NextRequest) {
 
   // Scan API: require any authenticated user (staff or admin)
   if (pathname.startsWith("/api/scan")) {
-    const session = verifySession(req);
+    const session = await verifySession(req);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -67,7 +85,7 @@ export function middleware(req: NextRequest) {
   // Subscriber list (GET) = admin only; registration (POST) = public
   if (pathname.startsWith("/api/subscribers")) {
     if (method === "POST") return NextResponse.next(); // Public registration
-    const session = verifySession(req);
+    const session = await verifySession(req);
     if (!session || session.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -75,12 +93,14 @@ export function middleware(req: NextRequest) {
   }
 
   // Invitations, newsletters, panelists, sponsors, upload: admin only
-  if (pathname.startsWith("/api/invitations") ||
-      pathname.startsWith("/api/newsletters") ||
-      pathname.startsWith("/api/panelists") ||
-      pathname.startsWith("/api/sponsors") ||
-      pathname.startsWith("/api/upload")) {
-    const session = verifySession(req);
+  if (
+    pathname.startsWith("/api/invitations") ||
+    pathname.startsWith("/api/newsletters") ||
+    pathname.startsWith("/api/panelists") ||
+    pathname.startsWith("/api/sponsors") ||
+    pathname.startsWith("/api/upload")
+  ) {
+    const session = await verifySession(req);
     if (!session || session.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -89,7 +109,7 @@ export function middleware(req: NextRequest) {
 
   // Event mutations: admin only; GET is public
   if (pathname.startsWith("/api/events") && method !== "GET") {
-    const session = verifySession(req);
+    const session = await verifySession(req);
     if (!session || session.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

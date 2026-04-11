@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 import crypto from "crypto";
 
-const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString("hex");
+const SESSION_SECRET = process.env.SESSION_SECRET || "fallback-dev-secret-change-me";
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 12);
