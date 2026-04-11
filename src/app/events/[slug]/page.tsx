@@ -155,13 +155,14 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
       </section>
 
       {/* ABOUT */}
-      <section id="about" className="py-24 sm:py-32 bg-white relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/3 rounded-full blur-[100px]" />
+      <section id="about" className="py-24 sm:py-32 bg-secondary noise-overlay relative overflow-hidden">
+        <div className="absolute inset-0 grid-pattern opacity-50" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/8 rounded-full blur-[100px]" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.event.whyAttend}</span>
-            <h2 className="text-3xl sm:text-5xl font-bold text-secondary mt-3 mb-5">{t.event.aboutEvent}</h2>
-            <p className="text-muted max-w-xl mx-auto">{t.event.aboutSub}</p>
+            <h2 className="text-3xl sm:text-5xl font-bold text-white mt-3 mb-5">{t.event.aboutEvent}</h2>
+            <p className="text-gray-400 max-w-xl mx-auto">{t.event.aboutSub}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
             {[
@@ -170,12 +171,12 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
               { icon: <Globe className="w-6 h-6" />, title: t.event.venue.title, desc: `${event.venue}, ${event.city}, ${event.country}`, color: "from-accent to-accent-light", shadow: "shadow-accent/20" },
             ].map((card) => (
               <div key={card.title} className="group relative">
-                <div className="relative bg-white rounded-[20px] p-8 border border-gray-100 card-hover">
+                <div className="relative bg-white/5 backdrop-blur-sm rounded-[20px] p-8 border border-white/10 hover:bg-white/8 hover:border-white/20 transition-all duration-300">
                   <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${card.color} flex items-center justify-center mb-6 shadow-lg ${card.shadow} group-hover:scale-110 transition-transform duration-500`}>
                     <span className="text-white">{card.icon}</span>
                   </div>
-                  <h3 className="text-xl font-bold text-secondary mb-3">{card.title}</h3>
-                  <p className="text-muted leading-relaxed">{card.desc}</p>
+                  <h3 className="text-xl font-bold text-white mb-3">{card.title}</h3>
+                  <p className="text-gray-400 leading-relaxed">{card.desc}</p>
                 </div>
               </div>
             ))}
@@ -185,11 +186,12 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
 
       {/* SPEAKERS */}
       {event.panelists.length > 0 && (
-        <section id="speakers" className="py-24 sm:py-32 bg-background relative">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section id="speakers" className="py-24 sm:py-32 bg-secondary-light noise-overlay relative">
+          <div className="absolute inset-0 grid-pattern opacity-30" />
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.event.meetExperts}</span>
-              <h2 className="text-3xl sm:text-5xl font-bold text-secondary mt-3 mb-5">{t.event.speakersPanelists}</h2>
+              <h2 className="text-3xl sm:text-5xl font-bold text-white mt-3 mb-5">{t.event.speakersPanelists}</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {event.panelists.map((p) => <SpeakerCard key={p.id} {...p} />)}
@@ -200,11 +202,12 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
 
       {/* LOCATION */}
       {event.latitude && event.longitude && (
-        <section id="location" className="py-24 sm:py-32 bg-white relative">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section id="location" className="py-24 sm:py-32 bg-secondary noise-overlay relative">
+          <div className="absolute inset-0 grid-pattern opacity-50" />
+          <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.event.whereToFind}</span>
-              <h2 className="text-3xl sm:text-5xl font-bold text-secondary mt-3 mb-5">{t.event.eventLocation}</h2>
+              <h2 className="text-3xl sm:text-5xl font-bold text-white mt-3 mb-5">{t.event.eventLocation}</h2>
             </div>
             <EventMap latitude={event.latitude} longitude={event.longitude} venue={event.venue} address={event.address} city={event.city} country={event.country} />
           </div>
@@ -213,11 +216,12 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
 
       {/* SPONSORS */}
       {event.sponsors.length > 0 && (
-        <section id="sponsors" className="py-24 sm:py-32 bg-background relative">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section id="sponsors" className="py-24 sm:py-32 bg-secondary-light noise-overlay relative">
+          <div className="absolute inset-0 grid-pattern opacity-30" />
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.event.ourPartners}</span>
-              <h2 className="text-3xl sm:text-5xl font-bold text-secondary mt-3 mb-5">{t.event.sponsorsTitle}</h2>
+              <h2 className="text-3xl sm:text-5xl font-bold text-white mt-3 mb-5">{t.event.sponsorsTitle}</h2>
             </div>
             <div className="space-y-14">
               {[{ label: "Platinum", items: platinumSponsors, cols: "grid-cols-1 sm:grid-cols-2", max: "max-w-2xl" },
@@ -227,9 +231,9 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
               ].filter((t) => t.items.length > 0).map((tier) => (
                 <div key={tier.label}>
                   <div className="flex items-center gap-3 justify-center mb-6">
-                    <div className="h-px w-12 bg-gradient-to-r from-transparent to-gray-200" />
-                    <span className="text-xs uppercase tracking-[0.2em] text-gray-400 font-semibold">{tier.label}</span>
-                    <div className="h-px w-12 bg-gradient-to-l from-transparent to-gray-200" />
+                    <div className="h-px w-12 bg-gradient-to-r from-transparent to-white/20" />
+                    <span className="text-xs uppercase tracking-[0.2em] text-gray-500 font-semibold">{tier.label}</span>
+                    <div className="h-px w-12 bg-gradient-to-l from-transparent to-white/20" />
                   </div>
                   <div className={`grid ${tier.cols} gap-4 ${tier.max} mx-auto`}>
                     {tier.items.map((s) => <SponsorBadge key={s.id} {...s} />)}

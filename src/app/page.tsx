@@ -75,18 +75,19 @@ export default async function HomePage() {
       </section>
 
       {/* EVENTS */}
-      <section id="events" className="py-24 sm:py-32 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="events" className="py-24 sm:py-32 bg-secondary noise-overlay relative">
+        <div className="absolute inset-0 grid-pattern opacity-50" />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.home.discover}</span>
-            <h2 className="text-3xl sm:text-5xl font-bold text-secondary mt-3 mb-5">{t.home.upcomingEvents}</h2>
-            <p className="text-muted max-w-xl mx-auto">Trouvez votre prochaine expérience et inscrivez-vous dès aujourd&apos;hui</p>
+            <h2 className="text-3xl sm:text-5xl font-bold text-white mt-3 mb-5">{t.home.upcomingEvents}</h2>
+            <p className="text-gray-400 max-w-xl mx-auto">Trouvez votre prochaine expérience et inscrivez-vous dès aujourd&apos;hui</p>
           </div>
 
           {upcomingEvents.length === 0 ? (
             <div className="text-center py-16">
-              <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-200" />
-              <p className="text-muted">{t.home.noUpcoming}</p>
+              <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-600" />
+              <p className="text-gray-400">{t.home.noUpcoming}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -98,42 +99,42 @@ export default async function HomePage() {
                     href={`/events/${event.slug}`}
                     className="group relative"
                   >
-                    <div className="absolute -inset-0.5 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 rounded-[22px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
-                    <div className="relative bg-white rounded-[20px] border border-gray-100 overflow-hidden card-hover">
+                    <div className="absolute -inset-0.5 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 rounded-[22px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
+                    <div className="relative bg-white/5 border border-white/10 rounded-[20px] overflow-hidden hover:bg-white/8 hover:border-white/20 transition-all duration-300 backdrop-blur-sm">
                       <div className="h-2 bg-gradient-to-r from-primary to-accent" style={event.themeColor ? { background: `linear-gradient(135deg, ${event.themeColor}, ${event.themeColor}88)` } : undefined} />
 
                       <div className="p-6">
                         <div className="flex items-center justify-between mb-4">
-                          <div className="inline-flex items-center gap-1.5 bg-primary/5 text-primary rounded-full px-3 py-1 text-xs font-semibold">
+                          <div className="inline-flex items-center gap-1.5 bg-primary/10 text-primary rounded-full px-3 py-1 text-xs font-semibold">
                             <Calendar className="w-3 h-3" />
                             {new Date(event.date).toLocaleDateString("fr-FR", { month: "short", day: "numeric", year: "numeric" })}
                           </div>
                           {daysUntil > 0 && (
-                            <span className="text-[10px] font-semibold text-muted uppercase tracking-wider">
+                            <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
                               dans {daysUntil}j
                             </span>
                           )}
                         </div>
 
-                        <h3 className="text-lg font-bold text-secondary mb-1 group-hover:text-primary transition-colors">
+                        <h3 className="text-lg font-bold text-white mb-1 group-hover:text-primary transition-colors">
                           {event.title}
                         </h3>
                         {event.tagline && (
                           <p className="text-sm text-primary/70 font-medium mb-2">{event.tagline}</p>
                         )}
-                        <p className="text-sm text-muted line-clamp-2 mb-4">{event.description}</p>
+                        <p className="text-sm text-gray-400 line-clamp-2 mb-4">{event.description}</p>
 
-                        <div className="flex items-center gap-1.5 text-xs text-muted mb-4">
+                        <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-4">
                           <MapPin className="w-3 h-3" />
                           {event.venue}, {event.city}
                         </div>
 
-                        <div className="flex items-center justify-between pt-4 border-t border-gray-50">
-                          <div className="flex items-center gap-3 text-xs text-muted">
+                        <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                          <div className="flex items-center gap-3 text-xs text-gray-500">
                             <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {event._count.subscribers}/{event.maxAttendees}</span>
                             <span>{event._count.panelists} intervenants</span>
                           </div>
-                          <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover:bg-primary group-hover:text-white text-gray-400 flex items-center justify-center transition-all">
+                          <div className="w-8 h-8 rounded-lg bg-white/5 group-hover:bg-primary text-gray-400 group-hover:text-white flex items-center justify-center transition-all">
                             <ArrowUpRight className="w-4 h-4" />
                           </div>
                         </div>
@@ -147,15 +148,15 @@ export default async function HomePage() {
 
           {pastEvents.length > 0 && (
             <div className="mt-20">
-              <h3 className="text-center text-xs uppercase tracking-[0.2em] text-muted font-semibold mb-8">{t.home.pastEvents}</h3>
+              <h3 className="text-center text-xs uppercase tracking-[0.2em] text-gray-500 font-semibold mb-8">{t.home.pastEvents}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {pastEvents.map((event) => (
-                  <Link key={event.id} href={`/events/${event.slug}`} className="bg-gray-50 rounded-xl p-5 border border-gray-100 hover:bg-gray-100 transition-colors group">
-                    <p className="text-xs text-muted mb-1">
+                  <Link key={event.id} href={`/events/${event.slug}`} className="bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 transition-colors group backdrop-blur-sm">
+                    <p className="text-xs text-gray-500 mb-1">
                       {new Date(event.date).toLocaleDateString("fr-FR", { month: "short", day: "numeric", year: "numeric" })}
                     </p>
-                    <h4 className="font-semibold text-secondary text-sm group-hover:text-primary transition-colors">{event.title}</h4>
-                    <p className="text-xs text-muted mt-1">{event.venue}, {event.city} &middot; {event._count.subscribers} participants</p>
+                    <h4 className="font-semibold text-white text-sm group-hover:text-primary transition-colors">{event.title}</h4>
+                    <p className="text-xs text-gray-500 mt-1">{event.venue}, {event.city} &middot; {event._count.subscribers} participants</p>
                   </Link>
                 ))}
               </div>
@@ -165,11 +166,12 @@ export default async function HomePage() {
       </section>
 
       {/* FEATURES */}
-      <section className="py-24 sm:py-32 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-24 sm:py-32 bg-secondary-light noise-overlay relative">
+        <div className="absolute inset-0 grid-pattern opacity-30" />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.home.platform}</span>
-            <h2 className="text-3xl sm:text-5xl font-bold text-secondary mt-3 mb-5">{t.home.featuresTitle}</h2>
+            <h2 className="text-3xl sm:text-5xl font-bold text-white mt-3 mb-5">{t.home.featuresTitle}</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
@@ -178,9 +180,9 @@ export default async function HomePage() {
               t.home.features.invitations,
               t.home.features.newsletters,
             ].map((f) => (
-              <div key={f.title} className="bg-white rounded-2xl p-6 border border-gray-100 card-hover">
-                <h3 className="font-bold text-secondary mb-2">{f.title}</h3>
-                <p className="text-sm text-muted leading-relaxed">{f.desc}</p>
+              <div key={f.title} className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/8 hover:border-white/20 transition-all backdrop-blur-sm">
+                <h3 className="font-bold text-white mb-2">{f.title}</h3>
+                <p className="text-sm text-gray-400 leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
