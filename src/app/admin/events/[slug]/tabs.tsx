@@ -3,18 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutGrid, Users, UserCheck, Award, Send, Mail } from "lucide-react";
+import { t } from "@/lib/i18n";
 
 export default function EventTabs({ slug }: { slug: string }) {
   const pathname = usePathname();
   const base = `/admin/events/${slug}`;
 
   const tabs = [
-    { href: base, label: "Overview", icon: LayoutGrid },
-    { href: `${base}/subscribers`, label: "Subscribers", icon: Users },
-    { href: `${base}/panelists`, label: "Panelists", icon: UserCheck },
-    { href: `${base}/sponsors`, label: "Sponsors", icon: Award },
-    { href: `${base}/invitations`, label: "Invitations", icon: Send },
-    { href: `${base}/newsletters`, label: "Newsletters", icon: Mail },
+    { href: base, label: t.admin.overview, icon: LayoutGrid },
+    { href: `${base}/subscribers`, label: t.admin.subscribers, icon: Users },
+    { href: `${base}/panelists`, label: t.admin.panelists, icon: UserCheck },
+    { href: `${base}/sponsors`, label: t.admin.sponsors, icon: Award },
+    { href: `${base}/invitations`, label: t.admin.invitations, icon: Send },
+    { href: `${base}/newsletters`, label: t.admin.newsletters, icon: Mail },
   ];
 
   return (

@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Lock, ArrowRight, AlertCircle, Shield } from "lucide-react";
+import { ArrowRight, AlertCircle, Shield } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
+import { t } from "@/lib/i18n";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -23,30 +25,33 @@ export default function AdminLoginPage() {
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Authentication failed");
+      if (!res.ok) throw new Error(data.error || t.admin.login.invalid);
 
-      // Redirect based on role
       if (data.user.role === "staff") {
         router.push("/scan");
       } else {
         router.push("/admin");
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Authentication failed");
+      setError(e instanceof Error ? e.message : t.admin.login.invalid);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center mx-auto mb-5 shadow-lg shadow-primary/20">
             <Shield className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-secondary">Staff Login</h1>
-          <p className="text-muted text-sm mt-1">Sign in to access admin or scanner</p>
+          <h1 className="text-2xl font-bold text-secondary">{t.admin.login.title}</h1>
+          <p className="text-muted text-sm mt-1">{t.admin.login.sub}</p>
         </div>
 
         <form onSubmit={submit} className="bg-white rounded-[24px] shadow-lg p-7 border border-gray-100">
@@ -58,7 +63,7 @@ export default function AdminLoginPage() {
 
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Email</label>
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{t.admin.login.emailLabel}</label>
               <input
                 type="email"
                 value={email}
@@ -70,13 +75,13 @@ export default function AdminLoginPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Password</label>
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{t.admin.login.passwordLabel}</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => { setPassword(e.target.value); setError(""); }}
                 className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm"
-                placeholder="Enter your password"
+                placeholder="••••••••"
                 required
               />
             </div>
@@ -88,20 +93,16 @@ export default function AdminLoginPage() {
             className="btn-primary w-full mt-6 py-3.5 text-sm flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {loading ? (
-              <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Signing in...</>
+              <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> {t.admin.login.signingIn}</>
             ) : (
-              <>Sign In <ArrowRight className="w-4 h-4" /></>
+              <>{t.admin.login.signIn} <ArrowRight className="w-4 h-4" /></>
             )}
           </button>
         </form>
 
         <div className="mt-6 text-center space-y-1">
-          <p className="text-gray-400 text-xs">
-            <span className="font-semibold text-secondary">Admin</span> — Full dashboard access
-          </p>
-          <p className="text-gray-400 text-xs">
-            <span className="font-semibold text-secondary">Staff</span> — Scanner access only
-          </p>
+          <p className="text-gray-400 text-xs">{t.admin.login.adminRole}</p>
+          <p className="text-gray-400 text-xs">{t.admin.login.staffRole}</p>
         </div>
       </div>
     </div>

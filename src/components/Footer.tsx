@@ -6,10 +6,7 @@ export default function Footer() {
 
   return (
     <footer className="relative bg-secondary overflow-hidden">
-      {/* Background texture */}
       <div className="grid-pattern absolute inset-0" />
-
-      {/* Top gradient line */}
       <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -27,75 +24,59 @@ export default function Footer() {
               </div>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed max-w-sm">
-              Premium event management platform. Create unforgettable experiences with powerful tools for registration, badges, invitations, and more.
+              Plateforme premium de gestion d&apos;événements. Créez des expériences inoubliables avec des outils puissants pour l&apos;inscription, les badges, les invitations, et plus encore.
             </p>
           </div>
 
-          {/* Links */}
           <div className="md:col-span-2">
-            <h4 className="text-xs uppercase tracking-[0.15em] text-gray-500 font-semibold mb-4">Event</h4>
+            <h4 className="text-xs uppercase tracking-[0.15em] text-gray-500 font-semibold mb-4">Événement</h4>
             <ul className="space-y-2.5">
-              {[
-                { href: "#about", label: "About" },
-                { href: "#speakers", label: "Speakers" },
-                { href: "#location", label: "Venue" },
-                { href: "/register", label: "Register", isLink: true },
-              ].map((item) =>
-                item.isLink ? (
-                  <li key={item.label}>
-                    <Link href={item.href} className="text-gray-400 hover:text-white text-sm transition-colors inline-flex items-center gap-1 group">
-                      {item.label}
-                      <ArrowUpRight className="w-3 h-3 opacity-0 -translate-y-0.5 group-hover:opacity-100 group-hover:translate-y-0 transition-all" />
-                    </Link>
-                  </li>
-                ) : (
-                  <li key={item.label}>
-                    <a href={item.href} className="text-gray-400 hover:text-white text-sm transition-colors">
-                      {item.label}
-                    </a>
-                  </li>
-                )
-              )}
+              <li><a href="#about" className="text-gray-400 hover:text-white text-sm transition-colors">À propos</a></li>
+              <li><a href="#speakers" className="text-gray-400 hover:text-white text-sm transition-colors">Intervenants</a></li>
+              <li><a href="#location" className="text-gray-400 hover:text-white text-sm transition-colors">Lieu</a></li>
+              <li>
+                <Link href="/register" className="text-gray-400 hover:text-white text-sm transition-colors inline-flex items-center gap-1 group">
+                  S&apos;inscrire
+                  <ArrowUpRight className="w-3 h-3 opacity-0 -translate-y-0.5 group-hover:opacity-100 group-hover:translate-y-0 transition-all" />
+                </Link>
+              </li>
             </ul>
           </div>
 
           <div className="md:col-span-2">
-            <h4 className="text-xs uppercase tracking-[0.15em] text-gray-500 font-semibold mb-4">Attendees</h4>
+            <h4 className="text-xs uppercase tracking-[0.15em] text-gray-500 font-semibold mb-4">Participants</h4>
             <ul className="space-y-2.5">
-              <li><Link href="/badge" className="text-gray-400 hover:text-white text-sm transition-colors inline-flex items-center gap-1 group">Get Badge <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /></Link></li>
-              <li><Link href="/register" className="text-gray-400 hover:text-white text-sm transition-colors inline-flex items-center gap-1 group">Subscribe <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /></Link></li>
+              <li><Link href="/badge" className="text-gray-400 hover:text-white text-sm transition-colors inline-flex items-center gap-1 group">Mon badge <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /></Link></li>
+              <li><Link href="/register" className="text-gray-400 hover:text-white text-sm transition-colors inline-flex items-center gap-1 group">S&apos;inscrire <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /></Link></li>
             </ul>
           </div>
 
           <div className="md:col-span-2">
-            <h4 className="text-xs uppercase tracking-[0.15em] text-gray-500 font-semibold mb-4">Manage</h4>
+            <h4 className="text-xs uppercase tracking-[0.15em] text-gray-500 font-semibold mb-4">Gestion</h4>
             <ul className="space-y-2.5">
-              <li><Link href="/admin" className="text-gray-400 hover:text-white text-sm transition-colors inline-flex items-center gap-1 group">Dashboard <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /></Link></li>
-              <li><Link href="/admin/subscribers" className="text-gray-400 hover:text-white text-sm transition-colors">Subscribers</Link></li>
-              <li><Link href="/admin/panelists" className="text-gray-400 hover:text-white text-sm transition-colors">Panelists</Link></li>
-              <li><Link href="/admin/newsletters" className="text-gray-400 hover:text-white text-sm transition-colors">Newsletters</Link></li>
+              <li><Link href="/admin" className="text-gray-400 hover:text-white text-sm transition-colors inline-flex items-center gap-1 group">Tableau de bord <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /></Link></li>
+              <li><Link href="/scan" className="text-gray-400 hover:text-white text-sm transition-colors">Scanner</Link></li>
             </ul>
           </div>
 
           <div className="md:col-span-2">
-            <h4 className="text-xs uppercase tracking-[0.15em] text-gray-500 font-semibold mb-4">Connect</h4>
+            <h4 className="text-xs uppercase tracking-[0.15em] text-gray-500 font-semibold mb-4">Contact</h4>
             <ul className="space-y-2.5">
               <li><a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">Contact</a></li>
               <li><a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">Support</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">Privacy</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">Confidentialité</a></li>
             </ul>
           </div>
         </div>
 
-        {/* Bottom bar */}
         <div className="mt-14 pt-8 border-t border-white/5">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-gray-500 text-xs">
-              &copy; {currentYear} QualiEvents. Crafted with care.
+              &copy; {currentYear} QualiEvents. Conçu avec soin.
             </p>
             <div className="flex items-center gap-2">
               <span className="inline-block w-2 h-2 rounded-full bg-success animate-pulse" />
-              <span className="text-gray-500 text-xs">All systems operational</span>
+              <span className="text-gray-500 text-xs">Tous les systèmes sont opérationnels</span>
             </div>
           </div>
         </div>

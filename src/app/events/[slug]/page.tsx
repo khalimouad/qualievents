@@ -9,6 +9,7 @@ import SpeakerCard from "@/components/SpeakerCard";
 import SponsorBadge from "@/components/SponsorBadge";
 import EventMap from "@/components/EventMap";
 import { prisma } from "@/lib/prisma";
+import { t } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -18,9 +19,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     where: { slug },
     select: { title: true, tagline: true, description: true, venue: true, city: true, date: true },
   });
-  if (!event) return { title: "Event Not Found" };
+  if (!event) return { title: "Événement introuvable" };
   const description = event.tagline || event.description.slice(0, 160);
-  const dateStr = new Date(event.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  const dateStr = new Date(event.date).toLocaleDateString("fr-FR", { month: "long", day: "numeric", year: "numeric" });
   return {
     title: `${event.title} - QualiEvents`,
     description,
@@ -53,7 +54,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   if (!event || !event.isPublished) notFound();
 
   const eventDate = new Date(event.date);
-  const formattedDate = eventDate.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  const formattedDate = eventDate.toLocaleDateString("fr-FR", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
   const dayCount = event.endDate ? Math.ceil((new Date(event.endDate).getTime() - eventDate.getTime()) / (1000 * 60 * 60 * 24)) : 1;
 
   const platinumSponsors = event.sponsors.filter((s) => s.tier === "platinum");
@@ -107,7 +108,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
             {[
               { icon: <MapPin className="w-4 h-4" />, text: `${event.venue}, ${event.city}` },
               { icon: <Users className="w-4 h-4" />, text: `${event._count.subscribers} / ${event.maxAttendees}` },
-              { icon: <Clock className="w-4 h-4" />, text: `${dayCount} Day${dayCount > 1 ? "s" : ""}` },
+              { icon: <Clock className="w-4 h-4" />, text: `${dayCount} ${dayCount > 1 ? t.event.daysP : t.event.days}` },
             ].map((pill) => (
               <div key={pill.text} className="glass rounded-full px-4 py-2 flex items-center gap-2 text-sm">
                 <span className="text-primary">{pill.icon}</span>
@@ -122,9 +123,9 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.5s" }}>
             <Link href={registerUrl} className="btn-primary px-9 py-4 text-base inline-flex items-center justify-center gap-2.5 animate-pulse-glow">
-              <Sparkles className="w-4 h-4" /> Register Now <ArrowRight className="w-4 h-4" />
+              <Sparkles className="w-4 h-4" /> {t.nav.registerNow} <ArrowRight className="w-4 h-4" />
             </Link>
-            <a href="#about" className="btn-secondary px-9 py-4 text-base inline-flex items-center justify-center">Learn More</a>
+            <a href="#about" className="btn-secondary px-9 py-4 text-base inline-flex items-center justify-center">{t.event.learnMore}</a>
           </div>
 
           {/* Add to Calendar */}
@@ -133,7 +134,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
               href={calendarIcsUrl}
               className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm transition-colors"
             >
-              <CalendarPlus className="w-4 h-4" /> Download .ics
+              <CalendarPlus className="w-4 h-4" /> {t.event.downloadIcs}
             </a>
             <span className="text-gray-600">|</span>
             <a
@@ -142,7 +143,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm transition-colors"
             >
-              <Calendar className="w-4 h-4" /> Google Calendar
+              <Calendar className="w-4 h-4" /> {t.event.googleCalendar}
             </a>
           </div>
         </div>
@@ -158,15 +159,15 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/3 rounded-full blur-[100px]" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">Why Attend</span>
-            <h2 className="text-3xl sm:text-5xl font-bold text-secondary mt-3 mb-5">About the Event</h2>
-            <p className="text-muted max-w-xl mx-auto">An unforgettable experience of learning, networking, and innovation</p>
+            <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.event.whyAttend}</span>
+            <h2 className="text-3xl sm:text-5xl font-bold text-secondary mt-3 mb-5">{t.event.aboutEvent}</h2>
+            <p className="text-muted max-w-xl mx-auto">{t.event.aboutSub}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
             {[
-              { icon: <Users className="w-6 h-6" />, title: "Networking", desc: `Connect with ${event.maxAttendees}+ professionals, industry leaders, and innovators.`, color: "from-blue-500 to-indigo-600", shadow: "shadow-blue-500/20" },
-              { icon: <Zap className="w-6 h-6" />, title: "Workshops", desc: "Hands-on sessions with expert practitioners covering the latest trends.", color: "from-primary to-primary-dark", shadow: "shadow-primary/20" },
-              { icon: <Globe className="w-6 h-6" />, title: "Venue", desc: `Hosted at ${event.venue} in ${event.city}, ${event.country}.`, color: "from-accent to-accent-light", shadow: "shadow-accent/20" },
+              { icon: <Users className="w-6 h-6" />, title: t.event.networking.title, desc: `${t.event.networking.desc} (${event.maxAttendees}+)`, color: "from-blue-500 to-indigo-600", shadow: "shadow-blue-500/20" },
+              { icon: <Zap className="w-6 h-6" />, title: t.event.workshops.title, desc: t.event.workshops.desc, color: "from-primary to-primary-dark", shadow: "shadow-primary/20" },
+              { icon: <Globe className="w-6 h-6" />, title: t.event.venue.title, desc: `${event.venue}, ${event.city}, ${event.country}`, color: "from-accent to-accent-light", shadow: "shadow-accent/20" },
             ].map((card) => (
               <div key={card.title} className="group relative">
                 <div className="relative bg-white rounded-[20px] p-8 border border-gray-100 card-hover">
@@ -187,8 +188,8 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         <section id="speakers" className="py-24 sm:py-32 bg-background relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">Meet Our Experts</span>
-              <h2 className="text-3xl sm:text-5xl font-bold text-secondary mt-3 mb-5">Speakers & Panelists</h2>
+              <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.event.meetExperts}</span>
+              <h2 className="text-3xl sm:text-5xl font-bold text-secondary mt-3 mb-5">{t.event.speakersPanelists}</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {event.panelists.map((p) => <SpeakerCard key={p.id} {...p} />)}
@@ -202,8 +203,8 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         <section id="location" className="py-24 sm:py-32 bg-white relative">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">Where to Find Us</span>
-              <h2 className="text-3xl sm:text-5xl font-bold text-secondary mt-3 mb-5">Event Location</h2>
+              <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.event.whereToFind}</span>
+              <h2 className="text-3xl sm:text-5xl font-bold text-secondary mt-3 mb-5">{t.event.eventLocation}</h2>
             </div>
             <EventMap latitude={event.latitude} longitude={event.longitude} venue={event.venue} address={event.address} city={event.city} country={event.country} />
           </div>
@@ -215,8 +216,8 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         <section id="sponsors" className="py-24 sm:py-32 bg-background relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">Our Partners</span>
-              <h2 className="text-3xl sm:text-5xl font-bold text-secondary mt-3 mb-5">Sponsors</h2>
+              <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.event.ourPartners}</span>
+              <h2 className="text-3xl sm:text-5xl font-bold text-secondary mt-3 mb-5">{t.event.sponsorsTitle}</h2>
             </div>
             <div className="space-y-14">
               {[{ label: "Platinum", items: platinumSponsors, cols: "grid-cols-1 sm:grid-cols-2", max: "max-w-2xl" },
@@ -247,13 +248,13 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[100px]" />
         </div>
         <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
-          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6 leading-tight">Ready to <span className="text-gradient">Join Us</span>?</h2>
-          <p className="text-gray-400 text-lg mb-10 max-w-xl mx-auto">Secure your spot now and be part of an unforgettable experience.</p>
+          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6 leading-tight">{t.event.readyJoin} <span className="text-gradient">{t.event.readyJoinAccent}</span> ?</h2>
+          <p className="text-gray-400 text-lg mb-10 max-w-xl mx-auto">{t.event.readyJoinSub}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href={registerUrl} className="btn-primary px-9 py-4 text-base inline-flex items-center justify-center gap-2.5">
-              <Sparkles className="w-4 h-4" /> Register Now <ArrowRight className="w-4 h-4" />
+              <Sparkles className="w-4 h-4" /> {t.nav.registerNow} <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link href={badgeUrl} className="btn-secondary px-9 py-4 text-base inline-flex items-center justify-center">Get Your Badge</Link>
+            <Link href={badgeUrl} className="btn-secondary px-9 py-4 text-base inline-flex items-center justify-center">{t.nav.getBadge}</Link>
           </div>
         </div>
       </section>

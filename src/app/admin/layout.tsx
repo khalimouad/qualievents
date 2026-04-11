@@ -3,14 +3,21 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, QrCode, ArrowLeft, ChevronRight, LogOut } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
+import { t } from "@/lib/i18n";
 
 const navItems = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/scan", label: "Scanner App", icon: QrCode },
+  { href: "/admin", label: t.admin.dashboard, icon: LayoutDashboard },
+  { href: "/scan", label: t.admin.scanner, icon: QrCode },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+
+  // Hide the admin shell on /admin/login
+  if (pathname === "/admin/login") {
+    return <>{children}</>;
+  }
 
   return (
     <div className="min-h-screen flex bg-background">
@@ -48,15 +55,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        <div className="p-3 border-t border-gray-100 space-y-1.5">
-          <Link href="/" className="flex items-center gap-2 text-muted hover:text-secondary text-xs transition-colors">
-            <ArrowLeft className="w-3 h-3" /> Back to Site
-          </Link>
+        <div className="p-3 border-t border-gray-100 space-y-2">
+          <div className="flex items-center justify-between px-1">
+            <Link href="/" className="flex items-center gap-2 text-muted hover:text-secondary text-xs transition-colors">
+              <ArrowLeft className="w-3 h-3" /> {t.admin.backToSite}
+            </Link>
+            <ThemeToggle className="!w-7 !h-7" />
+          </div>
           <button
             onClick={() => { fetch("/api/auth", { method: "DELETE" }).then(() => window.location.href = "/admin/login"); }}
-            className="flex items-center gap-2 text-muted hover:text-danger text-xs transition-colors w-full"
+            className="flex items-center gap-2 text-muted hover:text-danger text-xs transition-colors w-full px-1"
           >
-            <LogOut className="w-3 h-3" /> Logout
+            <LogOut className="w-3 h-3" /> {t.admin.logout}
           </button>
         </div>
       </aside>
@@ -70,9 +80,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
             <span className="font-bold text-secondary text-xs">Admin</span>
           </Link>
-          <div className="flex items-center gap-2">
-            <Link href="/" className="text-muted hover:text-secondary text-xs">Site</Link>
-            <button onClick={() => { fetch("/api/auth", { method: "DELETE" }).then(() => window.location.href = "/admin/login"); }} className="text-muted hover:text-danger">
+          <div className="flex items-center gap-1">
+            <ThemeToggle className="!w-8 !h-8" />
+            <Link href="/" className="text-muted hover:text-secondary text-xs px-2">Site</Link>
+            <button onClick={() => { fetch("/api/auth", { method: "DELETE" }).then(() => window.location.href = "/admin/login"); }} className="text-muted hover:text-danger p-1.5">
               <LogOut className="w-3.5 h-3.5" />
             </button>
           </div>

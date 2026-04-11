@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { t } from "@/lib/i18n";
 
 interface CountdownTimerProps {
   targetDate: string;
@@ -37,10 +38,10 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
   }, [targetDate]);
 
   const blocks = [
-    { value: timeLeft.days, label: "Days" },
-    { value: timeLeft.hours, label: "Hours" },
-    { value: timeLeft.minutes, label: "Min" },
-    { value: timeLeft.seconds, label: "Sec" },
+    { value: timeLeft.days, label: t.countdown.days },
+    { value: timeLeft.hours, label: t.countdown.hours },
+    { value: timeLeft.minutes, label: t.countdown.min },
+    { value: timeLeft.seconds, label: t.countdown.sec },
   ];
 
   return (

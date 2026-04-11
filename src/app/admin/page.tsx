@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { Users, UserCheck, QrCode, Mail, Calendar, TrendingUp, Plus, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import { t } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -19,23 +20,23 @@ export default async function AdminDashboard() {
   const scannedBadges = await prisma.badge.count({ where: { isScanned: true } });
 
   const stats = [
-    { label: "Events", value: events.length, icon: Calendar, color: "from-cyan-500 to-blue-600" },
-    { label: "Subscribers", value: totalSubscribers, icon: Users, color: "from-blue-500 to-indigo-600" },
-    { label: "Panelists", value: totalPanelists, icon: UserCheck, color: "from-violet-500 to-purple-600" },
-    { label: "Badges", value: totalBadges, icon: QrCode, color: "from-emerald-500 to-green-600" },
-    { label: "Scanned", value: scannedBadges, icon: TrendingUp, color: "from-amber-500 to-orange-600" },
-    { label: "Invites", value: totalInvitations, icon: Mail, color: "from-pink-500 to-rose-600" },
+    { label: t.admin.stats.events, value: events.length, icon: Calendar, color: "from-cyan-500 to-blue-600" },
+    { label: t.admin.stats.subscribers, value: totalSubscribers, icon: Users, color: "from-blue-500 to-indigo-600" },
+    { label: t.admin.stats.panelists, value: totalPanelists, icon: UserCheck, color: "from-violet-500 to-purple-600" },
+    { label: t.admin.stats.badges, value: totalBadges, icon: QrCode, color: "from-emerald-500 to-green-600" },
+    { label: t.admin.stats.scanned, value: scannedBadges, icon: TrendingUp, color: "from-amber-500 to-orange-600" },
+    { label: t.admin.stats.invites, value: totalInvitations, icon: Mail, color: "from-pink-500 to-rose-600" },
   ];
 
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-xl font-bold text-secondary">Dashboard</h1>
-          <p className="text-muted text-xs mt-0.5">Overview of all events</p>
+          <h1 className="text-xl font-bold text-secondary">{t.admin.dashboard}</h1>
+          <p className="text-muted text-xs mt-0.5">Vue d&apos;ensemble de tous les événements</p>
         </div>
         <Link href="/admin/events/new" className="btn-primary px-3 py-1.5 text-xs inline-flex items-center gap-1.5">
-          <Plus className="w-3 h-3" /> New Event
+          <Plus className="w-3 h-3" /> {t.admin.newEvent}
         </Link>
       </div>
 
@@ -57,16 +58,16 @@ export default async function AdminDashboard() {
 
       {/* Events Grid */}
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-xs uppercase tracking-[0.15em] text-muted font-semibold">Events</h2>
-        <span className="text-[10px] text-muted">{events.length} total</span>
+        <h2 className="text-xs uppercase tracking-[0.15em] text-muted font-semibold">{t.admin.events}</h2>
+        <span className="text-[10px] text-muted">{events.length} au total</span>
       </div>
 
       {events.length === 0 ? (
         <div className="bg-white rounded-xl border border-gray-100 p-10 text-center">
           <Calendar className="w-8 h-8 mx-auto mb-2 text-gray-200" />
-          <p className="text-muted text-xs mb-3">No events yet</p>
+          <p className="text-muted text-xs mb-3">Aucun événement pour le moment</p>
           <Link href="/admin/events/new" className="btn-primary px-4 py-2 text-xs inline-flex items-center gap-1.5">
-            <Plus className="w-3 h-3" /> Create First Event
+            <Plus className="w-3 h-3" /> {t.admin.createEvent}
           </Link>
         </div>
       ) : (
@@ -95,15 +96,15 @@ export default async function AdminDashboard() {
                     </p>
                   </div>
                   <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider flex-shrink-0 ${event.isPublished ? "bg-success/10 text-success" : "bg-gray-100 text-muted"}`}>
-                    {event.isPublished ? "Live" : "Draft"}
+                    {event.isPublished ? t.admin.live : t.admin.draft}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between pt-2 border-t border-gray-50">
                   <div className="flex items-center gap-3 text-[10px] text-muted">
-                    <span><strong className="text-secondary">{event._count.subscribers}</strong> subs</span>
-                    <span><strong className="text-secondary">{event._count.panelists}</strong> pan</span>
-                    <span><strong className="text-secondary">{event._count.badges}</strong> bdg</span>
+                    <span><strong className="text-secondary">{event._count.subscribers}</strong> insc.</span>
+                    <span><strong className="text-secondary">{event._count.panelists}</strong> pan.</span>
+                    <span><strong className="text-secondary">{event._count.badges}</strong> badges</span>
                   </div>
                   <ArrowUpRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-primary transition-colors" />
                 </div>
@@ -116,7 +117,7 @@ export default async function AdminDashboard() {
               <div className="w-8 h-8 rounded-md bg-gray-50 group-hover:bg-primary/10 flex items-center justify-center mx-auto mb-1.5 transition-colors">
                 <Plus className="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors" />
               </div>
-              <p className="text-xs font-medium text-muted group-hover:text-primary transition-colors">Create Event</p>
+              <p className="text-xs font-medium text-muted group-hover:text-primary transition-colors">{t.admin.createEvent}</p>
             </div>
           </Link>
         </div>
