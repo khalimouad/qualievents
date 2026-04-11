@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, AlertCircle, Shield } from "lucide-react";
-import ThemeToggle from "@/components/ThemeToggle";
 import { t } from "@/lib/i18n";
 
 export default function AdminLoginPage() {
@@ -40,11 +39,7 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative">
-      <div className="absolute top-4 right-4">
-        <ThemeToggle />
-      </div>
-
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center mx-auto mb-5 shadow-lg shadow-primary/20">

@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Sparkles } from "lucide-react";
-import ThemeToggle from "./ThemeToggle";
 import { t } from "@/lib/i18n";
 
 export default function Navbar() {
@@ -92,8 +91,6 @@ export default function Navbar() {
 
             <div className="w-px h-5 bg-white/10 mx-2" />
 
-            <ThemeToggle className="!text-gray-300 hover:!bg-white/10" />
-
             <Link
               href={ctaHref}
               className="btn-primary ml-2 px-4 py-2 text-[12px] inline-flex items-center gap-1.5"
@@ -105,7 +102,6 @@ export default function Navbar() {
 
           {/* Mobile actions */}
           <div className="md:hidden flex items-center gap-1">
-            <ThemeToggle className="!text-gray-300 hover:!bg-white/10" />
             <button
               className="relative w-9 h-9 flex items-center justify-center rounded-xl text-white hover:bg-white/10 transition-colors"
               onClick={() => setIsOpen(!isOpen)}
