@@ -75,10 +75,10 @@ export default async function HomePage() {
       </section>
 
       {/* EVENTS */}
-      <section id="events" className="py-24 sm:py-32 bg-secondary noise-overlay relative">
+      <section id="events" className="py-14 sm:py-20 bg-secondary noise-overlay relative">
         <div className="absolute inset-0 grid-pattern opacity-50" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10">
             <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.home.discover}</span>
             <h2 className="text-3xl sm:text-5xl font-bold text-white mt-3 mb-5">{t.home.upcomingEvents}</h2>
             <p className="text-gray-400 max-w-xl mx-auto">Trouvez votre prochaine expérience et inscrivez-vous dès aujourd&apos;hui</p>
@@ -166,10 +166,10 @@ export default async function HomePage() {
       </section>
 
       {/* FEATURES */}
-      <section className="py-24 sm:py-32 bg-secondary-light noise-overlay relative">
+      <section className="py-14 sm:py-20 bg-secondary-light noise-overlay relative">
         <div className="absolute inset-0 grid-pattern opacity-30" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10">
             <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.home.platform}</span>
             <h2 className="text-3xl sm:text-5xl font-bold text-white mt-3 mb-5">{t.home.featuresTitle}</h2>
           </div>
@@ -190,7 +190,7 @@ export default async function HomePage() {
       </section>
 
       {/* CTA */}
-      <section className="relative py-28 overflow-hidden bg-secondary noise-overlay">
+      <section className="relative py-16 overflow-hidden bg-secondary noise-overlay">
         <div className="absolute inset-0 grid-pattern" />
         <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
           <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6 leading-tight">

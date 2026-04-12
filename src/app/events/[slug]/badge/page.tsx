@@ -38,11 +38,11 @@ export default function EventBadgePage() {
       <div className="min-h-screen bg-secondary noise-overlay relative pt-24 pb-16">
         <div className="absolute inset-0 grid-pattern opacity-30 pointer-events-none" />
         <div className="relative z-10 max-w-lg mx-auto px-4">
-          <Link href={`/events/${slug}`} className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-8 transition-colors text-sm font-medium">
+          <Link href={`/events/${slug}`} className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-5 transition-colors text-sm font-medium">
             <ArrowLeft className="w-4 h-4" /> {t.register.backToEvent}
           </Link>
 
-          <div className="text-center mb-10">
+          <div className="text-center mb-6">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center mx-auto mb-5 shadow-lg shadow-primary/30">
               <Ticket className="w-7 h-7 text-white" />
             </div>

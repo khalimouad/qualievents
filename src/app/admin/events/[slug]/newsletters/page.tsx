@@ -76,7 +76,7 @@ export default function EventNewslettersPage({ params }: { params: Promise<{ slu
         {loading ? (
           <div className="py-12 text-center"><div className="w-6 h-6 border-2 border-gray-200 border-t-primary rounded-full animate-spin mx-auto" /></div>
         ) : newsletters.length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-100 p-8 text-center">
+          <div className="bg-white rounded-xl border border-gray-100 p-5 text-center">
             <Mail className="w-8 h-8 mx-auto mb-2 text-gray-200" />
             <p className="text-muted text-xs">Aucune newsletter pour le moment</p>
           </div>

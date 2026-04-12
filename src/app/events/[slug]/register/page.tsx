@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, ArrowRight, Check, User, Briefcase, Calendar, Sparkles, PartyPopper } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, User, Briefcase, Calendar, Sparkles, PartyPopper, Clock } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { t } from "@/lib/i18n";
 
@@ -22,6 +22,7 @@ export default function EventRegisterPage() {
   const [event, setEvent] = useState<EventInfo | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [waitlisted, setWaitlisted] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({
     firstName: "", lastName: "", email: "", phone: "", company: "", jobTitle: "", dietaryReqs: "",
@@ -52,6 +53,7 @@ export default function EventRegisterPage() {
       const res = await fetch("/api/subscribers", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, eventId: event.id }) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Échec de l'inscription");
+      if (data.waitlisted) setWaitlisted(true);
       setSuccess(true);
     } catch (e) { setError(e instanceof Error ? e.message : "Échec de l'inscription"); }
     finally { setLoading(false); }
@@ -65,16 +67,25 @@ export default function EventRegisterPage() {
           <div className="absolute inset-0 grid-pattern opacity-30 pointer-events-none" />
           <div className="relative z-10 max-w-md w-full mx-4 animate-scale-in">
             <div className="bg-white/5 backdrop-blur-sm rounded-[24px] shadow-xl p-10 text-center border border-white/10">
-              <div className="relative w-24 h-24 mx-auto mb-8">
-                <div className="absolute inset-0 rounded-full bg-success/10 animate-ping" style={{ animationDuration: "2s" }} />
-                <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-success to-emerald-600 flex items-center justify-center shadow-lg shadow-success/30">
-                  <PartyPopper className="w-10 h-10 text-white" />
+              <div className="relative w-24 h-24 mx-auto mb-5">
+                <div className={`absolute inset-0 rounded-full ${waitlisted ? "bg-warning/10" : "bg-success/10"} animate-ping`} style={{ animationDuration: "2s" }} />
+                <div className={`relative w-24 h-24 rounded-full bg-gradient-to-br ${waitlisted ? "from-warning to-amber-600 shadow-warning/30" : "from-success to-emerald-600 shadow-success/30"} flex items-center justify-center shadow-lg`}>
+                  {waitlisted ? <Clock className="w-10 h-10 text-white" /> : <PartyPopper className="w-10 h-10 text-white" />}
                 </div>
               </div>
-              <h1 className="text-2xl font-bold text-white mb-3">{t.register.youreIn}</h1>
-              <p className="text-gray-400 mb-8 leading-relaxed">{t.register.successMsg} <strong className="text-white">{event?.title}</strong>. {t.register.successSub}</p>
+              <h1 className="text-2xl font-bold text-white mb-3">
+                {waitlisted ? "Liste d'attente" : t.register.youreIn}
+              </h1>
+              <p className="text-gray-400 mb-5 leading-relaxed">
+                {waitlisted
+                  ? <>L&apos;événement <strong className="text-white">{event?.title}</strong> est complet. Vous êtes inscrit sur la liste d&apos;attente. Nous vous contacterons si une place se libère.</>
+                  : <>{t.register.successMsg} <strong className="text-white">{event?.title}</strong>. {t.register.successSub}</>
+                }
+              </p>
               <div className="space-y-3">
-                <Link href={`/events/${slug}/badge`} className="btn-primary w-full py-3.5 text-center block text-sm">{t.nav.getBadge}</Link>
+                {!waitlisted && (
+                  <Link href={`/events/${slug}/badge`} className="btn-primary w-full py-3.5 text-center block text-sm">{t.nav.getBadge}</Link>
+                )}
                 <Link href={`/events/${slug}`} className="block w-full bg-white/5 hover:bg-white/10 text-gray-300 py-3.5 rounded-[10px] text-sm font-medium transition-colors border border-white/10">{t.register.backToEvent}</Link>
               </div>
             </div>
@@ -98,7 +109,7 @@ export default function EventRegisterPage() {
         <div className="relative z-10 max-w-2xl mx-auto px-4">
           {/* Event context */}
           {event && (
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 mb-8 flex items-center gap-4">
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 mb-5 flex items-center gap-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center flex-shrink-0">
                 <Calendar className="w-4 h-4 text-white" />
               </div>
@@ -112,13 +123,13 @@ export default function EventRegisterPage() {
             </div>
           )}
 
-          <div className="text-center mb-10">
+          <div className="text-center mb-6">
             <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.register.secureSpot}</span>
             <h1 className="text-3xl sm:text-4xl font-bold text-white mt-2 mb-2">{t.register.title}</h1>
           </div>
 
           {/* Steps */}
-          <div className="flex items-center justify-center mb-10">
+          <div className="flex items-center justify-center mb-6">
             {steps.map((s, i) => (
               <div key={s.num} className="flex items-center">
                 <div className="flex flex-col items-center gap-1.5">

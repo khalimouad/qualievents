@@ -73,6 +73,13 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
 
       {/* HERO */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-secondary noise-overlay">
+        {/* Hero background image if set */}
+        {event.heroImage && (
+          <div className="absolute inset-0">
+            <img src={event.heroImage} alt="" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-secondary/85" />
+          </div>
+        )}
         <div className="absolute inset-0 grid-pattern" />
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 -left-20 w-[500px] h-[500px] bg-primary/8 rounded-full blur-[100px] animate-float-slow" />
@@ -104,7 +111,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
             {event.description}
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-14 animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.3s" }}>
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-8 animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.3s" }}>
             {[
               { icon: <MapPin className="w-4 h-4" />, text: `${event.venue}, ${event.city}` },
               { icon: <Users className="w-4 h-4" />, text: `${event._count.subscribers} / ${event.maxAttendees}` },
@@ -117,7 +124,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
             ))}
           </div>
 
-          <div className="mb-14 animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.4s" }}>
+          <div className="mb-8 animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.4s" }}>
             <CountdownTimer targetDate={event.date.toISOString()} />
           </div>
 
@@ -155,11 +162,11 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
       </section>
 
       {/* ABOUT */}
-      <section id="about" className="py-24 sm:py-32 bg-secondary noise-overlay relative overflow-hidden">
+      <section id="about" className="py-14 sm:py-20 bg-secondary noise-overlay relative overflow-hidden">
         <div className="absolute inset-0 grid-pattern opacity-50" />
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/8 rounded-full blur-[100px]" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10">
             <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.event.whyAttend}</span>
             <h2 className="text-3xl sm:text-5xl font-bold text-white mt-3 mb-5">{t.event.aboutEvent}</h2>
             <p className="text-gray-400 max-w-xl mx-auto">{t.event.aboutSub}</p>
@@ -186,10 +193,10 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
 
       {/* SPEAKERS */}
       {event.panelists.length > 0 && (
-        <section id="speakers" className="py-24 sm:py-32 bg-secondary-light noise-overlay relative">
+        <section id="speakers" className="py-14 sm:py-20 bg-secondary-light noise-overlay relative">
           <div className="absolute inset-0 grid-pattern opacity-30" />
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
+            <div className="text-center mb-10">
               <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.event.meetExperts}</span>
               <h2 className="text-3xl sm:text-5xl font-bold text-white mt-3 mb-5">{t.event.speakersPanelists}</h2>
             </div>
@@ -202,10 +209,10 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
 
       {/* LOCATION */}
       {event.latitude && event.longitude && (
-        <section id="location" className="py-24 sm:py-32 bg-secondary noise-overlay relative">
+        <section id="location" className="py-14 sm:py-20 bg-secondary noise-overlay relative">
           <div className="absolute inset-0 grid-pattern opacity-50" />
           <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
+            <div className="text-center mb-10">
               <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.event.whereToFind}</span>
               <h2 className="text-3xl sm:text-5xl font-bold text-white mt-3 mb-5">{t.event.eventLocation}</h2>
             </div>
@@ -216,10 +223,10 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
 
       {/* SPONSORS */}
       {event.sponsors.length > 0 && (
-        <section id="sponsors" className="py-24 sm:py-32 bg-secondary-light noise-overlay relative">
+        <section id="sponsors" className="py-14 sm:py-20 bg-secondary-light noise-overlay relative">
           <div className="absolute inset-0 grid-pattern opacity-30" />
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
+            <div className="text-center mb-10">
               <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.event.ourPartners}</span>
               <h2 className="text-3xl sm:text-5xl font-bold text-white mt-3 mb-5">{t.event.sponsorsTitle}</h2>
             </div>
@@ -246,7 +253,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
       )}
 
       {/* CTA */}
-      <section className="relative py-28 overflow-hidden bg-secondary noise-overlay">
+      <section className="relative py-16 overflow-hidden bg-secondary noise-overlay">
         <div className="absolute inset-0 grid-pattern" />
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[100px]" />

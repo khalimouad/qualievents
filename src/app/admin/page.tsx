@@ -63,7 +63,7 @@ export default async function AdminDashboard() {
       </div>
 
       {events.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-100 p-10 text-center">
+        <div className="bg-white rounded-xl border border-gray-100 p-6 text-center">
           <Calendar className="w-8 h-8 mx-auto mb-2 text-gray-200" />
           <p className="text-muted text-xs mb-3">Aucun événement pour le moment</p>
           <Link href="/admin/events/new" className="btn-primary px-4 py-2 text-xs inline-flex items-center gap-1.5">
@@ -92,7 +92,7 @@ export default async function AdminDashboard() {
                   <div className="flex-1 min-w-0 pr-2">
                     <h3 className="font-bold text-secondary text-sm truncate group-hover:text-primary transition-colors">{event.title}</h3>
                     <p className="text-[11px] text-muted mt-0.5">
-                      {new Date(event.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} · {event.city}
+                      {new Date(event.date).toLocaleDateString("fr-FR", { month: "short", day: "numeric", year: "numeric" })} · {event.city}
                     </p>
                   </div>
                   <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider flex-shrink-0 ${event.isPublished ? "bg-success/10 text-success" : "bg-gray-100 text-muted"}`}>
@@ -112,7 +112,7 @@ export default async function AdminDashboard() {
             </Link>
           ))}
 
-          <Link href="/admin/events/new" className="border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center p-8 hover:border-primary/30 hover:bg-primary/[0.02] transition-colors group">
+          <Link href="/admin/events/new" className="border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center p-5 hover:border-primary/30 hover:bg-primary/[0.02] transition-colors group">
             <div className="text-center">
               <div className="w-8 h-8 rounded-md bg-gray-50 group-hover:bg-primary/10 flex items-center justify-center mx-auto mb-1.5 transition-colors">
                 <Plus className="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors" />

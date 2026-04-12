@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, QrCode, ArrowLeft, ChevronRight, LogOut } from "lucide-react";
+import AdminThemeToggle from "@/components/AdminThemeToggle";
 import { t } from "@/lib/i18n";
 
 const navItems = [
@@ -19,7 +20,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="min-h-screen flex bg-background">
+    <div id="admin-shell" className="min-h-screen flex bg-background">
       {/* Sidebar */}
       <aside className="w-[220px] bg-white border-r border-gray-100 hidden lg:flex flex-col">
         <div className="p-4 pb-3">
@@ -55,9 +56,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         <div className="p-3 border-t border-gray-100 space-y-2">
-          <Link href="/" className="flex items-center gap-2 text-muted hover:text-secondary text-xs transition-colors px-1">
-            <ArrowLeft className="w-3 h-3" /> {t.admin.backToSite}
-          </Link>
+          <div className="flex items-center justify-between px-1">
+            <Link href="/" className="flex items-center gap-2 text-muted hover:text-secondary text-xs transition-colors">
+              <ArrowLeft className="w-3 h-3" /> {t.admin.backToSite}
+            </Link>
+            <AdminThemeToggle />
+          </div>
           <button
             onClick={() => { fetch("/api/auth", { method: "DELETE" }).then(() => window.location.href = "/admin/login"); }}
             className="flex items-center gap-2 text-muted hover:text-danger text-xs transition-colors w-full px-1"
