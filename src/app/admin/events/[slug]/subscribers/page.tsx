@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, use } from "react";
-import { Users, Search, Download, QrCode, Trash2 } from "lucide-react";
+import { Users, Search, Download, QrCode, Trash2, Upload, FileText } from "lucide-react";
 import { t } from "@/lib/i18n";
 
 interface Subscriber {
@@ -35,9 +35,29 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
     setLoading(false);
   };
 
+  const [showImport, setShowImport] = useState(false);
+  const [csvText, setCsvText] = useState("");
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState<{ imported: number; skipped: number } | null>(null);
+
   const remove = async (id: string) => {
     if (!confirm("Retirer cet abonné ? Son badge sera également supprimé.")) return;
     await fetch(`/api/subscribers?id=${id}`, { method: "DELETE" });
+    load();
+  };
+
+  const importCsv = async () => {
+    if (!csvText.trim() || !_eventId) return;
+    setImporting(true);
+    const res = await fetch("/api/subscribers/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ eventId: _eventId, csv: csvText }),
+    });
+    const data = await res.json();
+    setImportResult(data);
+    setImporting(false);
+    setCsvText("");
     load();
   };
 
@@ -64,10 +84,36 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
     <div>
       <div className="flex items-center justify-between gap-3 mb-3">
         <p className="text-xs text-muted">{subscribers.length} au total</p>
-        <button onClick={downloadCSV} className="btn-primary px-3 py-1.5 text-xs inline-flex items-center gap-1.5">
-          <Download className="w-3 h-3" /> {t.common.export} CSV
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setShowImport(!showImport)} className={`px-3 py-1.5 text-xs inline-flex items-center gap-1.5 rounded-[10px] border font-medium transition-colors ${showImport ? "bg-gray-100 text-secondary border-gray-200" : "bg-white text-muted border-gray-200 hover:text-secondary"}`}>
+            <Upload className="w-3 h-3" /> Importer CSV
+          </button>
+          <button onClick={downloadCSV} className="btn-primary px-3 py-1.5 text-xs inline-flex items-center gap-1.5">
+            <Download className="w-3 h-3" /> {t.common.export}
+          </button>
+        </div>
       </div>
+
+      {showImport && (
+        <div className="bg-white rounded-xl border border-gray-100 p-4 mb-3">
+          <p className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1">CSV (Prénom, Nom, Email, Téléphone, Entreprise, Poste)</p>
+          <textarea
+            value={csvText}
+            onChange={(e) => setCsvText(e.target.value)}
+            rows={4}
+            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs font-mono resize-none focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none"
+            placeholder={"Jean,Dupont,jean@exemple.com,+225070000000,Acme,Directeur\nMarie,Koné,marie@exemple.com"}
+          />
+          <div className="flex items-center gap-3 mt-2">
+            <button onClick={importCsv} disabled={importing || !csvText.trim()} className="btn-primary px-4 py-1.5 text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
+              <Upload className="w-3 h-3" /> {importing ? "Import..." : "Importer"}
+            </button>
+            {importResult && (
+              <p className="text-xs text-muted">{importResult.imported} importés, {importResult.skipped} ignorés</p>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="bg-white rounded-xl border border-gray-100 p-3 mb-3 flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">

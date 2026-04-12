@@ -53,6 +53,8 @@ export async function PUT(
       heroImage: body.heroImage !== undefined ? body.heroImage : event.heroImage,
       maxAttendees: body.maxAttendees ? parseInt(body.maxAttendees) : event.maxAttendees,
       isPublished: body.isPublished !== undefined ? body.isPublished : event.isPublished,
+      isPaid: body.isPaid !== undefined ? body.isPaid : event.isPaid,
+      ticketPrice: body.ticketPrice !== undefined ? (body.ticketPrice ? parseInt(body.ticketPrice) : null) : event.ticketPrice,
     },
   });
 

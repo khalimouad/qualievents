@@ -37,6 +37,9 @@ model Event {
   themeColor   String?
   maxAttendees Int      @default(500)
   isPublished  Boolean  @default(false)
+  isPaid       Boolean  @default(false)
+  ticketPrice  Int?     // Price in XOF (CFA francs)
+  currency     String   @default("XOF")
   orgId        String?
   org          Organization? @relation(fields: [orgId], references: [id])
   createdAt    DateTime @default(now())
@@ -48,6 +51,7 @@ model Event {
   invitations  Invitation[]
   newsletters  Newsletter[]
   sponsors     Sponsor[]
+  payments     Payment[]
 }
 
 model Subscriber {
@@ -60,13 +64,34 @@ model Subscriber {
   jobTitle    String?
   dietaryReqs String?
   status      String   @default("pending")
+  paymentId   String?
   eventId     String
   event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   badge       Badge?
+  payment     Payment? @relation(fields: [paymentId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@unique([email, eventId])
+}
+
+model Payment {
+  id              String   @id @default(uuid())
+  transactionId   String?  @unique // CinetPay transaction ID
+  amount          Int      // Amount in XOF
+  currency        String   @default("XOF")
+  status          String   @default("pending") // pending, completed, failed, refunded
+  method          String?  // ORANGE_MONEY, MTN_MOBILE_MONEY, WAVE, MOOV, VISA
+  payerPhone      String?
+  payerName       String?
+  payerEmail      String?
+  cinetpayPayId   String?  // CinetPay payment_token
+  metadata        String?  // JSON string for extra data
+  eventId         String
+  event           Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  subscribers     Subscriber[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model Panelist {

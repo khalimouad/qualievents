@@ -14,6 +14,9 @@ interface EventInfo {
   date: string;
   venue: string;
   city: string;
+  isPaid: boolean;
+  ticketPrice: number | null;
+  currency: string;
 }
 
 export default function EventRegisterPage() {
@@ -50,6 +53,21 @@ export default function EventRegisterPage() {
     if (!event) return;
     setLoading(true); setError("");
     try {
+      // Paid event: redirect to CinetPay
+      if (event.isPaid && event.ticketPrice) {
+        const res = await fetch("/api/payments", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...form, eventId: event.id }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Échec d'initialisation du paiement");
+        // Redirect to CinetPay payment page
+        window.location.href = data.paymentUrl;
+        return;
+      }
+
+      // Free event: direct registration
       const res = await fetch("/api/subscribers", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, eventId: event.id }) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Échec de l'inscription");

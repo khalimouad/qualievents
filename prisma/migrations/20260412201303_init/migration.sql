@@ -27,6 +27,9 @@ CREATE TABLE "Event" (
     "themeColor" TEXT,
     "maxAttendees" INTEGER NOT NULL DEFAULT 500,
     "isPublished" BOOLEAN NOT NULL DEFAULT false,
+    "isPaid" BOOLEAN NOT NULL DEFAULT false,
+    "ticketPrice" INTEGER,
+    "currency" TEXT NOT NULL DEFAULT 'XOF',
     "orgId" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
@@ -44,10 +47,31 @@ CREATE TABLE "Subscriber" (
     "jobTitle" TEXT,
     "dietaryReqs" TEXT,
     "status" TEXT NOT NULL DEFAULT 'pending',
+    "paymentId" TEXT,
     "eventId" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "Subscriber_eventId_fkey" FOREIGN KEY ("eventId") REFERENCES "Event" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "Subscriber_eventId_fkey" FOREIGN KEY ("eventId") REFERENCES "Event" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "Subscriber_paymentId_fkey" FOREIGN KEY ("paymentId") REFERENCES "Payment" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "Payment" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "transactionId" TEXT,
+    "amount" INTEGER NOT NULL,
+    "currency" TEXT NOT NULL DEFAULT 'XOF',
+    "status" TEXT NOT NULL DEFAULT 'pending',
+    "method" TEXT,
+    "payerPhone" TEXT,
+    "payerName" TEXT,
+    "payerEmail" TEXT,
+    "cinetpayPayId" TEXT,
+    "metadata" TEXT,
+    "eventId" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Payment_eventId_fkey" FOREIGN KEY ("eventId") REFERENCES "Event" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -144,6 +168,9 @@ CREATE UNIQUE INDEX "Event_slug_key" ON "Event"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Subscriber_email_eventId_key" ON "Subscriber"("email", "eventId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Payment_transactionId_key" ON "Payment"("transactionId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Badge_code_key" ON "Badge"("code");

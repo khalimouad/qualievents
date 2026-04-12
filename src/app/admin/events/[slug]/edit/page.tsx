@@ -16,7 +16,7 @@ export default function EditEventPage() {
   const [fetching, setFetching] = useState(true);
   const [form, setForm] = useState({
     title: "", tagline: "", description: "", date: "", endDate: "", venue: "", address: "", city: "", country: "",
-    latitude: "", longitude: "", themeColor: "#e94560", maxAttendees: "500", isPublished: false, heroImage: "",
+    latitude: "", longitude: "", themeColor: "#e94560", maxAttendees: "500", isPublished: false, isPaid: false, ticketPrice: "", heroImage: "",
   });
 
   useEffect(() => {
@@ -31,7 +31,8 @@ export default function EditEventPage() {
           venue: data.venue || "", address: data.address || "", city: data.city || "", country: data.country || "",
           latitude: data.latitude?.toString() || "", longitude: data.longitude?.toString() || "",
           themeColor: data.themeColor || "#e94560", maxAttendees: data.maxAttendees?.toString() || "500",
-          isPublished: data.isPublished || false, heroImage: data.heroImage || "",
+          isPublished: data.isPublished || false, isPaid: data.isPaid || false,
+          ticketPrice: data.ticketPrice?.toString() || "", heroImage: data.heroImage || "",
         });
         setFetching(false);
       });
@@ -127,6 +128,16 @@ export default function EditEventPage() {
             <input type="checkbox" checked={form.isPublished} onChange={(e) => update("isPublished", e.target.checked)} className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" />
             <span className="text-xs text-secondary">{t.admin.published}</span>
           </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked={form.isPaid as boolean} onChange={(e) => update("isPaid", e.target.checked)} className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" />
+            <span className="text-xs text-secondary">Événement payant (CinetPay / Orange Money)</span>
+          </label>
+          {form.isPaid && (
+            <div>
+              <label className={labelClass}>Prix du billet (XOF / FCFA)</label>
+              <input type="number" value={form.ticketPrice} onChange={(e) => update("ticketPrice", e.target.value)} className={inputClass} placeholder="5000" min="100" />
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between mt-4">

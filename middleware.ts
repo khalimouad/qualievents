@@ -107,6 +107,15 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // Payment list: admin only; POST (checkout, webhook, status check) is public
+  if (pathname === "/api/payments" && method === "GET") {
+    const session = await verifySession(req);
+    if (!session || session.role !== "admin") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    return NextResponse.next();
+  }
+
   // Event mutations: admin only; GET is public
   if (pathname.startsWith("/api/events") && method !== "GET") {
     const session = await verifySession(req);
@@ -131,5 +140,6 @@ export const config = {
     "/api/panelists/:path*",
     "/api/events/:path*",
     "/api/scan/:path*",
+    "/api/payments",
   ],
 };

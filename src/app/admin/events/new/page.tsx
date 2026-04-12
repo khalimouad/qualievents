@@ -13,7 +13,7 @@ export default function NewEventPage() {
   const [error, setError] = useState("");
   const [form, setForm] = useState({
     title: "", tagline: "", description: "", date: "", endDate: "", venue: "", address: "", city: "", country: "",
-    latitude: "", longitude: "", themeColor: "#e94560", maxAttendees: "500", isPublished: false, heroImage: "",
+    latitude: "", longitude: "", themeColor: "#e94560", maxAttendees: "500", isPublished: false, isPaid: false, ticketPrice: "", heroImage: "",
   });
 
   const update = (field: string, value: string | boolean) => { setForm((f) => ({ ...f, [field]: value })); setError(""); };
@@ -120,6 +120,16 @@ export default function NewEventPage() {
             <input type="checkbox" checked={form.isPublished} onChange={(e) => update("isPublished", e.target.checked)} className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" />
             <span className="text-xs text-secondary">{t.admin.publishImmediately}</span>
           </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked={form.isPaid as boolean} onChange={(e) => update("isPaid", e.target.checked)} className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" />
+            <span className="text-xs text-secondary">Événement payant (CinetPay / Orange Money)</span>
+          </label>
+          {form.isPaid && (
+            <div>
+              <label className={labelClass}>Prix du billet (XOF / FCFA)</label>
+              <input type="number" value={form.ticketPrice} onChange={(e) => update("ticketPrice", e.target.value)} className={inputClass} placeholder="5000" min="100" />
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-end gap-2 mt-4">

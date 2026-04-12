@@ -60,6 +60,8 @@ export async function POST(req: NextRequest) {
       heroImage: body.heroImage || null,
       maxAttendees: body.maxAttendees ? parseInt(body.maxAttendees) : 500,
       isPublished: body.isPublished ?? false,
+      isPaid: body.isPaid ?? false,
+      ticketPrice: body.ticketPrice ? parseInt(body.ticketPrice) : null,
     },
   });
   return NextResponse.json(event, { status: 201 });
