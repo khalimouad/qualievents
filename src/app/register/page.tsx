@@ -66,7 +66,7 @@ export default function RegisterPage() {
               <div className="relative w-24 h-24 mx-auto mb-8">
                 <div className="absolute inset-0 rounded-full bg-success/10 animate-ping" style={{ animationDuration: "2s" }} />
                 <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-success to-emerald-600 flex items-center justify-center shadow-lg shadow-success/30">
-                  <PartyPopper className="w-10 h-10 text-white" />
+                  <PartyPopper className="w-10 h-10 text-foreground" />
                 </div>
               </div>
               <h1 className="text-2xl font-bold text-secondary mb-3">You&apos;re In!</h1>
@@ -115,15 +115,15 @@ export default function RegisterPage() {
                   <div
                     className={`w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold transition-all duration-300 ${
                       step > s.num
-                        ? "bg-success text-white shadow-md shadow-success/20"
+                        ? "bg-success text-foreground shadow-md shadow-success/20"
                         : step === s.num
-                        ? "bg-gradient-to-br from-primary to-primary-dark text-white shadow-lg shadow-primary/25"
-                        : "bg-gray-100 text-gray-400"
+                        ? "bg-gradient-to-br from-primary to-primary-dark text-foreground shadow-lg shadow-primary/25"
+                        : "bg-gray-100 text-muted"
                     }`}
                   >
                     {step > s.num ? <Check className="w-5 h-5" /> : s.icon}
                   </div>
-                  <span className={`text-[10px] font-medium uppercase tracking-wider ${step >= s.num ? "text-secondary" : "text-gray-400"}`}>
+                  <span className={`text-[10px] font-medium uppercase tracking-wider ${step >= s.num ? "text-secondary" : "text-muted"}`}>
                     {s.label}
                   </span>
                 </div>
@@ -160,7 +160,7 @@ export default function RegisterPage() {
                     >
                       <input type="radio" name="event" value={ev.id} checked={form.eventId === ev.id} onChange={(e) => updateForm("eventId", e.target.value)} className="sr-only" />
                       <div className="flex items-center gap-4">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${form.eventId === ev.id ? "bg-primary text-white" : "bg-gray-100 text-gray-400"}`}>
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${form.eventId === ev.id ? "bg-primary text-foreground" : "bg-gray-100 text-muted"}`}>
                           <Calendar className="w-5 h-5" />
                         </div>
                         <div>
@@ -188,17 +188,17 @@ export default function RegisterPage() {
                     { label: "Last Name", field: "lastName", required: true, placeholder: "Doe" },
                   ].map((f) => (
                     <div key={f.field}>
-                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{f.label} {f.required && <span className="text-primary">*</span>}</label>
+                      <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">{f.label} {f.required && <span className="text-primary">*</span>}</label>
                       <input type="text" value={form[f.field as keyof typeof form]} onChange={(e) => updateForm(f.field, e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm" placeholder={f.placeholder} />
                     </div>
                   ))}
                 </div>
                 <div className="mt-4">
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Email <span className="text-primary">*</span></label>
+                  <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Email <span className="text-primary">*</span></label>
                   <input type="email" value={form.email} onChange={(e) => updateForm("email", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm" placeholder="john@example.com" />
                 </div>
                 <div className="mt-4">
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Phone</label>
+                  <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Phone</label>
                   <input type="tel" value={form.phone} onChange={(e) => updateForm("phone", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm" placeholder="+33 6 12 34 56 78" />
                 </div>
               </div>
@@ -211,11 +211,11 @@ export default function RegisterPage() {
                 <p className="text-muted text-sm mb-6">Optional details about your work</p>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Company</label>
+                    <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Company</label>
                     <input type="text" value={form.company} onChange={(e) => updateForm("company", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm" placeholder="Acme Inc." />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Job Title</label>
+                    <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Job Title</label>
                     <input type="text" value={form.jobTitle} onChange={(e) => updateForm("jobTitle", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm" placeholder="Software Engineer" />
                   </div>
                 </div>
@@ -228,11 +228,11 @@ export default function RegisterPage() {
                 <h2 className="text-xl font-bold text-secondary mb-2">Almost Done</h2>
                 <p className="text-muted text-sm mb-6">Review your information and confirm</p>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Dietary Requirements</label>
+                  <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Dietary Requirements</label>
                   <textarea value={form.dietaryReqs} onChange={(e) => updateForm("dietaryReqs", e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm resize-none" rows={3} placeholder="Any allergies or dietary restrictions..." />
                 </div>
                 <div className="mt-6 bg-gray-50 rounded-2xl p-5 border border-gray-100">
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Summary</h3>
+                  <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-4">Summary</h3>
                   <div className="space-y-2.5">
                     {[
                       { label: "Name", value: `${form.firstName} ${form.lastName}` },

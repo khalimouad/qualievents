@@ -48,7 +48,7 @@ export default function BadgePage() {
           {/* Header */}
           <div className="text-center mb-10">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center mx-auto mb-5 shadow-lg shadow-primary/20">
-              <Ticket className="w-7 h-7 text-white" />
+              <Ticket className="w-7 h-7 text-foreground" />
             </div>
             <h1 className="text-3xl font-bold text-secondary mb-2">Get Your Badge</h1>
             <p className="text-muted">Retrieve your event badge using your code or email</p>
@@ -81,7 +81,7 @@ export default function BadgePage() {
 
               {searchBy === "code" ? (
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Badge Code</label>
+                  <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Badge Code</label>
                   <input
                     type="text" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())}
                     className="w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-center text-2xl font-bold tracking-[0.3em] uppercase"
@@ -90,7 +90,7 @@ export default function BadgePage() {
                 </div>
               ) : (
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Email Address</label>
+                  <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Email Address</label>
                   <input
                     type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                     className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm"
@@ -121,10 +121,10 @@ export default function BadgePage() {
                   <div className="relative z-10">
                     <div className="inline-flex items-center gap-1.5 bg-white/10 rounded-full px-3 py-1 mb-3">
                       <Shield className="w-3 h-3 text-success" />
-                      <span className="text-white/80 text-xs font-medium">Verified Badge</span>
+                      <span className="text-foreground/80 text-xs font-medium">Verified Badge</span>
                     </div>
-                    <h3 className="text-white text-xl font-bold">{badge.eventTitle}</h3>
-                    <p className="text-gray-400 text-sm mt-1">
+                    <h3 className="text-foreground text-xl font-bold">{badge.eventTitle}</h3>
+                    <p className="text-muted text-sm mt-1">
                       {new Date(badge.eventDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
                     </p>
                   </div>
@@ -143,7 +143,7 @@ export default function BadgePage() {
 
                   <h3 className="text-xl font-bold text-secondary">{badge.subscriberName}</h3>
                   <p className="text-muted text-sm">{badge.subscriberEmail}</p>
-                  {badge.subscriberCompany && <p className="text-gray-400 text-xs mt-0.5">{badge.subscriberCompany}</p>}
+                  {badge.subscriberCompany && <p className="text-muted text-xs mt-0.5">{badge.subscriberCompany}</p>}
 
                   {badge.isScanned && (
                     <div className="mt-4 bg-success/5 text-success border border-success/20 px-4 py-2.5 rounded-xl text-sm font-medium inline-flex items-center gap-2">

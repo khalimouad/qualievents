@@ -26,7 +26,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="p-4 pb-3">
           <Link href="/" className="flex items-center gap-2.5 group">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-sm">
-              <span className="text-white font-bold text-xs">Q</span>
+              <span className="text-foreground font-bold text-xs">Q</span>
             </div>
             <div>
               <span className="text-secondary font-bold text-sm">Quali<span className="text-primary">Events</span></span>
@@ -76,7 +76,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="flex items-center justify-between p-3">
           <Link href="/admin" className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-md bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
-              <span className="text-white font-bold text-[10px]">Q</span>
+              <span className="text-foreground font-bold text-[10px]">Q</span>
             </div>
             <span className="font-bold text-secondary text-xs">Admin</span>
           </Link>

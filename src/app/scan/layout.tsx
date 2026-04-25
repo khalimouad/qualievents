@@ -25,7 +25,7 @@ export default function ScanLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-secondary text-white overflow-hidden">
+    <div className="min-h-screen bg-secondary text-foreground overflow-hidden">
       {children}
     </div>
   );

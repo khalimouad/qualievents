@@ -47,7 +47,7 @@ export default async function AdminDashboard() {
           return (
             <div key={stat.label} className="bg-white rounded-xl p-3 border border-gray-100">
               <div className={`w-7 h-7 rounded-md bg-gradient-to-br ${stat.color} flex items-center justify-center mb-1.5 shadow-sm`}>
-                <Icon className="w-3.5 h-3.5 text-white" />
+                <Icon className="w-3.5 h-3.5 text-foreground" />
               </div>
               <p className="text-lg font-bold text-secondary leading-none">{stat.value}</p>
               <p className="text-[9px] text-muted mt-1 uppercase tracking-wider">{stat.label}</p>
@@ -106,7 +106,7 @@ export default async function AdminDashboard() {
                     <span><strong className="text-secondary">{event._count.panelists}</strong> pan.</span>
                     <span><strong className="text-secondary">{event._count.badges}</strong> badges</span>
                   </div>
-                  <ArrowUpRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-primary transition-colors" />
+                  <ArrowUpRight className="w-3.5 h-3.5 text-foreground/80 group-hover:text-primary transition-colors" />
                 </div>
               </div>
             </Link>
@@ -115,7 +115,7 @@ export default async function AdminDashboard() {
           <Link href="/admin/events/new" className="border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center p-5 hover:border-primary/30 hover:bg-primary/[0.02] transition-colors group">
             <div className="text-center">
               <div className="w-8 h-8 rounded-md bg-gray-50 group-hover:bg-primary/10 flex items-center justify-center mx-auto mb-1.5 transition-colors">
-                <Plus className="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors" />
+                <Plus className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />
               </div>
               <p className="text-xs font-medium text-muted group-hover:text-primary transition-colors">{t.admin.createEvent}</p>
             </div>

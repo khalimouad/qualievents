@@ -38,23 +38,23 @@ export default function EventBadgePage() {
       <div className="min-h-screen bg-secondary noise-overlay relative pt-24 pb-16">
         <div className="absolute inset-0 grid-pattern opacity-30 pointer-events-none" />
         <div className="relative z-10 max-w-lg mx-auto px-4">
-          <Link href={`/events/${slug}`} className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-5 transition-colors text-sm font-medium">
+          <Link href={`/events/${slug}`} className="inline-flex items-center gap-2 text-muted hover:text-foreground mb-5 transition-colors text-sm font-medium">
             <ArrowLeft className="w-4 h-4" /> {t.register.backToEvent}
           </Link>
 
           <div className="text-center mb-6">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center mx-auto mb-5 shadow-lg shadow-primary/30">
-              <Ticket className="w-7 h-7 text-white" />
+              <Ticket className="w-7 h-7 text-foreground" />
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">{t.badge.getYourBadge}</h1>
-            <p className="text-gray-400">{t.badge.getYourBadgeSub}</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">{t.badge.getYourBadge}</h1>
+            <p className="text-muted">{t.badge.getYourBadgeSub}</p>
           </div>
 
           {!badge && (
-            <div className="bg-white/5 backdrop-blur-sm rounded-[24px] shadow-2xl p-7 sm:p-8 border border-white/10 animate-fade-in">
-              <div className="flex gap-1.5 p-1.5 bg-white/5 border border-white/10 rounded-xl mb-6">
+            <div className="bg-black/5 dark:bg-white/5 backdrop-blur-sm rounded-[24px] shadow-2xl p-7 sm:p-8 border border-black/5 dark:border-white/10 animate-fade-in">
+              <div className="flex gap-1.5 p-1.5 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl mb-6">
                 {(["code", "email"] as const).map((tab) => (
-                  <button key={tab} onClick={() => setSearchBy(tab)} className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${searchBy === tab ? "bg-primary text-white shadow-md" : "text-gray-400 hover:text-white"}`}>
+                  <button key={tab} onClick={() => setSearchBy(tab)} className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${searchBy === tab ? "bg-primary text-foreground shadow-md" : "text-muted hover:text-foreground"}`}>
                     {tab === "code" ? t.badge.byCode : t.badge.byEmail}
                   </button>
                 ))}
@@ -62,13 +62,13 @@ export default function EventBadgePage() {
               {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl mb-5 text-sm font-medium flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-red-500" /> {error}</div>}
               {searchBy === "code" ? (
                 <div>
-                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{t.badge.byCode}</label>
-                  <input type="text" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} className="w-full px-4 py-4 bg-white/5 border border-white/10 rounded-xl focus:bg-white/10 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-center text-2xl font-bold tracking-[0.3em] uppercase text-white placeholder:text-gray-600" placeholder="A1B2C3D4" maxLength={8} />
+                  <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">{t.badge.byCode}</label>
+                  <input type="text" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} className="w-full px-4 py-4 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl focus:bg-white/10 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-center text-2xl font-bold tracking-[0.3em] uppercase text-foreground placeholder:text-gray-600" placeholder="A1B2C3D4" maxLength={8} />
                 </div>
               ) : (
                 <div>
-                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{t.badge.byEmail}</label>
-                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl focus:bg-white/10 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm text-white placeholder:text-gray-600" placeholder="jean@exemple.com" />
+                  <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">{t.badge.byEmail}</label>
+                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-4 py-3.5 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl focus:bg-white/10 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm text-foreground placeholder:text-gray-600" placeholder="jean@exemple.com" />
                 </div>
               )}
               <button onClick={searchBadge} disabled={loading || (searchBy === "code" ? !code : !email)} className="btn-primary w-full mt-5 py-3.5 text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
@@ -79,34 +79,34 @@ export default function EventBadgePage() {
 
           {badge && (
             <div className="animate-scale-in">
-              <div className="bg-white/5 backdrop-blur-sm rounded-[24px] shadow-2xl overflow-hidden border border-white/10">
+              <div className="bg-black/5 dark:bg-white/5 backdrop-blur-sm rounded-[24px] shadow-2xl overflow-hidden border border-black/5 dark:border-white/10">
                 <div className="relative bg-gradient-to-br from-secondary via-secondary-light to-accent p-8 text-center noise-overlay grid-pattern">
                   <div className="relative z-10">
                     <div className="inline-flex items-center gap-1.5 bg-white/10 rounded-full px-3 py-1 mb-3">
-                      <Shield className="w-3 h-3 text-success" /><span className="text-white/80 text-xs font-medium">{t.badge.verifiedBadge}</span>
+                      <Shield className="w-3 h-3 text-success" /><span className="text-foreground/80 text-xs font-medium">{t.badge.verifiedBadge}</span>
                     </div>
-                    <h3 className="text-white text-xl font-bold">{badge.eventTitle}</h3>
-                    <p className="text-gray-400 text-sm mt-1">{new Date(badge.eventDate).toLocaleDateString("fr-FR", { year: "numeric", month: "long", day: "numeric" })}</p>
+                    <h3 className="text-foreground text-xl font-bold">{badge.eventTitle}</h3>
+                    <p className="text-muted text-sm mt-1">{new Date(badge.eventDate).toLocaleDateString("fr-FR", { year: "numeric", month: "long", day: "numeric" })}</p>
                   </div>
                 </div>
                 <div className="p-8 text-center">
                   <div className="inline-block p-4 bg-white rounded-2xl shadow-md mb-5">
                     <img src={badge.qrData} alt="QR Code" className="w-44 h-44" />
                   </div>
-                  <div className="bg-white/5 rounded-2xl p-5 mb-6 border border-white/10">
-                    <p className="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-semibold mb-1">{t.badge.badgeCode}</p>
+                  <div className="bg-black/5 dark:bg-white/5 rounded-2xl p-5 mb-6 border border-black/5 dark:border-white/10">
+                    <p className="text-[10px] text-muted uppercase tracking-[0.2em] font-semibold mb-1">{t.badge.badgeCode}</p>
                     <p className="text-3xl font-bold text-gradient tracking-[0.2em]">{badge.code}</p>
                   </div>
-                  <h3 className="text-xl font-bold text-white">{badge.subscriberName}</h3>
-                  <p className="text-gray-400 text-sm">{badge.subscriberEmail}</p>
-                  {badge.subscriberCompany && <p className="text-gray-500 text-xs mt-0.5">{badge.subscriberCompany}</p>}
+                  <h3 className="text-xl font-bold text-foreground">{badge.subscriberName}</h3>
+                  <p className="text-muted text-sm">{badge.subscriberEmail}</p>
+                  {badge.subscriberCompany && <p className="text-muted text-xs mt-0.5">{badge.subscriberCompany}</p>}
                   {badge.isScanned && <div className="mt-4 bg-success/10 text-success border border-success/30 px-4 py-2.5 rounded-xl text-sm font-medium inline-flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-success" /> {t.badge.scanned}</div>}
                 </div>
                 <div className="px-8 pb-8 space-y-3">
                   <button onClick={() => { const link = document.createElement("a"); link.href = badge.qrData; link.download = `badge-${badge.code}.png`; link.click(); }} className="btn-primary w-full py-3.5 text-sm flex items-center justify-center gap-2">
                     <Download className="w-4 h-4" /> {t.badge.downloadBadge}
                   </button>
-                  <button onClick={() => { setBadge(null); setCode(""); setEmail(""); }} className="w-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/10 py-3.5 rounded-[10px] text-sm font-medium transition-colors">{t.badge.searchAnother}</button>
+                  <button onClick={() => { setBadge(null); setCode(""); setEmail(""); }} className="w-full bg-black/5 dark:bg-white/5 hover:bg-white/10 text-muted hover:text-foreground border border-black/5 dark:border-white/10 py-3.5 rounded-[10px] text-sm font-medium transition-colors">{t.badge.searchAnother}</button>
                 </div>
               </div>
             </div>

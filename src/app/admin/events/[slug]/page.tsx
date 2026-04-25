@@ -46,7 +46,7 @@ export default async function EventOverviewPage({ params }: { params: Promise<{ 
           return (
             <Link key={stat.label} href={stat.href} className="bg-white rounded-xl p-3 border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all group">
               <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center mb-2 shadow-sm group-hover:scale-105 transition-transform`}>
-                <Icon className="w-4 h-4 text-white" />
+                <Icon className="w-4 h-4 text-foreground" />
               </div>
               <p className="text-xl font-bold text-secondary leading-tight">
                 {stat.value}

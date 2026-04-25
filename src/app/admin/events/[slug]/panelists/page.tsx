@@ -91,7 +91,7 @@ export default function EventPanelistsPage({ params }: { params: Promise<{ slug:
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {panelists.map((p) => (
             <div key={p.id} className="bg-white rounded-xl border border-gray-100 p-4 group relative hover:border-gray-200 hover:shadow-sm transition-all">
-              <button onClick={() => remove(p.id)} className="absolute top-3 right-3 text-gray-300 hover:text-danger opacity-0 group-hover:opacity-100 transition-all">
+              <button onClick={() => remove(p.id)} className="absolute top-3 right-3 text-foreground/80 hover:text-danger opacity-0 group-hover:opacity-100 transition-all">
                 <Trash2 className="w-3 h-3" />
               </button>
               <div className="flex items-start gap-2">
@@ -99,7 +99,7 @@ export default function EventPanelistsPage({ params }: { params: Promise<{ slug:
                   <img src={p.photo} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
                 ) : (
                   <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0">
-                    <span className="text-white text-xs font-bold">{p.firstName[0]}{p.lastName[0]}</span>
+                    <span className="text-foreground text-xs font-bold">{p.firstName[0]}{p.lastName[0]}</span>
                   </div>
                 )}
                 <div className="min-w-0 flex-1">

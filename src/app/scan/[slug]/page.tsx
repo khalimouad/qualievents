@@ -222,7 +222,7 @@ export default function ScannerPage() {
       <div className="min-h-screen flex items-center justify-center p-6">
         <div className="text-center">
           <XCircle className="w-12 h-12 mx-auto mb-4 text-red-400" />
-          <p className="text-white font-bold text-lg mb-2">{t.eventNotFound}</p>
+          <p className="text-foreground font-bold text-lg mb-2">{t.eventNotFound}</p>
           <Link href="/scan" className="text-primary text-sm font-medium">{t.backToEvents}</Link>
         </div>
       </div>
@@ -245,16 +245,16 @@ export default function ScannerPage() {
       <div className="min-h-screen flex flex-col">
         {/* Header */}
         <header className="px-5 pt-8 pb-2">
-          <Link href="/scan" className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm mb-6">
+          <Link href="/scan" className="inline-flex items-center gap-2 text-muted hover:text-foreground transition-colors text-sm mb-6">
             <ArrowLeft className="w-4 h-4" /> {t.scanner.back}
           </Link>
           <div className="flex items-center gap-4 mb-2">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-lg shadow-primary/30">
-              <Scan className="w-6 h-6 text-white" />
+              <Scan className="w-6 h-6 text-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">{event.title}</h1>
-              <p className="text-gray-500 text-xs">{t.scanner.chooseMethod}</p>
+              <h1 className="text-xl font-bold text-foreground">{event.title}</h1>
+              <p className="text-muted text-xs">{t.scanner.chooseMethod}</p>
             </div>
           </div>
         </header>
@@ -268,19 +268,19 @@ export default function ScannerPage() {
               className="w-full group relative"
             >
               <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-[22px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm" />
-              <div className="relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/8 hover:border-white/20 transition-all duration-300 text-left">
+              <div className="relative bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl p-6 hover:bg-white/8 hover:border-white/20 transition-all duration-300 text-left">
                 <div className="flex items-center gap-5">
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform duration-300">
-                    <Zap className="w-8 h-8 text-white" />
+                    <Zap className="w-8 h-8 text-foreground" />
                   </div>
                   <div className="flex-1">
-                    <h2 className="text-lg font-bold text-white mb-1">{t.scanner.externalScanner}</h2>
-                    <p className="text-gray-400 text-sm leading-relaxed">
+                    <h2 className="text-lg font-bold text-foreground mb-1">{t.scanner.externalScanner}</h2>
+                    <p className="text-muted text-sm leading-relaxed">
                       {t.scanner.externalScannerDesc}
                     </p>
                   </div>
                 </div>
-                <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
+                <div className="mt-4 flex items-center gap-2 text-xs text-muted">
                   <div className="w-1 h-1 rounded-full bg-amber-500" />
                   {t.scanner.externalFastest}
                 </div>
@@ -293,19 +293,19 @@ export default function ScannerPage() {
               className="w-full group relative"
             >
               <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-400/20 to-indigo-400/20 rounded-[22px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm" />
-              <div className="relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/8 hover:border-white/20 transition-all duration-300 text-left">
+              <div className="relative bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl p-6 hover:bg-white/8 hover:border-white/20 transition-all duration-300 text-left">
                 <div className="flex items-center gap-5">
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform duration-300">
-                    <Camera className="w-8 h-8 text-white" />
+                    <Camera className="w-8 h-8 text-foreground" />
                   </div>
                   <div className="flex-1">
-                    <h2 className="text-lg font-bold text-white mb-1">{t.scanner.camera}</h2>
-                    <p className="text-gray-400 text-sm leading-relaxed">
+                    <h2 className="text-lg font-bold text-foreground mb-1">{t.scanner.camera}</h2>
+                    <p className="text-muted text-sm leading-relaxed">
                       {t.scanner.cameraDesc}
                     </p>
                   </div>
                 </div>
-                <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
+                <div className="mt-4 flex items-center gap-2 text-xs text-muted">
                   <div className="w-1 h-1 rounded-full bg-blue-500" />
                   {t.scanner.cameraBest}
                 </div>
@@ -319,12 +319,12 @@ export default function ScannerPage() {
           <div className="flex items-center justify-center gap-8 text-center">
             <div>
               <p className="text-lg font-bold text-emerald-400">{totalStats.scanned}</p>
-              <p className="text-[9px] text-gray-500 uppercase tracking-wider">{t.scanner.checkedInCount}</p>
+              <p className="text-[9px] text-muted uppercase tracking-wider">{t.scanner.checkedInCount}</p>
             </div>
-            <div className="w-px h-8 bg-white/5" />
+            <div className="w-px h-8 bg-black/5 dark:bg-white/5" />
             <div>
-              <p className="text-lg font-bold text-gray-400">{totalStats.total}</p>
-              <p className="text-[9px] text-gray-500 uppercase tracking-wider">{t.scanner.totalCount}</p>
+              <p className="text-lg font-bold text-muted">{totalStats.total}</p>
+              <p className="text-[9px] text-muted uppercase tracking-wider">{t.scanner.totalCount}</p>
             </div>
           </div>
         </footer>
@@ -339,13 +339,13 @@ export default function ScannerPage() {
       <header className="relative z-20 flex items-center gap-3 px-4 py-3 bg-secondary/95 backdrop-blur-sm border-b border-white/5">
         <button
           onClick={switchMode}
-          className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
+          className="w-9 h-9 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
         >
-          <SwitchCamera className="w-4 h-4 text-gray-400" />
+          <SwitchCamera className="w-4 h-4 text-muted" />
         </button>
         <div className="flex-1 min-w-0">
-          <h1 className="text-sm font-bold text-white truncate">{event.title}</h1>
-          <p className="text-[10px] text-gray-500 uppercase tracking-wider">
+          <h1 className="text-sm font-bold text-foreground truncate">{event.title}</h1>
+          <p className="text-[10px] text-muted uppercase tracking-wider">
             {mode === "camera" ? t.scanner.cameraMode : t.scanner.externalMode}
           </p>
         </div>
@@ -389,7 +389,7 @@ export default function ScannerPage() {
               </div>
             </div>
             <div className="absolute bottom-6 left-0 right-0 text-center">
-              <p className="text-white/60 text-sm">{t.scanner.pointCamera}</p>
+              <p className="text-foreground/60 text-sm">{t.scanner.pointCamera}</p>
             </div>
           </div>
         )}
@@ -412,8 +412,8 @@ export default function ScannerPage() {
                 </div>
               </div>
 
-              <h2 className="text-xl font-bold text-white mb-2">{t.scanner.readyToScan}</h2>
-              <p className="text-gray-400 text-sm mb-8 max-w-xs mx-auto leading-relaxed">
+              <h2 className="text-xl font-bold text-foreground mb-2">{t.scanner.readyToScan}</h2>
+              <p className="text-muted text-sm mb-8 max-w-xs mx-auto leading-relaxed">
                 {t.scanner.readyToScanSub}
               </p>
 
@@ -436,14 +436,14 @@ export default function ScannerPage() {
                     value={manualCode}
                     onChange={(e) => setManualCode(e.target.value.toUpperCase())}
                     onKeyDown={(e) => e.key === "Enter" && handleExternalInputSubmit()}
-                    className="flex-1 px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-center text-lg font-bold tracking-[0.2em] text-white uppercase outline-none focus:border-amber-500/30 transition-colors"
+                    className="flex-1 px-4 py-3.5 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl text-center text-lg font-bold tracking-[0.2em] text-foreground uppercase outline-none focus:border-amber-500/30 transition-colors"
                     placeholder="A1B2C3D4"
                     maxLength={8}
                   />
                   <button
                     onClick={handleExternalInputSubmit}
                     disabled={!manualCode.trim() || processing}
-                    className="px-5 py-3.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-semibold text-sm transition-colors disabled:opacity-30 flex items-center gap-2"
+                    className="px-5 py-3.5 bg-amber-500 hover:bg-amber-600 text-foreground rounded-xl font-semibold text-sm transition-colors disabled:opacity-30 flex items-center gap-2"
                   >
                     <Search className="w-4 h-4" />
                   </button>
@@ -459,7 +459,7 @@ export default function ScannerPage() {
             <div className="w-full max-w-sm">
               <button
                 onClick={dismissResult}
-                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors"
+                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-muted hover:text-foreground transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -471,8 +471,8 @@ export default function ScannerPage() {
                     <XCircle className="w-12 h-12 text-red-400" />
                   </div>
                   <h2 className="text-2xl font-bold text-red-400 mb-2">{t.scanner.invalidBadge}</h2>
-                  <p className="text-gray-400 text-sm">{result.error || t.scanner.invalidBadgeSub}</p>
-                  <button onClick={dismissResult} className="mt-8 px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-colors">
+                  <p className="text-muted text-sm">{result.error || t.scanner.invalidBadgeSub}</p>
+                  <button onClick={dismissResult} className="mt-8 px-8 py-3 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl text-sm font-medium text-foreground hover:bg-white/10 transition-colors">
                     {t.scanner.tryAgain}
                   </button>
                 </div>
@@ -485,9 +485,9 @@ export default function ScannerPage() {
                     <AlertTriangle className="w-12 h-12 text-orange-400" />
                   </div>
                   <h2 className="text-2xl font-bold text-orange-400 mb-2">{t.scanner.wrongEvent}</h2>
-                  <p className="text-gray-400 text-sm mb-2">{t.scanner.wrongEventSub}</p>
-                  {result.subscriber && <p className="text-gray-500 text-xs">{result.subscriber.name}</p>}
-                  <button onClick={dismissResult} className="mt-8 px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-colors">
+                  <p className="text-muted text-sm mb-2">{t.scanner.wrongEventSub}</p>
+                  {result.subscriber && <p className="text-muted text-xs">{result.subscriber.name}</p>}
+                  <button onClick={dismissResult} className="mt-8 px-8 py-3 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl text-sm font-medium text-foreground hover:bg-white/10 transition-colors">
                     {t.scanner.continueScanning}
                   </button>
                 </div>
@@ -501,16 +501,16 @@ export default function ScannerPage() {
                   </div>
                   <h2 className="text-xl font-bold text-amber-400 mb-1">{t.scanner.alreadyCheckedIn}</h2>
                   {result.subscriber && (
-                    <div className="mt-4 bg-white/5 rounded-2xl p-5 text-left border border-white/5">
-                      <p className="font-bold text-white text-lg">{result.subscriber.name}</p>
-                      <p className="text-gray-400 text-sm">{result.subscriber.email}</p>
-                      {result.subscriber.company && <p className="text-gray-500 text-xs mt-0.5">{result.subscriber.company}</p>}
+                    <div className="mt-4 bg-black/5 dark:bg-white/5 rounded-2xl p-5 text-left border border-white/5">
+                      <p className="font-bold text-foreground text-lg">{result.subscriber.name}</p>
+                      <p className="text-muted text-sm">{result.subscriber.email}</p>
+                      {result.subscriber.company && <p className="text-muted text-xs mt-0.5">{result.subscriber.company}</p>}
                     </div>
                   )}
                   {result.scannedAt && (
                     <p className="text-gray-600 text-xs mt-3">{t.scanner.firstScanned}: {new Date(result.scannedAt).toLocaleTimeString()}</p>
                   )}
-                  <button onClick={dismissResult} className="mt-6 px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-colors">
+                  <button onClick={dismissResult} className="mt-6 px-8 py-3 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl text-sm font-medium text-foreground hover:bg-white/10 transition-colors">
                     {t.scanner.continueScanning}
                   </button>
                 </div>
@@ -524,13 +524,13 @@ export default function ScannerPage() {
                   </div>
                   <h2 className="text-2xl font-bold mb-1" style={{ color: themeColor }}>{t.scanner.welcome}</h2>
                   {result.subscriber && (
-                    <div className="mt-4 bg-white/5 rounded-2xl p-5 text-left border border-white/5">
-                      <p className="font-bold text-white text-xl">{result.subscriber.name}</p>
-                      <p className="text-gray-400 text-sm mt-0.5">{result.subscriber.email}</p>
-                      {result.subscriber.company && <p className="text-gray-500 text-sm mt-0.5">{result.subscriber.company}</p>}
+                    <div className="mt-4 bg-black/5 dark:bg-white/5 rounded-2xl p-5 text-left border border-white/5">
+                      <p className="font-bold text-foreground text-xl">{result.subscriber.name}</p>
+                      <p className="text-muted text-sm mt-0.5">{result.subscriber.email}</p>
+                      {result.subscriber.company && <p className="text-muted text-sm mt-0.5">{result.subscriber.company}</p>}
                     </div>
                   )}
-                  <button onClick={dismissResult} className="mt-6 px-8 py-3 rounded-xl text-sm font-semibold text-white transition-all" style={{ backgroundColor: themeColor }}>
+                  <button onClick={dismissResult} className="mt-6 px-8 py-3 rounded-xl text-sm font-semibold text-foreground transition-all" style={{ backgroundColor: themeColor }}>
                     {t.scanner.scanNext}
                   </button>
                 </div>
@@ -545,20 +545,20 @@ export default function ScannerPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="text-center">
-              <p className="text-lg font-bold text-white">{sessionCount}</p>
-              <p className="text-[9px] text-gray-500 uppercase tracking-wider">{t.scanner.sessionCount}</p>
+              <p className="text-lg font-bold text-foreground">{sessionCount}</p>
+              <p className="text-[9px] text-muted uppercase tracking-wider">{t.scanner.sessionCount}</p>
             </div>
-            <div className="w-px h-8 bg-white/5" />
+            <div className="w-px h-8 bg-black/5 dark:bg-white/5" />
             <div className="text-center">
               <p className="text-lg font-bold text-emerald-400">{totalStats.scanned}</p>
-              <p className="text-[9px] text-gray-500 uppercase tracking-wider">{t.scanner.checkedInCount}</p>
+              <p className="text-[9px] text-muted uppercase tracking-wider">{t.scanner.checkedInCount}</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-gray-400">{totalStats.total}</p>
-              <p className="text-[9px] text-gray-500 uppercase tracking-wider">{t.scanner.totalCount}</p>
+              <p className="text-lg font-bold text-muted">{totalStats.total}</p>
+              <p className="text-[9px] text-muted uppercase tracking-wider">{t.scanner.totalCount}</p>
             </div>
           </div>
-          <button onClick={refreshStats} className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 transition-colors">
+          <button onClick={refreshStats} className="w-9 h-9 rounded-xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-muted hover:text-foreground hover:bg-white/10 transition-colors">
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>

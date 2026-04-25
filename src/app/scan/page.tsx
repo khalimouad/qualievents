@@ -30,17 +30,17 @@ export default async function ScanPickerPage() {
       <header className="px-6 pt-8 pb-4">
         <Link
           href="/admin"
-          className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm mb-6"
+          className="inline-flex items-center gap-2 text-muted hover:text-foreground transition-colors text-sm mb-6"
         >
           <ArrowLeft className="w-4 h-4" /> Retour à l&apos;admin
         </Link>
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-lg shadow-primary/30">
-            <Scan className="w-7 h-7 text-white" />
+            <Scan className="w-7 h-7 text-foreground" />
           </div>
           <div>
             <h1 className="text-2xl font-bold">{t.scanner.title}</h1>
-            <p className="text-gray-400 text-sm">{t.scanner.selectEvent}</p>
+            <p className="text-muted text-sm">{t.scanner.selectEvent}</p>
           </div>
         </div>
       </header>
@@ -51,7 +51,7 @@ export default async function ScanPickerPage() {
           <div className="flex-1 flex items-center justify-center py-20">
             <div className="text-center">
               <QrCode className="w-12 h-12 mx-auto mb-4 text-gray-600" />
-              <p className="text-gray-400">{t.scanner.noEvents}</p>
+              <p className="text-muted">{t.scanner.noEvents}</p>
             </div>
           </div>
         ) : (
@@ -65,18 +65,18 @@ export default async function ScanPickerPage() {
                   className="group relative"
                 >
                   <div className="absolute -inset-0.5 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 rounded-[20px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
-                  <div className="relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/8 transition-all duration-300 group-hover:border-white/20">
+                  <div className="relative bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl p-6 hover:bg-white/8 transition-all duration-300 group-hover:border-white/20">
                     {/* Color indicator */}
                     <div
                       className="w-2 h-2 rounded-full mb-4"
                       style={{ backgroundColor: event.themeColor || "#e94560" }}
                     />
 
-                    <h3 className="font-bold text-white text-lg mb-1 group-hover:text-primary transition-colors">
+                    <h3 className="font-bold text-foreground text-lg mb-1 group-hover:text-primary transition-colors">
                       {event.title}
                     </h3>
 
-                    <div className="flex items-center gap-1.5 text-gray-400 text-sm mb-1">
+                    <div className="flex items-center gap-1.5 text-muted text-sm mb-1">
                       <Calendar className="w-3.5 h-3.5" />
                       {new Date(event.date).toLocaleDateString("fr-FR", {
                         month: "short",
@@ -84,23 +84,23 @@ export default async function ScanPickerPage() {
                         year: "numeric",
                       })}
                     </div>
-                    <div className="flex items-center gap-1.5 text-gray-400 text-sm mb-4">
+                    <div className="flex items-center gap-1.5 text-muted text-sm mb-4">
                       <MapPin className="w-3.5 h-3.5" />
                       {event.city}, {event.country}
                     </div>
 
                     {/* Stats */}
                     <div className="flex items-center gap-4 pt-4 border-t border-white/5">
-                      <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <div className="flex items-center gap-1.5 text-xs text-muted">
                         <Users className="w-3 h-3" />
                         <span>
-                          <span className="text-white font-semibold">
+                          <span className="text-foreground font-semibold">
                             {event._count.subscribers}
                           </span>{" "}
                           {t.scanner.registered}
                         </span>
                       </div>
-                      <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <div className="flex items-center gap-1.5 text-xs text-muted">
                         <Scan className="w-3 h-3" />
                         <span>
                           <span className="text-emerald-400 font-semibold">

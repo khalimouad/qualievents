@@ -53,7 +53,7 @@ export default function ImageUpload({ value, onChange, type, label = "Image" }: 
           <button
             type="button"
             onClick={() => onChange("")}
-            className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-danger text-white rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-danger text-foreground rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
           >
             <X className="w-3 h-3" />
           </button>
@@ -69,7 +69,7 @@ export default function ImageUpload({ value, onChange, type, label = "Image" }: 
             <div className="w-5 h-5 border-2 border-gray-200 border-t-primary rounded-full animate-spin" />
           ) : (
             <div className="text-center">
-              <Upload className="w-5 h-5 text-gray-300 mx-auto mb-1" />
+              <Upload className="w-5 h-5 text-foreground/80 mx-auto mb-1" />
               <p className="text-[10px] text-muted">Click or drag</p>
             </div>
           )}

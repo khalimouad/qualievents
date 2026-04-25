@@ -86,7 +86,7 @@ export default function EventNewslettersPage({ params }: { params: Promise<{ slu
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-start gap-2 min-w-0">
                   <div className="w-7 h-7 rounded-md bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0">
-                    <Mail className="w-3.5 h-3.5 text-white" />
+                    <Mail className="w-3.5 h-3.5 text-foreground" />
                   </div>
                   <div className="min-w-0">
                     <h3 className="font-bold text-secondary text-xs truncate">{nl.subject}</h3>

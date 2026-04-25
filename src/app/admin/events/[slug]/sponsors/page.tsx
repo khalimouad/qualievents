@@ -84,11 +84,11 @@ export default function EventSponsorsPage({ params }: { params: Promise<{ slug: 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {sponsors.map((s) => (
             <div key={s.id} className="bg-white rounded-xl border border-gray-100 p-3 group relative hover:border-gray-200 transition-all">
-              <button onClick={() => remove(s.id)} className="absolute top-2 right-2 text-gray-300 hover:text-danger opacity-0 group-hover:opacity-100 transition-all">
+              <button onClick={() => remove(s.id)} className="absolute top-2 right-2 text-foreground/80 hover:text-danger opacity-0 group-hover:opacity-100 transition-all">
                 <Trash2 className="w-3 h-3" />
               </button>
               <div className="h-12 flex items-center justify-center mb-2">
-                {s.logo ? <img src={s.logo} alt={s.name} className="max-h-12 max-w-full object-contain" /> : <Award className="w-6 h-6 text-gray-300" />}
+                {s.logo ? <img src={s.logo} alt={s.name} className="max-h-12 max-w-full object-contain" /> : <Award className="w-6 h-6 text-foreground/80" />}
               </div>
               <p className="text-xs font-bold text-secondary truncate">{s.name}</p>
               <span className={`inline-block mt-1 px-1.5 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider ${tierColors[s.tier] || tierColors.gold}`}>{s.tier}</span>

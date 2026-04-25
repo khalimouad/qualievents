@@ -72,46 +72,46 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
       <Navbar />
 
       {/* HERO */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-secondary noise-overlay">
+      <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden bg-background noise-overlay">
         {/* Hero background image if set */}
         {event.heroImage && (
           <div className="absolute inset-0">
             <img src={event.heroImage} alt="" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-secondary/85" />
+            <div className="absolute inset-0 bg-background/60 dark:bg-background/85 backdrop-blur-[2px] dark:backdrop-blur-0" />
           </div>
         )}
         <div className="absolute inset-0 grid-pattern" />
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 -left-20 w-[500px] h-[500px] bg-primary/8 rounded-full blur-[100px] animate-float-slow" />
-          <div className="absolute bottom-1/4 -right-20 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[80px] animate-float" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-primary/3 rounded-full blur-[120px]" />
+          <div className="absolute top-1/4 -left-20 w-[500px] h-[500px] bg-primary/20 dark:bg-primary/8 rounded-full blur-[100px] animate-float-slow" />
+          <div className="absolute bottom-1/4 -right-20 w-[400px] h-[400px] bg-accent/25 dark:bg-accent/10 rounded-full blur-[80px] animate-float" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-primary/10 dark:bg-primary/3 rounded-full blur-[120px]" />
         </div>
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-[15%] w-2 h-2 bg-primary/30 rounded-full animate-float" />
+          <div className="absolute top-20 left-[15%] w-2 h-2 bg-primary/10 dark:bg-primary/30 rounded-full animate-float" />
           <div className="absolute top-40 right-[20%] w-1.5 h-1.5 bg-white/20 rounded-full animate-float" style={{ animationDelay: "1s" }} />
           <div className="absolute bottom-40 left-[25%] w-1 h-1 bg-primary/40 rounded-full animate-float" style={{ animationDelay: "2s" }} />
         </div>
 
-        <div className="relative z-10 max-w-5xl mx-auto px-4 text-center pt-28 pb-20">
-          <div className="inline-flex items-center gap-2.5 glass rounded-full px-5 py-2.5 mb-10 animate-fade-in-down">
+        <div className="relative z-10 max-w-5xl mx-auto px-4 text-center pt-20 pb-12">
+          <div className="inline-flex items-center gap-2.5 glass rounded-full px-5 py-2.5 mb-6 animate-fade-in-down">
             <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
             <Calendar className="w-3.5 h-3.5 text-primary" />
-            <span className="text-gray-300 text-sm font-medium">{formattedDate}</span>
+            <span className="text-foreground/80 text-sm font-medium">{formattedDate}</span>
           </div>
 
           {event.tagline && (
             <p className="text-primary text-sm font-semibold uppercase tracking-[0.2em] mb-4 animate-fade-in-up">{event.tagline}</p>
           )}
 
-          <h1 className="text-5xl sm:text-6xl md:text-8xl font-bold text-white mb-8 leading-[0.95] tracking-tight animate-fade-in-up">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-foreground mb-4 leading-[0.95] tracking-tight animate-fade-in-up">
             {event.title}
           </h1>
 
-          <p className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.2s" }}>
+          <p className="text-base sm:text-lg text-muted max-w-2xl mx-auto mb-6 leading-relaxed animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.2s" }}>
             {event.description}
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-8 animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.3s" }}>
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-4 animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.3s" }}>
             {[
               { icon: <MapPin className="w-4 h-4" />, text: `${event.venue}, ${event.city}` },
               { icon: <Users className="w-4 h-4" />, text: `${event._count.subscribers} / ${event.maxAttendees}` },
@@ -119,12 +119,12 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
             ].map((pill) => (
               <div key={pill.text} className="glass rounded-full px-4 py-2 flex items-center gap-2 text-sm">
                 <span className="text-primary">{pill.icon}</span>
-                <span className="text-gray-300">{pill.text}</span>
+                <span className="text-foreground/80">{pill.text}</span>
               </div>
             ))}
           </div>
 
-          <div className="mb-8 animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.4s" }}>
+          <div className="mb-4 animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.4s" }}>
             <CountdownTimer targetDate={event.date.toISOString()} />
           </div>
 
@@ -139,7 +139,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
           <div className="mt-6 flex items-center justify-center gap-3 animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.6s" }}>
             <a
               href={calendarIcsUrl}
-              className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm transition-colors"
+              className="inline-flex items-center gap-2 text-muted hover:text-foreground text-sm transition-colors"
             >
               <CalendarPlus className="w-4 h-4" /> {t.event.downloadIcs}
             </a>
@@ -148,42 +148,42 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
               href={googleCalUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm transition-colors"
+              className="inline-flex items-center gap-2 text-muted hover:text-foreground text-sm transition-colors"
             >
               <Calendar className="w-4 h-4" /> {t.event.googleCalendar}
             </a>
           </div>
         </div>
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-fade-in" style={{ animationDelay: "1.5s", opacity: 0, animationFillMode: "forwards" }}>
-          <div className="w-5 h-9 border border-white/20 rounded-full flex items-start justify-center p-1.5">
+          <div className="w-5 h-9 border border-black/10 dark:border-white/20 rounded-full flex items-start justify-center p-1.5">
             <div className="w-0.5 h-2.5 bg-white/40 rounded-full animate-bounce" />
           </div>
         </div>
       </section>
 
       {/* ABOUT */}
-      <section id="about" className="py-14 sm:py-20 bg-secondary noise-overlay relative overflow-hidden">
+      <section id="about" className="py-8 sm:py-12 bg-background noise-overlay relative overflow-hidden">
         <div className="absolute inset-0 grid-pattern opacity-50" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/8 rounded-full blur-[100px]" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 dark:bg-primary/8 rounded-full blur-[100px]" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
+          <div className="text-center mb-6">
             <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.event.whyAttend}</span>
-            <h2 className="text-3xl sm:text-5xl font-bold text-white mt-3 mb-5">{t.event.aboutEvent}</h2>
-            <p className="text-gray-400 max-w-xl mx-auto">{t.event.aboutSub}</p>
+            <h2 className="text-2xl sm:text-4xl font-bold text-foreground mt-3 mb-5">{t.event.aboutEvent}</h2>
+            <p className="text-muted max-w-xl mx-auto">{t.event.aboutSub}</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-4">
             {[
               { icon: <Users className="w-6 h-6" />, title: t.event.networking.title, desc: `${t.event.networking.desc} (${event.maxAttendees}+)`, color: "from-blue-500 to-indigo-600", shadow: "shadow-blue-500/20" },
               { icon: <Zap className="w-6 h-6" />, title: t.event.workshops.title, desc: t.event.workshops.desc, color: "from-primary to-primary-dark", shadow: "shadow-primary/20" },
               { icon: <Globe className="w-6 h-6" />, title: t.event.venue.title, desc: `${event.venue}, ${event.city}, ${event.country}`, color: "from-accent to-accent-light", shadow: "shadow-accent/20" },
             ].map((card) => (
               <div key={card.title} className="group relative">
-                <div className="relative bg-white/5 backdrop-blur-sm rounded-[20px] p-8 border border-white/10 hover:bg-white/8 hover:border-white/20 transition-all duration-300">
+                <div className="relative bg-black/5 dark:bg-white/5 backdrop-blur-sm rounded-[20px] p-8 border border-black/5 dark:border-black/5 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 border-black/10 dark:border-white/20 transition-all duration-300">
                   <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${card.color} flex items-center justify-center mb-6 shadow-lg ${card.shadow} group-hover:scale-110 transition-transform duration-500`}>
-                    <span className="text-white">{card.icon}</span>
+                    <span className="text-foreground">{card.icon}</span>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3">{card.title}</h3>
-                  <p className="text-gray-400 leading-relaxed">{card.desc}</p>
+                  <h3 className="text-xl font-bold text-foreground mb-3">{card.title}</h3>
+                  <p className="text-muted leading-relaxed">{card.desc}</p>
                 </div>
               </div>
             ))}
@@ -193,14 +193,14 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
 
       {/* SPEAKERS */}
       {event.panelists.length > 0 && (
-        <section id="speakers" className="py-14 sm:py-20 bg-secondary-light noise-overlay relative">
+        <section id="speakers" className="py-8 sm:py-12 bg-surface noise-overlay relative">
           <div className="absolute inset-0 grid-pattern opacity-30" />
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-10">
+            <div className="text-center mb-6">
               <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.event.meetExperts}</span>
-              <h2 className="text-3xl sm:text-5xl font-bold text-white mt-3 mb-5">{t.event.speakersPanelists}</h2>
+              <h2 className="text-2xl sm:text-4xl font-bold text-foreground mt-3 mb-5">{t.event.speakersPanelists}</h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {event.panelists.map((p) => <SpeakerCard key={p.id} {...p} />)}
             </div>
           </div>
@@ -209,12 +209,12 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
 
       {/* LOCATION */}
       {event.latitude && event.longitude && (
-        <section id="location" className="py-14 sm:py-20 bg-secondary noise-overlay relative">
+        <section id="location" className="py-8 sm:py-12 bg-background noise-overlay relative">
           <div className="absolute inset-0 grid-pattern opacity-50" />
           <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-10">
+            <div className="text-center mb-6">
               <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.event.whereToFind}</span>
-              <h2 className="text-3xl sm:text-5xl font-bold text-white mt-3 mb-5">{t.event.eventLocation}</h2>
+              <h2 className="text-2xl sm:text-4xl font-bold text-foreground mt-3 mb-5">{t.event.eventLocation}</h2>
             </div>
             <EventMap latitude={event.latitude} longitude={event.longitude} venue={event.venue} address={event.address} city={event.city} country={event.country} />
           </div>
@@ -223,12 +223,12 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
 
       {/* SPONSORS */}
       {event.sponsors.length > 0 && (
-        <section id="sponsors" className="py-14 sm:py-20 bg-secondary-light noise-overlay relative">
+        <section id="sponsors" className="py-8 sm:py-12 bg-surface noise-overlay relative">
           <div className="absolute inset-0 grid-pattern opacity-30" />
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-10">
+            <div className="text-center mb-6">
               <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.event.ourPartners}</span>
-              <h2 className="text-3xl sm:text-5xl font-bold text-white mt-3 mb-5">{t.event.sponsorsTitle}</h2>
+              <h2 className="text-2xl sm:text-4xl font-bold text-foreground mt-3 mb-5">{t.event.sponsorsTitle}</h2>
             </div>
             <div className="space-y-14">
               {[{ label: "Platinum", items: platinumSponsors, cols: "grid-cols-1 sm:grid-cols-2", max: "max-w-2xl" },
@@ -239,7 +239,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
                 <div key={tier.label}>
                   <div className="flex items-center gap-3 justify-center mb-6">
                     <div className="h-px w-12 bg-gradient-to-r from-transparent to-white/20" />
-                    <span className="text-xs uppercase tracking-[0.2em] text-gray-500 font-semibold">{tier.label}</span>
+                    <span className="text-xs uppercase tracking-[0.2em] text-muted font-semibold">{tier.label}</span>
                     <div className="h-px w-12 bg-gradient-to-l from-transparent to-white/20" />
                   </div>
                   <div className={`grid ${tier.cols} gap-4 ${tier.max} mx-auto`}>
@@ -253,14 +253,14 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
       )}
 
       {/* CTA */}
-      <section className="relative py-16 overflow-hidden bg-secondary noise-overlay">
+      <section className="relative py-10 overflow-hidden bg-background noise-overlay">
         <div className="absolute inset-0 grid-pattern" />
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[100px]" />
         </div>
         <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
-          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6 leading-tight">{t.event.readyJoin} <span className="text-gradient">{t.event.readyJoinAccent}</span> ?</h2>
-          <p className="text-gray-400 text-lg mb-10 max-w-xl mx-auto">{t.event.readyJoinSub}</p>
+          <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-6 leading-tight">{t.event.readyJoin} <span className="text-gradient">{t.event.readyJoinAccent}</span> ?</h2>
+          <p className="text-muted text-lg mb-6 max-w-xl mx-auto">{t.event.readyJoinSub}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href={registerUrl} className="btn-primary px-9 py-4 text-base inline-flex items-center justify-center gap-2.5">
               <Sparkles className="w-4 h-4" /> {t.nav.registerNow} <ArrowRight className="w-4 h-4" />

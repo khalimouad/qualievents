@@ -27,9 +27,9 @@ export default function AdminLoginPage() {
       if (!res.ok) throw new Error(data.error || t.admin.login.invalid);
 
       if (data.user.role === "staff") {
-        router.push("/scan");
+        window.location.href = "/scan";
       } else {
-        router.push("/admin");
+        window.location.href = "/admin";
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : t.admin.login.invalid);
@@ -43,7 +43,7 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center mx-auto mb-5 shadow-lg shadow-primary/20">
-            <Shield className="w-7 h-7 text-white" />
+            <Shield className="w-7 h-7 text-foreground" />
           </div>
           <h1 className="text-2xl font-bold text-secondary">{t.admin.login.title}</h1>
           <p className="text-muted text-sm mt-1">{t.admin.login.sub}</p>
@@ -58,7 +58,7 @@ export default function AdminLoginPage() {
 
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{t.admin.login.emailLabel}</label>
+              <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">{t.admin.login.emailLabel}</label>
               <input
                 type="email"
                 value={email}
@@ -70,7 +70,7 @@ export default function AdminLoginPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{t.admin.login.passwordLabel}</label>
+              <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">{t.admin.login.passwordLabel}</label>
               <input
                 type="password"
                 value={password}
@@ -96,8 +96,8 @@ export default function AdminLoginPage() {
         </form>
 
         <div className="mt-6 text-center space-y-1">
-          <p className="text-gray-400 text-xs">{t.admin.login.adminRole}</p>
-          <p className="text-gray-400 text-xs">{t.admin.login.staffRole}</p>
+          <p className="text-muted text-xs">{t.admin.login.adminRole}</p>
+          <p className="text-muted text-xs">{t.admin.login.staffRole}</p>
         </div>
       </div>
     </div>

@@ -52,10 +52,10 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
             {/* Shimmer effect on seconds */}
             {i === 3 && <div className="absolute inset-0 animate-shimmer" />}
 
-            <div className={`relative z-10 text-3xl sm:text-5xl font-bold text-white tabular-nums tracking-tight transition-all duration-300 ${mounted ? "opacity-100" : "opacity-0"}`}>
+            <div className={`relative z-10 text-3xl sm:text-5xl font-bold text-foreground tabular-nums tracking-tight transition-all duration-300 ${mounted ? "opacity-100" : "opacity-0"}`}>
               {String(block.value).padStart(2, "0")}
             </div>
-            <div className="relative z-10 text-[10px] sm:text-xs text-gray-400 mt-2 uppercase tracking-[0.15em] font-medium">
+            <div className="relative z-10 text-[10px] sm:text-xs text-muted mt-2 uppercase tracking-[0.15em] font-medium">
               {block.label}
             </div>
 

@@ -9,7 +9,7 @@ const tierConfig: Record<string, { bg: string; border: string; text: string; siz
   platinum: {
     bg: "bg-white/10 backdrop-blur-sm",
     border: "border-white/20 hover:border-white/30",
-    text: "text-white text-lg font-bold",
+    text: "text-foreground text-lg font-bold",
     size: "p-8",
     glow: "from-white/20 to-transparent",
   },
@@ -21,9 +21,9 @@ const tierConfig: Record<string, { bg: string; border: string; text: string; siz
     glow: "from-amber-500/30 to-transparent",
   },
   silver: {
-    bg: "bg-white/5 backdrop-blur-sm",
+    bg: "bg-black/5 dark:bg-white/5 backdrop-blur-sm",
     border: "border-white/15 hover:border-white/25",
-    text: "text-gray-300 text-sm font-semibold",
+    text: "text-foreground/80 text-sm font-semibold",
     size: "p-5",
     glow: "from-white/15 to-transparent",
   },
