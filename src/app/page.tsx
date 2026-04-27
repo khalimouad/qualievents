@@ -181,63 +181,68 @@ export default async function HomePage() {
                     <Link
                       key={event.id}
                       href={`/events/${event.slug}`}
-                      className="group relative overflow-hidden rounded-2xl transition-all duration-500 hover:shadow-xl hover:-translate-y-2"
+                      className="group flex flex-col overflow-hidden rounded-2xl transition-all duration-500 hover:shadow-xl hover:-translate-y-2"
                     >
-                      {/* Hero image background */}
-                      {event.heroImage ? (
-                        <div className="absolute inset-0">
-                          <img src={event.heroImage} alt={event.title} className="w-full h-full object-cover opacity-100 group-hover:opacity-110 transition-opacity duration-500" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                        </div>
-                      ) : (
+                      {/* Hero image section */}
+                      <div className="relative h-48 sm:h-56 overflow-hidden bg-bg-subtle flex-shrink-0">
+                        {event.heroImage ? (
+                          <img
+                            src={event.heroImage}
+                            alt={event.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div
+                            className="w-full h-full flex items-center justify-center text-6xl"
+                            style={{
+                              background: `linear-gradient(135deg, ${event.themeColor || "#ff7a00"}40 0%, ${event.themeColor || "#009e60"}40 100%)`,
+                            }}
+                          >
+                            🎉
+                          </div>
+                        )}
+
+                        {/* Color accent bar overlay */}
                         <div
-                          className="absolute inset-0 opacity-80"
-                          style={{
-                            background: `linear-gradient(135deg, ${event.themeColor || "#ff7a00"}20 0%, ${event.themeColor || "#009e60"}20 100%)`,
-                          }}
+                          className="absolute top-0 left-0 right-0 h-1.5"
+                          style={{ background: event.themeColor || "linear-gradient(90deg, var(--primary), var(--accent))" }}
                         />
-                      )}
 
-                      {/* Color accent bar */}
-                      <div
-                        className="absolute top-0 left-0 right-0 h-1.5"
-                        style={{ background: event.themeColor || "linear-gradient(90deg, var(--primary), var(--accent))" }}
-                      />
-
-                      {/* Edition badge */}
-                      <div
-                        className="absolute top-4 right-4 px-3 py-1 rounded-full text-white text-xs font-bold uppercase tracking-wider"
-                        style={{ background: event.themeColor || "var(--primary)" }}
-                      >
-                        {frenchOrdinal} édition
+                        {/* Edition badge */}
+                        <div
+                          className="absolute top-3 right-3 px-3 py-1.5 rounded-full text-white text-xs font-bold uppercase tracking-wider shadow-lg"
+                          style={{ background: event.themeColor || "var(--primary)" }}
+                        >
+                          {frenchOrdinal} édition
+                        </div>
                       </div>
 
-                      {/* Content overlay */}
-                      <div className="relative z-10 h-full flex flex-col p-6 sm:p-8 text-white justify-end min-h-80 sm:min-h-96">
+                      {/* Card content section */}
+                      <div className="bg-card flex flex-col flex-1 p-6 sm:p-8">
                         {/* Date */}
-                        <p className="text-xs uppercase tracking-[0.2em] opacity-90 font-semibold mb-3">
+                        <p className="text-xs uppercase tracking-[0.2em] text-muted font-semibold mb-3">
                           {new Date(event.date).toLocaleDateString("fr-FR", { month: "long", day: "numeric", year: "numeric" })}
                         </p>
 
                         {/* Title */}
-                        <h3 className="font-serif text-3xl sm:text-4xl font-medium mb-3 leading-tight group-hover:underline transition-all">
+                        <h3 className="font-serif text-2xl sm:text-3xl font-medium text-foreground mb-2 leading-tight group-hover:text-primary transition-colors">
                           {event.title}
                         </h3>
 
                         {/* Tagline/Slogan */}
                         {event.tagline && (
-                          <p className="text-sm sm:text-base opacity-95 mb-6 font-light leading-relaxed max-w-xs">
+                          <p className="text-sm text-text-secondary mb-4 font-light leading-relaxed flex-1">
                             {event.tagline}
                           </p>
                         )}
 
-                        {/* Location & stats */}
-                        <div className="flex items-center justify-between pt-4 border-t border-white/20">
+                        {/* Location & stats footer */}
+                        <div className="flex items-center justify-between pt-4 border-t border-border">
                           <div className="flex flex-col">
-                            <span className="text-xs opacity-75 uppercase tracking-wider mb-1">📍 {event.city}</span>
-                            <span className="text-sm font-semibold">{event._count.subscribers} participants</span>
+                            <span className="text-xs text-muted uppercase tracking-wider font-semibold">📍 {event.city}</span>
+                            <span className="text-sm text-foreground font-semibold mt-1">{event._count.subscribers} participants</span>
                           </div>
-                          <ArrowUpRight className="w-5 h-5 opacity-75 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+                          <ArrowUpRight className="w-5 h-5 text-muted group-hover:text-primary opacity-0 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
                         </div>
                       </div>
                     </Link>
