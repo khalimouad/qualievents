@@ -1,26 +1,41 @@
 "use client";
 
 import { useState, useEffect, use } from "react";
-import { Mail, Plus, X, Send, FileText } from "lucide-react";
-import { t } from "@/lib/i18n";
+import { Mail, Plus, X, Send, FileText, ArrowLeft } from "lucide-react";
+import NewsletterBuilder from "@/components/NewsletterBuilder";
+import { TEMPLATES, findTemplate } from "@/lib/newsletterTemplates";
+import { newId, parseContent, type NewsletterDoc } from "@/lib/newsletter";
 
 interface Newsletter {
   id: string; subject: string; content: string; status: string;
   sentAt: string | null; createdAt: string;
 }
 
+interface EventLite {
+  id: string;
+  title: string;
+  themeColor: string | null;
+}
+
+const blankDoc = (): NewsletterDoc => ({
+  blocks: [{ id: newId(), type: "paragraph", text: "Bonjour {firstName},\n\n" }],
+});
+
+type Step = "list" | "templates" | "edit";
+
 export default function EventNewslettersPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
-  const [eventId, setEventId] = useState("");
-  const [showForm, setShowForm] = useState(false);
+  const [event, setEvent] = useState<EventLite | null>(null);
+  const [step, setStep] = useState<Step>("list");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
-  const [form, setForm] = useState({ subject: "", content: "" });
+  const [subject, setSubject] = useState("");
+  const [doc, setDoc] = useState<NewsletterDoc>(blankDoc);
 
   const load = async () => {
     const ev = await fetch(`/api/events/${slug}`).then((r) => r.json());
-    setEventId(ev.id);
+    setEvent({ id: ev.id, title: ev.title, themeColor: ev.themeColor ?? null });
     const data = await fetch(`/api/newsletters?eventId=${ev.id}`).then((r) => r.json());
     setNewsletters(data);
     setLoading(false);
@@ -28,80 +43,175 @@ export default function EventNewslettersPage({ params }: { params: Promise<{ slu
 
   useEffect(() => { load(); }, [slug]);
 
-  const submit = async (sendNow: boolean) => {
-    if (!form.subject || !form.content) return;
-    setSending(true);
-    await fetch("/api/newsletters", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, eventId, send: sendNow }),
-    });
-    setSending(false);
-    setShowForm(false);
-    setForm({ subject: "", content: "" });
-    load();
+  const startNew = () => setStep("templates");
+
+  const pickTemplate = (id: string) => {
+    const tpl = findTemplate(id);
+    if (!tpl) return;
+    setSubject(tpl.subject);
+    setDoc({ blocks: tpl.blocks() });
+    setStep("edit");
   };
 
-  return (
-    <div>
-      <div className="flex items-center justify-between gap-3 mb-3">
-        <p className="text-xs text-muted">{newsletters.length} newsletters</p>
-        <button onClick={() => setShowForm(!showForm)} className="btn-primary px-3 py-1.5 text-xs inline-flex items-center gap-1.5">
-          {showForm ? <><X className="w-3 h-3" /> {t.common.cancel}</> : <><Plus className="w-3 h-3" /> Rédiger</>}
-        </button>
-      </div>
+  const cancel = () => {
+    setStep("list");
+    setSubject("");
+    setDoc(blankDoc());
+  };
 
-      {showForm && (
-        <div className="card p-4 mb-3 space-y-3">
-          <div>
-            <label className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1 block">Objet</label>
-            <input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} className="w-full px-3 py-2 bg-subtle border border-border rounded-lg focus:bg-card focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-xs" placeholder="Ligne d'objet" />
-          </div>
-          <div>
-            <label className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1 block">Contenu (HTML)</label>
-            <textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} rows={6} className="w-full px-3 py-2 bg-subtle border border-border rounded-lg focus:bg-card focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-xs resize-none" placeholder="<p>Contenu de la newsletter...</p>" />
-          </div>
-          <div className="flex gap-2">
-            <button onClick={() => submit(false)} disabled={sending} className="bg-subtle hover:bg-subtle text-secondary border border-border px-4 py-2 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 flex items-center gap-1.5">
-              <FileText className="w-3 h-3" /> Brouillon
+  const submit = async (sendNow: boolean) => {
+    if (!subject.trim() || doc.blocks.length === 0 || !event) return;
+    setSending(true);
+    try {
+      await fetch("/api/newsletters", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subject,
+          content: JSON.stringify(doc),
+          eventId: event.id,
+          send: sendNow,
+        }),
+      });
+      cancel();
+      load();
+    } finally {
+      setSending(false);
+    }
+  };
+
+  // ---------- Header ----------
+  const header = (
+    <div className="flex items-center justify-between gap-3 mb-3">
+      <p className="text-xs text-text-secondary">{newsletters.length} newsletter{newsletters.length > 1 ? "s" : ""}</p>
+      {step === "list" ? (
+        <button onClick={startNew} className="btn-primary px-3 py-1.5 text-xs inline-flex items-center gap-1.5">
+          <Plus className="w-3 h-3" /> Rédiger
+        </button>
+      ) : (
+        <button onClick={cancel} className="px-3 py-1.5 text-xs inline-flex items-center gap-1.5 rounded-lg bg-subtle border border-border text-text-secondary hover:text-foreground transition-colors">
+          <X className="w-3 h-3" /> Annuler
+        </button>
+      )}
+    </div>
+  );
+
+  // ---------- Templates picker ----------
+  if (step === "templates") {
+    return (
+      <div>
+        {header}
+        <div className="card p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <button onClick={() => setStep("list")} className="p-1 rounded hover:bg-hover text-text-secondary" title="Retour">
+              <ArrowLeft className="w-4 h-4" />
             </button>
-            <button onClick={() => submit(true)} disabled={sending} className="btn-primary px-4 py-2 text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
-              <Send className="w-3 h-3" /> {sending ? "Envoi..." : "Envoyer"}
-            </button>
+            <h3 className="text-base font-bold text-foreground">Choisir un modèle</h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {TEMPLATES.map((tpl) => (
+              <button
+                key={tpl.id}
+                type="button"
+                onClick={() => pickTemplate(tpl.id)}
+                className="text-left rounded-xl border border-border bg-card p-4 hover:border-primary/40 hover:shadow-md transition-all group"
+              >
+                <div className="text-3xl mb-2">{tpl.emoji}</div>
+                <h4 className="font-bold text-foreground text-sm group-hover:text-primary transition-colors">{tpl.name}</h4>
+                <p className="text-xs text-text-secondary mt-1 leading-relaxed">{tpl.description}</p>
+              </button>
+            ))}
           </div>
         </div>
-      )}
+      </div>
+    );
+  }
+
+  // ---------- Editor ----------
+  if (step === "edit" && event) {
+    return (
+      <div>
+        {header}
+        <div className="card p-4 sm:p-5">
+          <NewsletterBuilder
+            value={doc}
+            onChange={setDoc}
+            subject={subject}
+            onSubjectChange={setSubject}
+            eventTitle={event.title}
+            themeColor={event.themeColor}
+          />
+          <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-border">
+            <button
+              onClick={() => submit(false)}
+              disabled={sending || !subject.trim() || doc.blocks.length === 0}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-subtle border border-border text-foreground text-xs font-medium hover:border-primary transition-colors disabled:opacity-50"
+            >
+              <FileText className="w-3 h-3" /> Enregistrer comme brouillon
+            </button>
+            <button
+              onClick={() => submit(true)}
+              disabled={sending || !subject.trim() || doc.blocks.length === 0}
+              className="btn-primary px-4 py-2 text-xs inline-flex items-center gap-1.5 disabled:opacity-50"
+            >
+              <Send className="w-3 h-3" /> {sending ? "Envoi en cours…" : "Envoyer maintenant"}
+            </button>
+            <p className="text-[11px] text-text-secondary ml-auto">
+              Les variables comme <code className="font-mono bg-subtle px-1 rounded">{`{firstName}`}</code> sont remplacées par les infos de chaque inscrit lors de l&apos;envoi.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ---------- List ----------
+  return (
+    <div>
+      {header}
 
       <div className="space-y-2">
         {loading ? (
           <div className="py-12 text-center"><div className="w-6 h-6 border-2 border-border border-t-primary rounded-full animate-spin mx-auto" /></div>
         ) : newsletters.length === 0 ? (
-          <div className="card p-5 text-center">
+          <div className="card p-8 text-center">
             <Mail className="w-8 h-8 mx-auto mb-2 text-text-secondary opacity-50" />
-            <p className="text-muted text-xs">Aucune newsletter pour le moment</p>
+            <p className="text-text-secondary text-sm mb-3">Aucune newsletter pour le moment</p>
+            <button onClick={startNew} className="btn-primary px-4 py-2 text-xs inline-flex items-center gap-1.5">
+              <Plus className="w-3 h-3" /> Composer la première
+            </button>
           </div>
         ) : (
-          newsletters.map((nl) => (
-            <div key={nl.id} className="card p-3 hover:border-border transition-colors">
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-start gap-2 min-w-0">
-                  <div className="w-7 h-7 rounded-md bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0">
-                    <Mail className="w-3.5 h-3.5 text-foreground" />
+          newsletters.map((nl) => {
+            const parsed = parseContent(nl.content);
+            const preview = parsed
+              ? parsed.blocks.find((b) => b.type === "paragraph" || b.type === "heading")
+              : null;
+            const previewText = preview && (preview.type === "paragraph" || preview.type === "heading")
+              ? preview.text
+              : nl.content.replace(/<[^>]*>/g, "");
+            return (
+              <div key={nl.id} className="card p-3.5 hover:border-primary/30 transition-colors">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-start gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0">
+                      <Mail className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-bold text-foreground text-sm truncate">{nl.subject}</h3>
+                      <p className="text-text-secondary text-xs mt-0.5 line-clamp-1">{previewText}</p>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="font-bold text-secondary text-xs truncate">{nl.subject}</h3>
-                    <p className="text-muted text-[11px] mt-0.5 line-clamp-1">{nl.content.replace(/<[^>]*>/g, "")}</p>
-                  </div>
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider flex-shrink-0 ${
+                    nl.status === "sent" ? "bg-success/10 text-success" : "bg-warning/10 text-warning"
+                  }`}>{nl.status === "sent" ? "envoyé" : "brouillon"}</span>
                 </div>
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider flex-shrink-0 ${
-                  nl.status === "sent" ? "bg-success/10 text-success" : "bg-warning/10 text-warning"
-                }`}>{nl.status}</span>
+                <p className="text-[10px] text-text-secondary mt-1.5 pl-[42px]">
+                  {nl.sentAt ? `Envoyé le ${new Date(nl.sentAt).toLocaleString("fr-FR")}` : `Créé le ${new Date(nl.createdAt).toLocaleString("fr-FR")}`}
+                </p>
               </div>
-              <p className="text-[10px] text-muted mt-1.5 pl-9">
-                {nl.sentAt ? `Sent ${new Date(nl.sentAt).toLocaleString()}` : `Created ${new Date(nl.createdAt).toLocaleString()}`}
-              </p>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>
