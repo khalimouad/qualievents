@@ -137,6 +137,9 @@
   --color-accent-light: var(--accent-light);
   --color-secondary: var(--secondary);
   --color-secondary-light: var(--secondary-light);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
   --color-surface: var(--surface);
   --color-muted: var(--muted);
   --color-border: var(--border);
@@ -146,6 +149,13 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
+}
+
+/* Override text-secondary so it resolves to readable dark text instead of the light surface color */
+@layer utilities {
+  .text-secondary {
+    color: var(--text-secondary);
+  }
 }
 
 * {
