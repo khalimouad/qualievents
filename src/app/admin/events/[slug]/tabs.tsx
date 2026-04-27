@@ -20,7 +20,7 @@ export default function EventTabs({ slug }: { slug: string }) {
   ];
 
   return (
-    <div className="flex gap-1 overflow-x-auto no-scrollbar border-b border-gray-100">
+    <div className="flex gap-1 overflow-x-auto no-scrollbar border-b border-border">
       {tabs.map((tab) => {
         const Icon = tab.icon;
         const isActive = pathname === tab.href;
@@ -31,7 +31,7 @@ export default function EventTabs({ slug }: { slug: string }) {
             className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium whitespace-nowrap transition-colors border-b-2 -mb-px ${
               isActive
                 ? "text-primary border-primary"
-                : "text-muted border-transparent hover:text-secondary"
+                : "text-text-secondary border-transparent hover:text-foreground"
             }`}
           >
             <Icon className="w-3.5 h-3.5" />

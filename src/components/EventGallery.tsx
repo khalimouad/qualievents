@@ -25,7 +25,7 @@ export default function EventGallery({ images }: EventGalleryProps) {
             key={idx}
             type="button"
             onClick={() => openLightbox(idx)}
-            className="relative aspect-square overflow-hidden rounded-2xl bg-bg-subtle group cursor-zoom-in"
+            className="relative aspect-square overflow-hidden rounded-2xl bg-subtle group cursor-zoom-in"
           >
             <img
               src={src}

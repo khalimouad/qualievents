@@ -48,34 +48,34 @@ export default function EventPaymentsPage({ params }: { params: Promise<{ slug: 
     <div>
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mb-4">
-        <div className="bg-white rounded-xl border border-gray-100 p-3">
+        <div className="card p-3">
           <p className="text-lg font-bold text-secondary">{formatAmount(total, "XOF")}</p>
           <p className="text-[10px] text-muted uppercase tracking-wider">Total encaissé</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-100 p-3">
+        <div className="card p-3">
           <p className="text-lg font-bold text-success">{completed}</p>
           <p className="text-[10px] text-muted uppercase tracking-wider">Confirmés</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-100 p-3">
+        <div className="card p-3">
           <p className="text-lg font-bold text-warning">{pending}</p>
           <p className="text-[10px] text-muted uppercase tracking-wider">En attente</p>
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+      <div className="card overflow-hidden">
         {loading ? (
-          <div className="p-12 text-center"><div className="w-6 h-6 border-2 border-gray-200 border-t-primary rounded-full animate-spin mx-auto" /></div>
+          <div className="p-12 text-center"><div className="w-6 h-6 border-2 border-border border-t-primary rounded-full animate-spin mx-auto" /></div>
         ) : payments.length === 0 ? (
           <div className="p-8 text-center">
-            <CreditCard className="w-8 h-8 mx-auto mb-2 text-gray-200" />
+            <CreditCard className="w-8 h-8 mx-auto mb-2 text-text-secondary opacity-50" />
             <p className="text-muted text-xs">Aucun paiement pour le moment</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-100">
+                <tr className="border-b border-border">
                   <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">Payeur</th>
                   <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">Montant</th>
                   <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">Méthode</th>
@@ -85,7 +85,7 @@ export default function EventPaymentsPage({ params }: { params: Promise<{ slug: 
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {payments.map((p) => (
-                  <tr key={p.id} className="hover:bg-gray-50/50 transition-colors">
+                  <tr key={p.id} className="hover:bg-subtle/50 transition-colors">
                     <td className="px-4 py-2.5">
                       <div className="text-xs font-medium text-secondary">{p.payerName || "—"}</div>
                       <div className="text-[10px] text-muted">{p.payerEmail}</div>

@@ -63,7 +63,7 @@ export default function EventInvitationsPage({ params }: { params: Promise<{ slu
       </div>
 
       {showForm && (
-        <div className="bg-white rounded-xl border border-gray-100 p-4 mb-3">
+        <div className="card p-4 mb-3">
           <label className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1 block">
             Invités (un par ligne : Nom, Email, Téléphone)
           </label>
@@ -71,7 +71,7 @@ export default function EventInvitationsPage({ params }: { params: Promise<{ slu
             value={bulkText}
             onChange={(e) => setBulkText(e.target.value)}
             rows={5}
-            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-xs font-mono resize-none"
+            className="w-full px-3 py-2 bg-subtle border border-border rounded-lg focus:bg-card focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-xs font-mono resize-none"
             placeholder={"Jean Dupont, jean@exemple.com, +33612345678\nMarie Durand, marie@exemple.com"}
           />
           <button onClick={send} disabled={sending || !bulkText.trim()} className="btn-primary mt-3 px-4 py-2 text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
@@ -80,19 +80,19 @@ export default function EventInvitationsPage({ params }: { params: Promise<{ slu
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+      <div className="card overflow-hidden">
         {loading ? (
-          <div className="p-12 text-center"><div className="w-6 h-6 border-2 border-gray-200 border-t-primary rounded-full animate-spin mx-auto" /></div>
+          <div className="p-12 text-center"><div className="w-6 h-6 border-2 border-border border-t-primary rounded-full animate-spin mx-auto" /></div>
         ) : invitations.length === 0 ? (
           <div className="p-8 text-center">
-            <Send className="w-8 h-8 mx-auto mb-2 text-gray-200" />
+            <Send className="w-8 h-8 mx-auto mb-2 text-text-secondary opacity-50" />
             <p className="text-muted text-xs">Aucune invitation envoyée pour le moment</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-100">
+                <tr className="border-b border-border">
                   <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">{t.register.name}</th>
                   <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">{t.register.email}</th>
                   <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">Statut</th>
@@ -101,7 +101,7 @@ export default function EventInvitationsPage({ params }: { params: Promise<{ slu
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {invitations.map((inv) => (
-                  <tr key={inv.id} className="hover:bg-gray-50/50 transition-colors">
+                  <tr key={inv.id} className="hover:bg-subtle/50 transition-colors">
                     <td className="px-4 py-2.5 text-xs font-medium text-secondary">{inv.name}</td>
                     <td className="px-4 py-2.5 text-xs text-muted">{inv.email}</td>
                     <td className="px-4 py-2.5">

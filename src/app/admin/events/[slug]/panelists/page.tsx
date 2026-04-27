@@ -50,7 +50,7 @@ export default function EventPanelistsPage({ params }: { params: Promise<{ slug:
     load();
   };
 
-  const inputClass = "px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-xs";
+  const inputClass = "px-3 py-2 bg-subtle border border-border rounded-lg focus:bg-card focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-xs";
   const labelClass = "text-[10px] font-semibold text-muted uppercase tracking-wider mb-1 block";
 
   return (
@@ -63,7 +63,7 @@ export default function EventPanelistsPage({ params }: { params: Promise<{ slug:
       </div>
 
       {showForm && (
-        <form onSubmit={submit} className="bg-white rounded-xl border border-gray-100 p-4 mb-3">
+        <form onSubmit={submit} className="card p-4 mb-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div><label className={labelClass}>{t.register.firstName} *</label><input required value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} className={`${inputClass} w-full`} /></div>
             <div><label className={labelClass}>{t.register.lastName} *</label><input required value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} className={`${inputClass} w-full`} /></div>
@@ -81,16 +81,16 @@ export default function EventPanelistsPage({ params }: { params: Promise<{ slug:
       )}
 
       {loading ? (
-        <div className="py-12 text-center"><div className="w-6 h-6 border-2 border-gray-200 border-t-primary rounded-full animate-spin mx-auto" /></div>
+        <div className="py-12 text-center"><div className="w-6 h-6 border-2 border-border border-t-primary rounded-full animate-spin mx-auto" /></div>
       ) : panelists.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-100 p-5 text-center">
-          <UserCheck className="w-8 h-8 mx-auto mb-2 text-gray-200" />
+        <div className="card p-5 text-center">
+          <UserCheck className="w-8 h-8 mx-auto mb-2 text-text-secondary opacity-50" />
           <p className="text-muted text-xs">Aucun panéliste pour le moment</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {panelists.map((p) => (
-            <div key={p.id} className="bg-white rounded-xl border border-gray-100 p-4 group relative hover:border-gray-200 hover:shadow-sm transition-all">
+            <div key={p.id} className="card p-4 group relative hover:border-border hover:shadow-sm transition-all">
               <button onClick={() => remove(p.id)} className="absolute top-3 right-3 text-foreground/80 hover:text-danger opacity-0 group-hover:opacity-100 transition-all">
                 <Trash2 className="w-3 h-3" />
               </button>

@@ -85,7 +85,7 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
       <div className="flex items-center justify-between gap-3 mb-3">
         <p className="text-xs text-muted">{subscribers.length} au total</p>
         <div className="flex items-center gap-2">
-          <button onClick={() => setShowImport(!showImport)} className={`px-3 py-1.5 text-xs inline-flex items-center gap-1.5 rounded-[10px] border font-medium transition-colors ${showImport ? "bg-gray-100 text-secondary border-gray-200" : "bg-white text-muted border-gray-200 hover:text-secondary"}`}>
+          <button onClick={() => setShowImport(!showImport)} className={`px-3 py-1.5 text-xs inline-flex items-center gap-1.5 rounded-[10px] border font-medium transition-colors ${showImport ? "bg-subtle text-foreground border-border" : "bg-card text-text-secondary border-border hover:text-foreground"}`}>
             <Upload className="w-3 h-3" /> Importer CSV
           </button>
           <button onClick={downloadCSV} className="btn-primary px-3 py-1.5 text-xs inline-flex items-center gap-1.5">
@@ -95,13 +95,13 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
       </div>
 
       {showImport && (
-        <div className="bg-white rounded-xl border border-gray-100 p-4 mb-3">
+        <div className="card p-4 mb-3">
           <p className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1">CSV (Prénom, Nom, Email, Téléphone, Entreprise, Poste)</p>
           <textarea
             value={csvText}
             onChange={(e) => setCsvText(e.target.value)}
             rows={4}
-            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs font-mono resize-none focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none"
+            className="w-full px-3 py-2 bg-subtle border border-border rounded-lg text-xs font-mono resize-none focus:bg-card focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none"
             placeholder={"Jean,Dupont,jean@exemple.com,+225070000000,Acme,Directeur\nMarie,Koné,marie@exemple.com"}
           />
           <div className="flex items-center gap-3 mt-2">
@@ -115,12 +115,12 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-100 p-3 mb-3 flex flex-col sm:flex-row gap-2">
+      <div className="card p-3 mb-3 flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted" />
-          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher nom, email, entreprise..." className="w-full pl-8 pr-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-xs" />
+          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher nom, email, entreprise..." className="w-full pl-8 pr-3 py-1.5 bg-subtle border border-border rounded-lg focus:bg-card focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-xs" />
         </div>
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-xs">
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="bg-subtle border border-border rounded-lg px-2 py-1.5 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-xs">
           <option value="all">Tous</option>
           <option value="confirmed">Confirmés</option>
           <option value="pending">En attente</option>
@@ -129,19 +129,19 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
         </select>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+      <div className="card overflow-hidden">
         {loading ? (
-          <div className="p-12 text-center"><div className="w-6 h-6 border-2 border-gray-200 border-t-primary rounded-full animate-spin mx-auto" /></div>
+          <div className="p-12 text-center"><div className="w-6 h-6 border-2 border-border border-t-primary rounded-full animate-spin mx-auto" /></div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center">
-            <Users className="w-8 h-8 mx-auto mb-2 text-gray-200" />
+            <Users className="w-8 h-8 mx-auto mb-2 text-text-secondary opacity-50" />
             <p className="text-muted text-xs">Aucun abonné pour le moment</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-100">
+                <tr className="border-b border-border">
                   <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">{t.register.name}</th>
                   <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">{t.register.email}</th>
                   <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider hidden md:table-cell">{t.register.company}</th>
@@ -152,7 +152,7 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {filtered.map((sub) => (
-                  <tr key={sub.id} className="hover:bg-gray-50/50 transition-colors group">
+                  <tr key={sub.id} className="hover:bg-subtle/50 transition-colors group">
                     <td className="px-4 py-2.5">
                       <div className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-md bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0">

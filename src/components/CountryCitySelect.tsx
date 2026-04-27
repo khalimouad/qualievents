@@ -86,7 +86,7 @@ export default function CountryCitySelect({ country, city, onChange }: Props) {
                   key={c.code}
                   type="button"
                   onClick={() => selectCountry(c.name)}
-                  className="w-full text-left px-3 py-2 text-xs text-foreground hover:bg-bg-hover transition-colors flex items-center justify-between"
+                  className="w-full text-left px-3 py-2 text-xs text-foreground hover:bg-hover transition-colors flex items-center justify-between"
                 >
                   <span>{c.name}</span>
                   <span className="text-[10px] text-text-secondary">{c.code}</span>
@@ -131,7 +131,7 @@ export default function CountryCitySelect({ country, city, onChange }: Props) {
                   key={c.name}
                   type="button"
                   onClick={() => selectCity(c.name)}
-                  className="w-full text-left px-3 py-2 text-xs text-foreground hover:bg-bg-hover transition-colors flex items-center justify-between"
+                  className="w-full text-left px-3 py-2 text-xs text-foreground hover:bg-hover transition-colors flex items-center justify-between"
                 >
                   <span>{c.name}</span>
                   {c.lat && c.lng && (

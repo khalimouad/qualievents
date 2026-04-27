@@ -34,7 +34,7 @@ export default async function EventOverviewPage({ params }: { params: Promise<{ 
     <div>
       {/* Hero banner if image */}
       {event.heroImage && (
-        <div className="bg-white rounded-xl border border-gray-100 overflow-hidden mb-4">
+        <div className="card overflow-hidden mb-4">
           <img src={event.heroImage} alt="" className="w-full h-40 object-cover" />
         </div>
       )}
@@ -44,33 +44,33 @@ export default async function EventOverviewPage({ params }: { params: Promise<{ 
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
-            <Link key={stat.label} href={stat.href} className="bg-white rounded-xl p-3 border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all group">
+            <Link key={stat.label} href={stat.href} className="card p-3 hover:border-primary/40 hover:shadow-md transition-all group">
               <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center mb-2 shadow-sm group-hover:scale-105 transition-transform`}>
-                <Icon className="w-4 h-4 text-foreground" />
+                <Icon className="w-4 h-4 text-white" />
               </div>
-              <p className="text-xl font-bold text-secondary leading-tight">
+              <p className="text-xl font-bold text-foreground leading-tight">
                 {stat.value}
-                {stat.max !== undefined && <span className="text-xs text-muted font-normal">/{stat.max}</span>}
+                {stat.max !== undefined && <span className="text-xs text-text-secondary font-normal">/{stat.max}</span>}
               </p>
-              <p className="text-[10px] text-muted mt-0.5 uppercase tracking-wider">{stat.label}</p>
+              <p className="text-[10px] text-text-secondary mt-0.5 uppercase tracking-wider">{stat.label}</p>
             </Link>
           );
         })}
       </div>
 
       {/* Capacity bar */}
-      <div className="bg-white rounded-xl border border-gray-100 p-4 mb-4">
+      <div className="card p-4 mb-4">
         <div className="flex items-center justify-between mb-2">
           <div>
-            <h2 className="text-xs uppercase tracking-[0.15em] text-muted font-semibold">{t.admin.capacity}</h2>
-            <p className="text-sm text-secondary mt-0.5">
+            <h2 className="text-xs uppercase tracking-[0.15em] text-text-secondary font-semibold">{t.admin.capacity}</h2>
+            <p className="text-sm text-foreground mt-0.5">
               <strong>{event._count.subscribers}</strong> / <strong>{event.maxAttendees}</strong> {t.admin.seatsFilled}
               {waitlisted > 0 && <span className="text-warning ml-2">· {waitlisted} {t.admin.onWaitlist}</span>}
             </p>
           </div>
           <span className={`text-lg font-bold ${capacityPct >= 100 ? "text-danger" : capacityPct >= 80 ? "text-warning" : "text-success"}`}>{capacityPct}%</span>
         </div>
-        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-2 bg-subtle rounded-full overflow-hidden">
           <div
             className={`h-full transition-all ${capacityPct >= 100 ? "bg-danger" : capacityPct >= 80 ? "bg-warning" : "bg-gradient-to-r from-primary to-accent"}`}
             style={{ width: `${Math.min(capacityPct, 100)}%` }}
@@ -79,17 +79,17 @@ export default async function EventOverviewPage({ params }: { params: Promise<{ 
       </div>
 
       {/* Event details */}
-      <div className="bg-white rounded-xl border border-gray-100 p-4">
-        <h2 className="text-xs uppercase tracking-[0.15em] text-muted font-semibold mb-3">{t.admin.details}</h2>
+      <div className="card p-4">
+        <h2 className="text-xs uppercase tracking-[0.15em] text-text-secondary font-semibold mb-3">{t.admin.details}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
           <div>
-            <p className="text-[10px] text-muted uppercase tracking-wider">{t.admin.date}</p>
-            <p className="text-secondary font-medium">{new Date(event.date).toLocaleDateString("fr-FR", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
+            <p className="text-[10px] text-text-secondary uppercase tracking-wider">{t.admin.date}</p>
+            <p className="text-foreground font-medium">{new Date(event.date).toLocaleDateString("fr-FR", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
           </div>
           <div>
-            <p className="text-[10px] text-muted uppercase tracking-wider">{t.admin.venue}</p>
-            <p className="text-secondary font-medium">{event.venue}</p>
-            <p className="text-xs text-muted">{event.address}, {event.city}</p>
+            <p className="text-[10px] text-text-secondary uppercase tracking-wider">{t.admin.venue}</p>
+            <p className="text-foreground font-medium">{event.venue}</p>
+            <p className="text-xs text-text-secondary">{event.address}, {event.city}</p>
           </div>
         </div>
       </div>

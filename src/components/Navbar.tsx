@@ -101,7 +101,7 @@ export default function Navbar() {
           <div className="md:hidden flex items-center gap-2">
             <ThemeToggle />
             <button
-              className="relative w-9 h-9 flex items-center justify-center text-foreground hover:bg-bg-hover transition-colors"
+              className="relative w-9 h-9 flex items-center justify-center text-foreground hover:bg-hover transition-colors"
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Menu"
             >

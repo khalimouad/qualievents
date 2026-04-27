@@ -52,17 +52,17 @@ export default function EventNewslettersPage({ params }: { params: Promise<{ slu
       </div>
 
       {showForm && (
-        <div className="bg-white rounded-xl border border-gray-100 p-4 mb-3 space-y-3">
+        <div className="card p-4 mb-3 space-y-3">
           <div>
             <label className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1 block">Objet</label>
-            <input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-xs" placeholder="Ligne d'objet" />
+            <input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} className="w-full px-3 py-2 bg-subtle border border-border rounded-lg focus:bg-card focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-xs" placeholder="Ligne d'objet" />
           </div>
           <div>
             <label className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1 block">Contenu (HTML)</label>
-            <textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} rows={6} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-xs resize-none" placeholder="<p>Contenu de la newsletter...</p>" />
+            <textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} rows={6} className="w-full px-3 py-2 bg-subtle border border-border rounded-lg focus:bg-card focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-xs resize-none" placeholder="<p>Contenu de la newsletter...</p>" />
           </div>
           <div className="flex gap-2">
-            <button onClick={() => submit(false)} disabled={sending} className="bg-gray-50 hover:bg-gray-100 text-secondary border border-gray-200 px-4 py-2 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 flex items-center gap-1.5">
+            <button onClick={() => submit(false)} disabled={sending} className="bg-subtle hover:bg-subtle text-secondary border border-border px-4 py-2 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 flex items-center gap-1.5">
               <FileText className="w-3 h-3" /> Brouillon
             </button>
             <button onClick={() => submit(true)} disabled={sending} className="btn-primary px-4 py-2 text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
@@ -74,15 +74,15 @@ export default function EventNewslettersPage({ params }: { params: Promise<{ slu
 
       <div className="space-y-2">
         {loading ? (
-          <div className="py-12 text-center"><div className="w-6 h-6 border-2 border-gray-200 border-t-primary rounded-full animate-spin mx-auto" /></div>
+          <div className="py-12 text-center"><div className="w-6 h-6 border-2 border-border border-t-primary rounded-full animate-spin mx-auto" /></div>
         ) : newsletters.length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-100 p-5 text-center">
-            <Mail className="w-8 h-8 mx-auto mb-2 text-gray-200" />
+          <div className="card p-5 text-center">
+            <Mail className="w-8 h-8 mx-auto mb-2 text-text-secondary opacity-50" />
             <p className="text-muted text-xs">Aucune newsletter pour le moment</p>
           </div>
         ) : (
           newsletters.map((nl) => (
-            <div key={nl.id} className="bg-white rounded-xl border border-gray-100 p-3 hover:border-gray-200 transition-colors">
+            <div key={nl.id} className="card p-3 hover:border-border transition-colors">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-start gap-2 min-w-0">
                   <div className="w-7 h-7 rounded-md bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0">

@@ -98,7 +98,7 @@ export default async function HomePage() {
 
           {/* Events grid */}
           {upcomingEvents.length === 0 ? (
-            <div className="text-center py-20 rounded-2xl border border-border bg-bg-subtle">
+            <div className="text-center py-20 rounded-2xl border border-border bg-subtle">
               <Calendar className="w-10 h-10 mx-auto mb-4 text-text-secondary opacity-70" />
               <p className="text-text-secondary text-sm uppercase tracking-wider font-semibold">{t.home.noUpcoming}</p>
             </div>
@@ -114,7 +114,7 @@ export default async function HomePage() {
                     className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-500 hover:shadow-xl hover:-translate-y-2 hover:border-primary/40"
                   >
                     {/* Hero image at top */}
-                    <div className="relative h-44 sm:h-52 overflow-hidden bg-bg-subtle flex-shrink-0">
+                    <div className="relative h-44 sm:h-52 overflow-hidden bg-subtle flex-shrink-0">
                       {event.heroImage ? (
                         <img
                           src={event.heroImage}
@@ -213,7 +213,7 @@ export default async function HomePage() {
                       className="group flex flex-col overflow-hidden rounded-2xl transition-all duration-500 hover:shadow-xl hover:-translate-y-2"
                     >
                       {/* Hero image section */}
-                      <div className="relative h-48 sm:h-56 overflow-hidden bg-bg-subtle flex-shrink-0">
+                      <div className="relative h-48 sm:h-56 overflow-hidden bg-subtle flex-shrink-0">
                         {event.heroImage ? (
                           <img
                             src={event.heroImage}
@@ -284,7 +284,7 @@ export default async function HomePage() {
       </section>
 
       {/* FEATURES */}
-      <section className="py-20 bg-bg-subtle relative border-b border-border">
+      <section className="py-20 bg-subtle relative border-b border-border">
         <div className="relative z-10 max-w-6xl mx-auto px-6">
           <div className="mb-16 max-w-2xl">
             <span className="chip chip-primary mb-4 inline-block">{t.home.platform}</span>

@@ -44,7 +44,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 key={item.href}
                 href={item.href}
                 className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium transition-all ${
-                  isActive ? "bg-primary/10 text-primary" : "text-muted hover:bg-bg-hover hover:text-foreground"
+                  isActive ? "bg-primary/10 text-primary" : "text-muted hover:bg-hover hover:text-foreground"
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -92,7 +92,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             const Icon = item.icon;
             const isActive = pathname === item.href || (item.href === "/admin" && pathname.startsWith("/admin/events"));
             return (
-              <Link key={item.href} href={item.href} className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-medium transition-all ${isActive ? "bg-primary/10 text-primary" : "bg-bg-subtle text-muted"}`}>
+              <Link key={item.href} href={item.href} className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-medium transition-all ${isActive ? "bg-primary/10 text-primary" : "bg-subtle text-muted"}`}>
                 <Icon className="w-3 h-3" />
                 {item.label}
               </Link>
