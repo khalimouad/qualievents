@@ -149,7 +149,14 @@
 }
 
 * {
-  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: rgba(255, 122, 0, 0.2);
+}
+
+/* White/light text on dark backgrounds gets orange tap highlight */
+button:where(.btn-primary, [class*="btn"]),
+a:where([class*="btn"], .link-spell),
+input:where([type="button"], [type="submit"]) {
+  -webkit-tap-highlight-color: rgba(255, 122, 0, 0.3);
 }
 
 html {
@@ -478,4 +485,98 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   pointer-events: none;
   z-index: 1;
+}
+
+/* Event card with gradient background + badge */
+.event-card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-subtle) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.event-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-xl), 0 0 0 1px var(--border);
+  border-color: var(--primary);
+}
+
+.event-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-sunset);
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.event-card:hover::before {
+  opacity: 0.08;
+}
+
+.event-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.event-card-badge {
+  position: absolute;
+  top: 3 rem;
+  right: 1rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: var(--shadow-lg);
+  z-index: 2;
+}
+
+.event-card-content {
+  padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.event-card-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  font-family: var(--font-serif);
+  color: var(--foreground);
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+
+.event-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.event-card-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.event-card-meta-item svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  opacity: 0.7;
 }

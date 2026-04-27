@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Calendar, MapPin, Users, ArrowRight, Sparkles, ArrowUpRight, Zap } from "lucide-react";
+import { Calendar, MapPin, Users, ArrowRight, Sparkles, ArrowUpRight, Zap, Star } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
@@ -24,108 +24,141 @@ export default async function HomePage() {
     <>
       <Navbar />
 
-      {/* HERO */}
-      <section className="relative min-h-[60vh] flex items-center bg-background border-b border-border">
+      {/* HERO — Enhanced with mesh gradient */}
+      <section className="relative min-h-[70vh] flex items-center overflow-hidden">
+        {/* Animated gradient background */}
+        <div className="absolute inset-0 mesh-bg" />
+        <div className="absolute inset-0 opacity-40" style={{ background: "radial-gradient(circle at 30% 50%, rgba(255,122,0,0.15) 0%, transparent 50%), radial-gradient(circle at 70% 50%, rgba(0,158,96,0.1) 0%, transparent 50%)" }} />
+
         <div className="relative z-10 max-w-6xl mx-auto px-6 py-16 w-full">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 border border-border px-4 py-2 mb-8 animate-fade-in-down">
-              <Zap className="w-3.5 h-3.5 text-primary" />
-              <span className="text-foreground/80 text-xs font-semibold uppercase tracking-widest">{t.home.badge}</span>
+            {/* Badge with animation */}
+            <div className="inline-flex items-center gap-2.5 border border-primary/30 bg-primary/5 rounded-full px-4 py-2.5 mb-8 animate-fade-in-down">
+              <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+              <span className="text-foreground/90 text-xs font-semibold uppercase tracking-[0.15em]">{t.home.badge}</span>
             </div>
 
-            <h1 className="text-5xl sm:text-6xl md:text-7xl font-serif font-medium text-foreground leading-[1.05] tracking-tight mb-6 animate-fade-in-up">
-              {t.home.heroTitle} <i className="text-primary italic font-serif opacity-90">{t.home.heroTitleAccent}</i>
+            {/* Headline with gradient text */}
+            <h1 className="text-6xl sm:text-7xl md:text-8xl font-serif font-medium text-foreground leading-[0.95] tracking-tight mb-6 animate-fade-in-up">
+              {t.home.heroTitle}
+              <span className="block bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient">
+                {t.home.heroTitleAccent}
+              </span>
             </h1>
 
-            <p className="text-lg text-muted max-w-xl mb-8 leading-relaxed font-light animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.2s" }}>
+            {/* Subheading */}
+            <p className="text-lg sm:text-xl text-text-secondary max-w-2xl mb-10 leading-relaxed font-light animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.15s" }}>
               {t.home.heroSub}
             </p>
 
+            {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.3s" }}>
-              <a href="#events" className="btn-primary hover-spell px-10 py-4 text-sm uppercase tracking-wider inline-flex items-center justify-center gap-2">
-                <Sparkles className="w-4 h-4" /> {t.home.explore} <ArrowRight className="w-4 h-4" />
+              <a href="#events" className="btn-primary px-8 py-4 text-sm font-semibold uppercase tracking-wider inline-flex items-center justify-center gap-2 group">
+                <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" /> {t.home.explore} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </a>
-              <Link href="/admin" className="btn-secondary px-10 py-4 text-sm uppercase tracking-wider hover-spell inline-flex items-center justify-center">
+              <Link href="/admin" className="btn-secondary px-8 py-4 text-sm font-semibold uppercase tracking-wider inline-flex items-center justify-center gap-2">
                 {t.admin.dashboard}
               </Link>
             </div>
-          </div>
 
-          {/* Stats */}
-          <div className="mt-16 grid grid-cols-3 gap-8 max-w-lg border-t border-border pt-10 animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.5s" }}>
-            {[
-              { value: events.length, label: t.home.stats.events },
-              { value: events.reduce((sum, e) => sum + e._count.subscribers, 0), label: t.home.stats.attendees },
-              { value: events.reduce((sum, e) => sum + e._count.panelists, 0), label: t.home.stats.speakers },
-            ].map((stat) => (
-              <div key={stat.label}>
-                <div className="text-4xl font-serif text-foreground">{stat.value}</div>
-                <div className="text-[10px] text-muted uppercase tracking-[0.2em] mt-2">{stat.label}</div>
-              </div>
-            ))}
+            {/* Stats grid */}
+            <div className="mt-20 grid grid-cols-3 gap-6 max-w-lg border-t border-border/40 pt-12 animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.5s" }}>
+              {[
+                { value: events.length, label: t.home.stats.events, icon: Calendar },
+                { value: events.reduce((sum, e) => sum + e._count.subscribers, 0), label: t.home.stats.attendees, icon: Users },
+                { value: events.reduce((sum, e) => sum + e._count.panelists, 0), label: t.home.stats.speakers, icon: Star },
+              ].map((stat) => {
+                const Icon = stat.icon;
+                return (
+                  <div key={stat.label} className="flex flex-col">
+                    <div className="flex items-baseline gap-1.5 mb-2">
+                      <Icon className="w-3.5 h-3.5 text-primary opacity-70" />
+                      <div className="text-3xl sm:text-4xl font-serif font-medium text-foreground">{stat.value}</div>
+                    </div>
+                    <div className="text-[9px] text-muted uppercase tracking-[0.15em] font-semibold">{stat.label}</div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* EVENTS */}
-      <section id="events" className="py-16 bg-bg-subtle relative border-b border-border">
+      {/* EVENTS GRID */}
+      <section id="events" className="py-20 bg-background relative border-b border-border">
         <div className="relative z-10 max-w-6xl mx-auto px-6">
-          <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          {/* Section header */}
+          <div className="mb-14 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-              <span className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">{t.home.discover}</span>
-              <h2 className="text-3xl sm:text-4xl font-serif font-medium text-foreground mt-2">{t.home.upcomingEvents}</h2>
+              <span className="chip chip-primary mb-4 inline-block">{t.home.discover}</span>
+              <h2 className="text-4xl sm:text-5xl font-serif font-medium text-foreground">{t.home.upcomingEvents}</h2>
             </div>
-            <p className="text-muted text-sm max-w-sm font-light">Trouvez votre prochaine expérience et inscrivez-vous dès aujourd&apos;hui.</p>
+            <p className="text-text-secondary text-sm max-w-sm font-light">Trouvez votre prochaine expérience et inscrivez-vous dès aujourd&apos;hui.</p>
           </div>
 
+          {/* Events grid */}
           {upcomingEvents.length === 0 ? (
-            <div className="text-center py-16 border border-border bg-background">
-              <Calendar className="w-8 h-8 mx-auto mb-4 text-muted" />
+            <div className="text-center py-20 rounded-2xl border border-border bg-bg-subtle">
+              <Calendar className="w-10 h-10 mx-auto mb-4 text-muted opacity-40" />
               <p className="text-muted text-sm uppercase tracking-wider font-semibold">{t.home.noUpcoming}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {upcomingEvents.map((event) => {
                 const daysUntil = Math.ceil((new Date(event.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                // Emoji based on event theme (simplified)
+                const emoji = ["🎉", "🌟", "🚀", "🎯", "💡", "🎭"][Math.floor(Math.random() * 6)];
+
                 return (
-                  <Link
-                    key={event.id}
-                    href={`/events/${event.slug}`}
-                    className="group relative bg-background border border-border hover-spell overflow-hidden"
-                  >
-                    <div className="p-8">
-                      <div className="flex items-center justify-between mb-8">
-                        <div className="text-xs font-semibold uppercase tracking-wider text-muted group-hover:text-primary transition-colors">
+                  <Link key={event.id} href={`/events/${event.slug}`} className="event-card group">
+                    {/* Colored badge */}
+                    <div className="event-card-badge" style={{ background: event.themeColor || "linear-gradient(135deg, var(--primary), var(--accent))" }}>
+                      <span className="text-2xl">{emoji}</span>
+                    </div>
+
+                    {/* Card content */}
+                    <div className="event-card-content">
+                      {/* Date & countdown */}
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-muted group-hover:text-primary transition-colors">
                           {new Date(event.date).toLocaleDateString("fr-FR", { month: "short", day: "numeric", year: "numeric" })}
-                        </div>
+                        </span>
                         {daysUntil > 0 && (
-                          <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">
+                          <span className="chip chip-primary text-[9px]">
                             dans {daysUntil}j
                           </span>
                         )}
                       </div>
 
-                      <h3 className="text-2xl font-serif font-medium text-foreground mb-3 link-spell inline-block">
+                      {/* Title */}
+                      <h3 className="event-card-title group-hover:text-primary transition-colors">
                         {event.title}
                       </h3>
-                      
-                      {event.tagline && (
-                        <p className="text-sm text-primary/80 font-medium mb-4">{event.tagline}</p>
-                      )}
-                      
-                      <p className="text-sm text-muted line-clamp-3 mb-8 font-light">{event.description}</p>
 
-                      <div className="flex items-center gap-2 text-xs text-muted mb-6 uppercase tracking-wider">
-                        <MapPin className="w-3 h-3" />
-                        {event.venue}, {event.city}
+                      {/* Tagline */}
+                      {event.tagline && (
+                        <p className="text-sm text-primary/75 font-medium mb-3">{event.tagline}</p>
+                      )}
+
+                      {/* Description */}
+                      <p className="text-sm text-muted line-clamp-2 mb-4 font-light">{event.description}</p>
+
+                      {/* Location */}
+                      <div className="flex items-center gap-2 text-xs text-muted mb-4 uppercase tracking-wider">
+                        <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span className="truncate">{event.venue}, {event.city}</span>
                       </div>
 
-                      <div className="flex items-center justify-between pt-6 border-t border-border">
-                        <div className="flex items-center gap-4 text-xs text-muted">
-                          <span className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> {event._count.subscribers}/{event.maxAttendees}</span>
-                          <span className="opacity-60">{event._count.panelists} intervenants</span>
-                        </div>
-                        <ArrowUpRight className="w-5 h-5 text-muted group-hover:text-primary transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                      {/* Meta footer */}
+                      <div className="event-card-meta">
+                        <span className="event-card-meta-item">
+                          <Users className="w-3.5 h-3.5" />
+                          {event._count.subscribers}/{event.maxAttendees}
+                        </span>
+                        <span className="event-card-meta-item">
+                          {event._count.panelists} intervenants
+                        </span>
+                        <ArrowUpRight className="w-4 h-4 text-primary ml-auto opacity-0 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
                       </div>
                     </div>
                   </Link>
@@ -134,17 +167,18 @@ export default async function HomePage() {
             </div>
           )}
 
+          {/* Past events */}
           {pastEvents.length > 0 && (
             <div className="mt-20 border-t border-border pt-16">
-              <h3 className="text-xs uppercase tracking-[0.2em] text-muted font-semibold mb-8">{t.home.pastEvents}</h3>
+              <span className="chip chip-accent mb-8 inline-block">{t.home.pastEvents}</span>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {pastEvents.map((event) => (
-                  <Link key={event.id} href={`/events/${event.slug}`} className="bg-background border border-border p-6 hover-spell group">
-                    <p className="text-[10px] uppercase tracking-wider text-muted mb-2">
+                  <Link key={event.id} href={`/events/${event.slug}`} className="card p-6 hover:border-primary transition-colors group">
+                    <p className="text-[10px] uppercase tracking-[0.15em] text-muted mb-3 font-semibold">
                       {new Date(event.date).toLocaleDateString("fr-FR", { month: "short", day: "numeric", year: "numeric" })}
                     </p>
-                    <h4 className="font-serif text-lg text-foreground mb-2 group-hover:text-primary transition-colors link-spell inline-block">{event.title}</h4>
-                    <p className="text-xs text-muted font-light">{event.venue}, {event.city} &middot; {event._count.subscribers} participants</p>
+                    <h4 className="font-serif text-lg text-foreground mb-2 group-hover:text-primary transition-colors">{event.title}</h4>
+                    <p className="text-xs text-muted font-light">{event.venue}, {event.city} • {event._count.subscribers} participants</p>
                   </Link>
                 ))}
               </div>
@@ -154,13 +188,13 @@ export default async function HomePage() {
       </section>
 
       {/* FEATURES */}
-      <section className="py-16 bg-background relative border-b border-border">
+      <section className="py-20 bg-bg-subtle relative border-b border-border">
         <div className="relative z-10 max-w-6xl mx-auto px-6">
-          <div className="mb-12">
-            <span className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">{t.home.platform}</span>
-            <h2 className="text-3xl sm:text-4xl font-serif font-medium text-foreground mt-2">{t.home.featuresTitle}</h2>
+          <div className="mb-16 max-w-2xl">
+            <span className="chip chip-primary mb-4 inline-block">{t.home.platform}</span>
+            <h2 className="text-4xl sm:text-5xl font-serif font-medium text-foreground">{t.home.featuresTitle}</h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               t.home.features.registration,
               t.home.features.badges,
@@ -168,8 +202,8 @@ export default async function HomePage() {
               t.home.features.newsletters,
             ].map((f) => (
               <div key={f.title} className="group">
-                <div className="w-8 h-px bg-primary mb-6 group-hover:w-16 transition-all duration-500 ease-out" />
-                <h3 className="font-serif text-xl text-foreground mb-3">{f.title}</h3>
+                <div className="w-12 h-1 bg-gradient-to-r from-primary to-accent mb-6 group-hover:w-20 transition-all duration-500" />
+                <h3 className="font-serif text-xl text-foreground mb-3 group-hover:text-primary transition-colors">{f.title}</h3>
                 <p className="text-sm text-muted font-light leading-relaxed">{f.desc}</p>
               </div>
             ))}
@@ -177,17 +211,19 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="relative py-24 bg-bg-subtle border-b border-border">
-        <div className="relative z-10 max-w-2xl mx-auto px-6 text-center">
-          <h2 className="text-4xl sm:text-5xl font-serif text-foreground mb-6 leading-tight">
-            {t.home.readyStart.replace("?", "")} <i className="text-primary opacity-90">?</i>
+      {/* FINAL CTA */}
+      <section className="relative py-28 overflow-hidden">
+        <div className="absolute inset-0 opacity-50" style={{ background: "radial-gradient(ellipse at center, rgba(255,122,0,0.1) 0%, transparent 70%)" }} />
+        <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
+          <h2 className="text-5xl sm:text-6xl font-serif font-medium text-foreground mb-6 leading-tight">
+            {t.home.readyStart.replace("?", "")}
+            <span className="block bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">?</span>
           </h2>
-          <p className="text-muted text-sm mb-10 max-w-md mx-auto font-light leading-relaxed">
+          <p className="text-text-secondary text-lg mb-12 max-w-xl mx-auto font-light leading-relaxed">
             {t.home.readyStartSub}
           </p>
-          <Link href="/admin/events/new" className="btn-primary hover-spell px-12 py-5 text-sm uppercase tracking-wider inline-flex items-center justify-center gap-3">
-            <Sparkles className="w-4 h-4" /> {t.home.createEvent} <ArrowRight className="w-4 h-4" />
+          <Link href="/admin/events/new" className="btn-primary px-10 py-5 text-sm font-semibold uppercase tracking-wider inline-flex items-center justify-center gap-3 group">
+            <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" /> {t.home.createEvent} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
       </section>
