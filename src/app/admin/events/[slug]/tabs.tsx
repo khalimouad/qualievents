@@ -50,10 +50,10 @@ export default function EventTabs({ slug }: { slug: string }) {
   }, [pathname]);
 
   return (
-    <div className="relative -mx-4 sm:mx-0">
+    <div className="relative">
       <div
         ref={scrollRef}
-        className="flex gap-0.5 overflow-x-auto no-scrollbar border-b border-border px-4 sm:px-0 scroll-smooth"
+        className="flex gap-0.5 overflow-x-auto no-scrollbar border-t border-border scroll-smooth"
       >
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -73,7 +73,7 @@ export default function EventTabs({ slug }: { slug: string }) {
               <Icon className={`w-4 h-4 ${isActive ? "text-primary" : ""}`} />
               <span>{tab.label}</span>
               <span
-                className={`absolute left-2 right-2 -bottom-px h-0.5 rounded-full transition-all duration-300 ${
+                className={`absolute left-2 right-2 -top-px h-0.5 rounded-full transition-all duration-300 ${
                   isActive ? "bg-primary opacity-100 scale-x-100" : "bg-primary opacity-0 scale-x-0"
                 }`}
               />
@@ -82,12 +82,12 @@ export default function EventTabs({ slug }: { slug: string }) {
         })}
       </div>
 
-      {/* Edge fades when the strip is overflowing — feedback that there's more */}
+      {/* Edge fades when the strip is overflowing — fade to card bg since tabs live inside the card */}
       <div
-        className={`pointer-events-none absolute left-0 top-0 bottom-px w-8 bg-gradient-to-r from-background to-transparent transition-opacity ${showFadeLeft ? "opacity-100" : "opacity-0"}`}
+        className={`pointer-events-none absolute left-0 top-px bottom-0 w-6 bg-gradient-to-r from-card to-transparent transition-opacity ${showFadeLeft ? "opacity-100" : "opacity-0"}`}
       />
       <div
-        className={`pointer-events-none absolute right-0 top-0 bottom-px w-8 bg-gradient-to-l from-background to-transparent transition-opacity ${showFadeRight ? "opacity-100" : "opacity-0"}`}
+        className={`pointer-events-none absolute right-0 top-px bottom-0 w-6 bg-gradient-to-l from-card to-transparent transition-opacity ${showFadeRight ? "opacity-100" : "opacity-0"}`}
       />
     </div>
   );
