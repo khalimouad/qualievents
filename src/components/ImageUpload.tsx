@@ -23,7 +23,14 @@ export default function ImageUpload({ value, onChange, type, label = "Image" }: 
       fd.append("file", file);
       fd.append("type", type);
       const res = await fetch("/api/upload", { method: "POST", body: fd });
-      const data = await res.json();
+
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error(res.statusText || "Server error");
+      }
+
       if (!res.ok) throw new Error(data.error || "Upload failed");
       onChange(data.url);
     } catch (e) {

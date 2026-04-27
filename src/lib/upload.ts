@@ -1,8 +1,5 @@
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
-import crypto from "crypto";
+import { put } from "@vercel/blob";
 
-const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
 
@@ -17,15 +14,19 @@ export async function saveUploadedFile(
     return { url: "", error: "File too large. Max 5MB." };
   }
 
-  const typeDir = path.join(UPLOAD_DIR, type);
-  await mkdir(typeDir, { recursive: true });
+  try {
+    const ext = file.name.split(".").pop() || "bin";
+    const timestamp = Date.now();
+    const filename = `${timestamp}.${ext}`;
+    const pathname = `${type}/${filename}`;
 
-  const ext = file.name.split(".").pop() || "bin";
-  const filename = `${crypto.randomBytes(12).toString("hex")}.${ext}`;
-  const filepath = path.join(typeDir, filename);
+    const blob = await put(pathname, file, {
+      access: "public",
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    });
 
-  const buffer = Buffer.from(await file.arrayBuffer());
-  await writeFile(filepath, buffer);
-
-  return { url: `/uploads/${type}/${filename}` };
+    return { url: blob.url };
+  } catch (error) {
+    return { url: "", error: "Upload failed. Check your configuration." };
+  }
 }

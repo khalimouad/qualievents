@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import Link from "next/link";
 import ImageUpload from "@/components/ImageUpload";
+import CountryCitySelect from "@/components/CountryCitySelect";
 import { t } from "@/lib/i18n";
 
 export default function NewEventPage() {
@@ -13,10 +14,20 @@ export default function NewEventPage() {
   const [error, setError] = useState("");
   const [form, setForm] = useState({
     title: "", tagline: "", description: "", date: "", endDate: "", venue: "", address: "", city: "", country: "",
-    latitude: "", longitude: "", themeColor: "#e94560", maxAttendees: "500", isPublished: false, isPaid: false, ticketPrice: "", heroImage: "",
+    latitude: "", longitude: "", themeColor: "#ff7a00", maxAttendees: "500", isPublished: false, isPaid: false, ticketPrice: "", heroImage: "",
   });
 
   const update = (field: string, value: string | boolean) => { setForm((f) => ({ ...f, [field]: value })); setError(""); };
+
+  const updateLocation = (value: { country: string; city: string; lat?: number; lng?: number }) => {
+    setForm((f) => ({
+      ...f,
+      country: value.country,
+      city: value.city,
+      latitude: value.lat?.toString() || f.latitude,
+      longitude: value.lng?.toString() || f.longitude,
+    }));
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,28 +44,29 @@ export default function NewEventPage() {
     finally { setLoading(false); }
   };
 
-  const inputClass = "w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-xs";
+  const inputClass = "input-base";
   const labelClass = "block text-[10px] font-semibold text-muted uppercase tracking-wider mb-1";
+  const cardClass = "card p-4 space-y-3";
 
   return (
     <div>
-      <Link href="/admin" className="inline-flex items-center gap-1.5 text-muted hover:text-secondary mb-3 transition-colors text-xs font-medium">
+      <Link href="/admin" className="inline-flex items-center gap-1.5 text-muted hover:text-foreground mb-3 transition-colors text-xs font-medium">
         <ArrowLeft className="w-3 h-3" /> {t.admin.backToDashboard}
       </Link>
 
       <div className="mb-4">
-        <h1 className="text-xl font-bold text-secondary">{t.admin.createEvent}</h1>
+        <h1 className="text-2xl font-bold font-serif text-foreground">{t.admin.createEvent}</h1>
         <p className="text-muted text-xs mt-0.5">Remplissez les détails pour créer une nouvelle page d&apos;événement</p>
       </div>
 
       <form onSubmit={submit} className="max-w-3xl">
         {error && (
-          <div className="bg-red-50 border border-red-100 text-red-600 px-3 py-2 rounded-lg mb-3 text-xs font-medium flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-red-500" />{error}
+          <div className="bg-danger/10 border border-danger/20 text-danger px-3 py-2 rounded-lg mb-3 text-xs font-medium flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-danger" />{error}
           </div>
         )}
 
-        <div className="bg-white rounded-xl border border-gray-100 p-4 space-y-3">
+        <div className={cardClass}>
           <h2 className="text-[10px] uppercase tracking-[0.15em] text-muted font-semibold">{t.admin.basicInfo}</h2>
           <div>
             <label className={labelClass}>{t.admin.title} <span className="text-primary">*</span></label>
@@ -81,7 +93,7 @@ export default function NewEventPage() {
           <ImageUpload value={form.heroImage} onChange={(url) => update("heroImage", url)} type="events" label={t.admin.heroImage} />
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-100 p-4 space-y-3 mt-3">
+        <div className={`${cardClass} mt-3`}>
           <h2 className="text-[10px] uppercase tracking-[0.15em] text-muted font-semibold">{t.admin.venueAndLocation}</h2>
           <div>
             <label className={labelClass}>{t.admin.venueName} <span className="text-primary">*</span></label>
@@ -91,17 +103,17 @@ export default function NewEventPage() {
             <label className={labelClass}>{t.admin.address} <span className="text-primary">*</span></label>
             <input value={form.address} onChange={(e) => update("address", e.target.value)} className={inputClass} placeholder="2 Place de la Porte Maillot" required />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div><label className={labelClass}>{t.admin.city} <span className="text-primary">*</span></label><input value={form.city} onChange={(e) => update("city", e.target.value)} className={inputClass} placeholder="Paris" required /></div>
-            <div><label className={labelClass}>{t.admin.country} <span className="text-primary">*</span></label><input value={form.country} onChange={(e) => update("country", e.target.value)} className={inputClass} placeholder="France" required /></div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <CountryCitySelect country={form.country} city={form.city} onChange={updateLocation} />
+          <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(form.venue + ", " + form.city + ", " + form.country)}`} target="_blank" rel="noopener noreferrer" className="link-spell text-xs text-primary mt-2 inline-block">
+            Trouver les coordonnées sur Google Maps →
+          </a>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
             <div><label className={labelClass}>{t.admin.latitude}</label><input value={form.latitude} onChange={(e) => update("latitude", e.target.value)} className={inputClass} placeholder="48.8789" /></div>
             <div><label className={labelClass}>{t.admin.longitude}</label><input value={form.longitude} onChange={(e) => update("longitude", e.target.value)} className={inputClass} placeholder="2.2830" /></div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-100 p-4 space-y-3 mt-3">
+        <div className={`${cardClass} mt-3`}>
           <h2 className="text-[10px] uppercase tracking-[0.15em] text-muted font-semibold">{t.admin.settings}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
@@ -111,18 +123,18 @@ export default function NewEventPage() {
             <div>
               <label className={labelClass}>{t.admin.themeColor}</label>
               <div className="flex gap-2">
-                <input type="color" value={form.themeColor} onChange={(e) => update("themeColor", e.target.value)} className="w-10 h-10 rounded-lg border border-gray-200 cursor-pointer" />
+                <input type="color" value={form.themeColor} onChange={(e) => update("themeColor", e.target.value)} className="w-10 h-10 rounded-lg border border-border cursor-pointer" />
                 <input value={form.themeColor} onChange={(e) => update("themeColor", e.target.value)} className={`${inputClass} flex-1`} />
               </div>
             </div>
           </div>
           <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" checked={form.isPublished} onChange={(e) => update("isPublished", e.target.checked)} className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" />
-            <span className="text-xs text-secondary">{t.admin.publishImmediately}</span>
+            <input type="checkbox" checked={form.isPublished} onChange={(e) => update("isPublished", e.target.checked)} className="w-4 h-4 rounded border-border text-primary focus:ring-primary" />
+            <span className="text-xs text-foreground">{t.admin.publishImmediately}</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" checked={form.isPaid as boolean} onChange={(e) => update("isPaid", e.target.checked)} className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" />
-            <span className="text-xs text-secondary">Événement payant (CinetPay / Orange Money)</span>
+            <input type="checkbox" checked={form.isPaid as boolean} onChange={(e) => update("isPaid", e.target.checked)} className="w-4 h-4 rounded border-border text-primary focus:ring-primary" />
+            <span className="text-xs text-foreground">Événement payant (CinetPay / Orange Money)</span>
           </label>
           {form.isPaid && (
             <div>
@@ -133,8 +145,8 @@ export default function NewEventPage() {
         </div>
 
         <div className="flex items-center justify-end gap-2 mt-4">
-          <Link href="/admin" className="px-4 py-2 text-xs text-muted hover:text-secondary font-medium transition-colors">{t.common.cancel}</Link>
-          <button type="submit" disabled={loading} className="btn-primary px-5 py-2 text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
+          <Link href="/admin" className="px-4 py-2 text-xs text-muted hover:text-foreground font-medium transition-colors">{t.common.cancel}</Link>
+          <button type="submit" disabled={loading} className="btn-primary text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
             {loading ? <><span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> {t.register.processing}</> : <><Sparkles className="w-3 h-3" /> {t.admin.createEvent}</>}
           </button>
         </div>

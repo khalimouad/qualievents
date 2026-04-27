@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, QrCode, ArrowLeft, ChevronRight, LogOut } from "lucide-react";
-import AdminThemeToggle from "@/components/AdminThemeToggle";
+import ThemeToggle from "@/components/ThemeToggle";
 import { t } from "@/lib/i18n";
 
 const navItems = [
@@ -20,16 +20,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div id="admin-shell" className="min-h-screen flex bg-background">
+    <div className="min-h-screen flex bg-background">
       {/* Sidebar */}
-      <aside className="w-[220px] bg-white border-r border-gray-100 hidden lg:flex flex-col">
+      <aside className="w-[220px] bg-card border-r border-border hidden lg:flex flex-col">
         <div className="p-4 pb-3">
           <Link href="/" className="flex items-center gap-2.5 group">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-sm">
-              <span className="text-foreground font-bold text-xs">Q</span>
+              <span className="text-white font-bold text-xs">Q</span>
             </div>
             <div>
-              <span className="text-secondary font-bold text-sm">Quali<span className="text-primary">Events</span></span>
+              <span className="text-foreground font-bold text-sm">Quali<span className="text-primary">Events</span></span>
               <p className="text-[9px] text-muted uppercase tracking-widest">Admin</p>
             </div>
           </Link>
@@ -44,7 +44,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 key={item.href}
                 href={item.href}
                 className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium transition-all ${
-                  isActive ? "bg-primary/5 text-primary" : "text-muted hover:bg-gray-50 hover:text-secondary"
+                  isActive ? "bg-primary/10 text-primary" : "text-muted hover:bg-bg-hover hover:text-foreground"
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -55,12 +55,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        <div className="p-3 border-t border-gray-100 space-y-2">
+        <div className="p-3 border-t border-border space-y-2">
           <div className="flex items-center justify-between px-1">
-            <Link href="/" className="flex items-center gap-2 text-muted hover:text-secondary text-xs transition-colors">
+            <Link href="/" className="flex items-center gap-2 text-muted hover:text-foreground text-xs transition-colors">
               <ArrowLeft className="w-3 h-3" /> {t.admin.backToSite}
             </Link>
-            <AdminThemeToggle />
+            <ThemeToggle />
           </div>
           <button
             onClick={() => { fetch("/api/auth", { method: "DELETE" }).then(() => window.location.href = "/admin/login"); }}
@@ -72,16 +72,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-card border-b border-border">
         <div className="flex items-center justify-between p-3">
           <Link href="/admin" className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-md bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
-              <span className="text-foreground font-bold text-[10px]">Q</span>
+              <span className="text-white font-bold text-[10px]">Q</span>
             </div>
-            <span className="font-bold text-secondary text-xs">Admin</span>
+            <span className="font-bold text-foreground text-xs">Admin</span>
           </Link>
           <div className="flex items-center gap-1">
-            <Link href="/" className="text-muted hover:text-secondary text-xs px-2">Site</Link>
+            <Link href="/" className="text-muted hover:text-foreground text-xs px-2">Site</Link>
             <button onClick={() => { fetch("/api/auth", { method: "DELETE" }).then(() => window.location.href = "/admin/login"); }} className="text-muted hover:text-danger p-1.5">
               <LogOut className="w-3.5 h-3.5" />
             </button>
@@ -92,7 +92,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             const Icon = item.icon;
             const isActive = pathname === item.href || (item.href === "/admin" && pathname.startsWith("/admin/events"));
             return (
-              <Link key={item.href} href={item.href} className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-medium transition-all ${isActive ? "bg-primary/10 text-primary" : "bg-gray-50 text-muted"}`}>
+              <Link key={item.href} href={item.href} className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-medium transition-all ${isActive ? "bg-primary/10 text-primary" : "bg-bg-subtle text-muted"}`}>
                 <Icon className="w-3 h-3" />
                 {item.label}
               </Link>
