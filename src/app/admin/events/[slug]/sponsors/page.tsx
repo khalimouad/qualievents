@@ -140,7 +140,7 @@ export default function EventSponsorsPage({ params }: { params: Promise<{ slug: 
                 {s.logo ? <img src={s.logo} alt={s.name} className="max-h-12 max-w-full object-contain" /> : <Award className="w-6 h-6 text-text-secondary" />}
               </div>
               <p className="text-xs font-bold text-foreground truncate">{s.name}</p>
-              <span className={`inline-block mt-1 px-1.5 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider ${tierColors[s.tier] || tierColors.gold}`}>{s.tier}</span>
+              <span className={`inline-block mt-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${tierColors[s.tier] || tierColors.gold}`}>{s.tier}</span>
             </div>
           ))}
         </div>

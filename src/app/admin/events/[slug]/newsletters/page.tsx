@@ -93,7 +93,7 @@ export default function EventNewslettersPage({ params }: { params: Promise<{ slu
                     <p className="text-muted text-[11px] mt-0.5 line-clamp-1">{nl.content.replace(/<[^>]*>/g, "")}</p>
                   </div>
                 </div>
-                <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider flex-shrink-0 ${
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider flex-shrink-0 ${
                   nl.status === "sent" ? "bg-success/10 text-success" : "bg-warning/10 text-warning"
                 }`}>{nl.status}</span>
               </div>

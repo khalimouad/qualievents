@@ -156,7 +156,7 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
                     <td className="px-4 py-2.5">
                       <div className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-md bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0">
-                          <span className="text-foreground text-[9px] font-bold">{sub.firstName[0]}{sub.lastName[0]}</span>
+                          <span className="text-foreground text-[10px] font-bold">{sub.firstName[0]}{sub.lastName[0]}</span>
                         </div>
                         <div>
                           <div className="font-medium text-secondary text-xs">{sub.firstName} {sub.lastName}</div>
@@ -167,7 +167,7 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
                     <td className="px-4 py-2.5 text-xs text-muted">{sub.email}</td>
                     <td className="px-4 py-2.5 text-xs text-muted hidden md:table-cell">{sub.company || <span className="text-foreground/80">—</span>}</td>
                     <td className="px-4 py-2.5">
-                      <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider ${
+                      <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${
                         sub.status === "confirmed" ? "bg-success/10 text-success"
                         : sub.status === "waitlisted" ? "bg-warning/10 text-warning"
                         : sub.status === "pending" ? "bg-warning/10 text-warning"

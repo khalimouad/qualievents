@@ -50,7 +50,7 @@ export default async function AdminDashboard() {
                 <Icon className="w-3.5 h-3.5 text-white" />
               </div>
               <p className="text-lg font-bold text-foreground leading-none">{stat.value}</p>
-              <p className="text-[9px] text-text-secondary mt-1 uppercase tracking-wider">{stat.label}</p>
+              <p className="text-[10px] text-text-secondary mt-1 uppercase tracking-wider">{stat.label}</p>
             </div>
           );
         })}
@@ -95,7 +95,7 @@ export default async function AdminDashboard() {
                       {new Date(event.date).toLocaleDateString("fr-FR", { month: "short", day: "numeric", year: "numeric" })} · {event.city}
                     </p>
                   </div>
-                  <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider flex-shrink-0 ${event.isPublished ? "bg-success/10 text-success" : "bg-subtle text-text-secondary"}`}>
+                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider flex-shrink-0 ${event.isPublished ? "bg-success/10 text-success" : "bg-subtle text-text-secondary"}`}>
                     {event.isPublished ? t.admin.live : t.admin.draft}
                   </span>
                 </div>
