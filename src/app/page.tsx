@@ -167,20 +167,82 @@ export default async function HomePage() {
             </div>
           )}
 
-          {/* Past events */}
+          {/* Past events — Enhanced layout */}
           {pastEvents.length > 0 && (
             <div className="mt-20 border-t border-border pt-16">
-              <span className="chip chip-accent mb-8 inline-block">{t.home.pastEvents}</span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {pastEvents.map((event) => (
-                  <Link key={event.id} href={`/events/${event.slug}`} className="card p-6 hover:border-primary transition-colors group">
-                    <p className="text-[10px] uppercase tracking-[0.15em] text-muted mb-3 font-semibold">
-                      {new Date(event.date).toLocaleDateString("fr-FR", { month: "short", day: "numeric", year: "numeric" })}
-                    </p>
-                    <h4 className="font-serif text-lg text-foreground mb-2 group-hover:text-primary transition-colors">{event.title}</h4>
-                    <p className="text-xs text-muted font-light">{event.venue}, {event.city} • {event._count.subscribers} participants</p>
-                  </Link>
-                ))}
+              <span className="chip chip-accent mb-10 inline-block">{t.home.pastEvents}</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {pastEvents.map((event, idx) => {
+                  // Estimate edition based on index (simplified)
+                  const editionNumber = idx + 1;
+                  const frenchOrdinal = editionNumber === 1 ? "1ère" : `${editionNumber}e`;
+
+                  return (
+                    <Link
+                      key={event.id}
+                      href={`/events/${event.slug}`}
+                      className="group relative overflow-hidden rounded-2xl transition-all duration-500 hover:shadow-xl hover:-translate-y-2"
+                    >
+                      {/* Hero image background */}
+                      {event.heroImage ? (
+                        <div className="absolute inset-0">
+                          <img src={event.heroImage} alt={event.title} className="w-full h-full object-cover opacity-100 group-hover:opacity-110 transition-opacity duration-500" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                        </div>
+                      ) : (
+                        <div
+                          className="absolute inset-0 opacity-80"
+                          style={{
+                            background: `linear-gradient(135deg, ${event.themeColor || "#ff7a00"}20 0%, ${event.themeColor || "#009e60"}20 100%)`,
+                          }}
+                        />
+                      )}
+
+                      {/* Color accent bar */}
+                      <div
+                        className="absolute top-0 left-0 right-0 h-1.5"
+                        style={{ background: event.themeColor || "linear-gradient(90deg, var(--primary), var(--accent))" }}
+                      />
+
+                      {/* Edition badge */}
+                      <div
+                        className="absolute top-4 right-4 px-3 py-1 rounded-full text-white text-xs font-bold uppercase tracking-wider"
+                        style={{ background: event.themeColor || "var(--primary)" }}
+                      >
+                        {frenchOrdinal} édition
+                      </div>
+
+                      {/* Content overlay */}
+                      <div className="relative z-10 h-full flex flex-col p-6 sm:p-8 text-white justify-end min-h-80 sm:min-h-96">
+                        {/* Date */}
+                        <p className="text-xs uppercase tracking-[0.2em] opacity-90 font-semibold mb-3">
+                          {new Date(event.date).toLocaleDateString("fr-FR", { month: "long", day: "numeric", year: "numeric" })}
+                        </p>
+
+                        {/* Title */}
+                        <h3 className="font-serif text-3xl sm:text-4xl font-medium mb-3 leading-tight group-hover:underline transition-all">
+                          {event.title}
+                        </h3>
+
+                        {/* Tagline/Slogan */}
+                        {event.tagline && (
+                          <p className="text-sm sm:text-base opacity-95 mb-6 font-light leading-relaxed max-w-xs">
+                            {event.tagline}
+                          </p>
+                        )}
+
+                        {/* Location & stats */}
+                        <div className="flex items-center justify-between pt-4 border-t border-white/20">
+                          <div className="flex flex-col">
+                            <span className="text-xs opacity-75 uppercase tracking-wider mb-1">📍 {event.city}</span>
+                            <span className="text-sm font-semibold">{event._count.subscribers} participants</span>
+                          </div>
+                          <ArrowUpRight className="w-5 h-5 opacity-75 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           )}
