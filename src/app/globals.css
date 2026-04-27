@@ -61,16 +61,16 @@
   --shadow-md: 0 4px 12px -2px rgba(184, 95, 20, 0.08), 0 2px 4px -2px rgba(184, 95, 20, 0.06);
   --shadow-lg: 0 12px 24px -6px rgba(184, 95, 20, 0.10), 0 4px 8px -4px rgba(184, 95, 20, 0.06);
   --shadow-xl: 0 24px 48px -12px rgba(184, 95, 20, 0.14);
-  --shadow-glow: 0 0 32px rgba(255, 122, 0, 0.18);
-  --shadow-glow-strong: 0 8px 32px rgba(255, 122, 0, 0.32);
+  --shadow-glow: 0 0 32px color-mix(in srgb, var(--primary) 18%, transparent);
+  --shadow-glow-strong: 0 8px 32px color-mix(in srgb, var(--primary) 32%, transparent);
 
-  /* Gradients */
-  --gradient-sunset: linear-gradient(135deg, #ff7a00 0%, #ff3d7f 100%);
-  --gradient-citrus: linear-gradient(135deg, #ffb066 0%, #009e60 100%);
-  --gradient-tropical: linear-gradient(135deg, #ff7a00 0%, #ffb066 50%, #009e60 100%);
-  --gradient-flag: linear-gradient(90deg, #ff7a00 0%, #ffffff 50%, #009e60 100%);
-  --gradient-primary: linear-gradient(135deg, #ff7a00 0%, #e56500 100%);
-  --gradient-accent: linear-gradient(135deg, #009e60 0%, #007a48 100%);
+  /* Gradients — primary/accent ones use vars so per-event theme cascades */
+  --gradient-sunset: linear-gradient(135deg, var(--primary) 0%, #ff3d7f 100%);
+  --gradient-citrus: linear-gradient(135deg, var(--primary-light) 0%, var(--accent) 100%);
+  --gradient-tropical: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 50%, var(--accent) 100%);
+  --gradient-flag: linear-gradient(90deg, var(--primary) 0%, #ffffff 50%, var(--accent) 100%);
+  --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
   --gradient-mesh-light:
     radial-gradient(at 20% 0%, rgba(255, 122, 0, 0.18) 0px, transparent 50%),
     radial-gradient(at 80% 0%, rgba(0, 158, 96, 0.14) 0px, transparent 50%),
@@ -114,8 +114,8 @@
   --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 12px 24px -6px rgba(0, 0, 0, 0.5);
   --shadow-xl: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
-  --shadow-glow: 0 0 32px rgba(255, 139, 31, 0.24);
-  --shadow-glow-strong: 0 8px 32px rgba(255, 139, 31, 0.4);
+  --shadow-glow: 0 0 32px color-mix(in srgb, var(--primary) 24%, transparent);
+  --shadow-glow-strong: 0 8px 32px color-mix(in srgb, var(--primary) 40%, transparent);
 
   --gradient-mesh-light:
     radial-gradient(at 20% 0%, rgba(255, 139, 31, 0.18) 0px, transparent 50%),
@@ -236,13 +236,13 @@ body {
 }
 
 .chip-primary {
-  background: linear-gradient(135deg, rgba(255, 122, 0, 0.12), rgba(255, 122, 0, 0.04));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 12%, transparent), color-mix(in srgb, var(--primary) 4%, transparent));
   color: var(--primary-dark);
-  border-color: rgba(255, 122, 0, 0.2);
+  border-color: color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
 .chip-accent {
-  background: linear-gradient(135deg, rgba(0, 158, 96, 0.12), rgba(0, 158, 96, 0.04));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 12%, transparent), color-mix(in srgb, var(--accent) 4%, transparent));
   color: var(--accent-dark);
   border-color: rgba(0, 158, 96, 0.2);
 }
@@ -301,7 +301,7 @@ body {
   font-family: var(--font-sans);
   border-radius: var(--radius-pill);
   border: none;
-  box-shadow: var(--shadow-md), 0 0 0 0 rgba(255, 122, 0, 0.4);
+  box-shadow: var(--shadow-md), 0 0 0 0 color-mix(in srgb, var(--primary) 40%, transparent);
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
 }
@@ -369,7 +369,7 @@ body {
 .input-base:focus {
   background: var(--bg-card);
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.12);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 12%, transparent);
 }
 .input-base::placeholder { color: var(--text-muted); }
 
@@ -477,8 +477,8 @@ body {
   to { opacity: 1; transform: translateX(0); }
 }
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 4px 14px rgba(255, 122, 0, 0.25); }
-  50% { box-shadow: 0 4px 30px rgba(255, 122, 0, 0.5); }
+  0%, 100% { box-shadow: 0 4px 14px color-mix(in srgb, var(--primary) 25%, transparent); }
+  50% { box-shadow: 0 4px 30px color-mix(in srgb, var(--primary) 50%, transparent); }
 }
 @keyframes shimmer {
   0% { background-position: -200% 0; }
