@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "AdminUser" ADD COLUMN "active" BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE "AdminUser" ADD COLUMN "lastLoginAt" TIMESTAMP(3);

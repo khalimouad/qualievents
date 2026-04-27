@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const SESSION_SECRET = process.env.SESSION_SECRET || "fallback-dev-secret-change-me";
+const RAW_SECRET = process.env.SESSION_SECRET;
+const FALLBACK = "fallback-dev-secret-change-me";
+const isBadSecret = !RAW_SECRET || RAW_SECRET === FALLBACK || /^0+$/.test(RAW_SECRET);
+
+if (isBadSecret && process.env.NODE_ENV === "production") {
+  throw new Error(
+    "SESSION_SECRET is missing or insecure. Generate one with: openssl rand -hex 32"
+  );
+}
+
+const SESSION_SECRET = RAW_SECRET || FALLBACK;
 
 // Web Crypto API HMAC (works in Edge Runtime)
 async function hmacHex(secret: string, message: string): Promise<string> {
@@ -49,80 +59,56 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const method = req.method;
 
-  // Login page and auth API are always accessible
+  // Always public
   if (pathname === "/admin/login") return NextResponse.next();
   if (pathname === "/api/auth") return NextResponse.next();
 
-  // ── ADMIN PAGES: require admin role ──
-  if (pathname.startsWith("/admin")) {
-    const session = await verifySession(req);
-    if (!session || session.role !== "admin") {
-      return NextResponse.redirect(new URL("/admin/login", req.url));
-    }
+  // Public payment endpoints (CinetPay redirect/webhook needs them open)
+  if (pathname.startsWith("/api/payments")) {
+    const isPaymentList = pathname === "/api/payments" && method === "GET";
+    const isAdminScoped = pathname.startsWith("/api/payments/settings");
+    if (!isPaymentList && !isAdminScoped) return NextResponse.next();
+    // Admin-only payment paths fall through to the auth check below
+  }
+
+  // Public registration (POST /api/subscribers); listing requires auth
+  if (pathname.startsWith("/api/subscribers") && method === "POST") {
     return NextResponse.next();
   }
 
-  // ── SCANNER PAGES: require any authenticated user (admin or staff) ──
-  if (pathname.startsWith("/scan")) {
-    const session = await verifySession(req);
-    if (!session) {
-      return NextResponse.redirect(new URL("/admin/login", req.url));
-    }
+  // Public read of events; mutations require auth
+  if (pathname.startsWith("/api/events") && method === "GET") {
     return NextResponse.next();
   }
 
-  // ── PROTECTED API ROUTES ──
-
-  // Scan API: require any authenticated user (staff or admin)
-  if (pathname.startsWith("/api/scan")) {
-    const session = await verifySession(req);
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  // Public submission of info-requests (lead capture on past events)
+  if (pathname.startsWith("/api/info-requests") && method === "POST") {
     return NextResponse.next();
   }
 
-  // Subscriber list (GET) = admin only; registration (POST) = public
-  if (pathname.startsWith("/api/subscribers")) {
-    if (method === "POST") return NextResponse.next(); // Public registration
-    const session = await verifySession(req);
-    if (!session || session.role !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    return NextResponse.next();
+  // Everything else under /admin, /scan or these /api/* matchers requires a session.
+  const session = await verifySession(req);
+  const isPage = pathname.startsWith("/admin") || pathname.startsWith("/scan");
+
+  if (!session) {
+    return isPage
+      ? NextResponse.redirect(new URL("/admin/login", req.url))
+      : NextResponse.json({ error: "Non authentifié" }, { status: 401 });
   }
 
-  // Invitations, newsletters, panelists, sponsors, upload: admin only
-  if (
-    pathname.startsWith("/api/invitations") ||
-    pathname.startsWith("/api/newsletters") ||
-    pathname.startsWith("/api/panelists") ||
-    pathname.startsWith("/api/sponsors") ||
-    pathname.startsWith("/api/upload")
-  ) {
-    const session = await verifySession(req);
-    if (!session || session.role !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // Admin-only surfaces (defence in depth — handlers re-check)
+  const adminOnlyPrefixes = [
+    "/admin/users",
+    "/admin/settings",
+    "/api/users",
+    "/api/payments/settings",
+  ];
+  if (adminOnlyPrefixes.some((p) => pathname.startsWith(p))) {
+    if (session.role !== "admin") {
+      return isPage
+        ? NextResponse.redirect(new URL("/admin", req.url))
+        : NextResponse.json({ error: "Accès administrateur requis" }, { status: 403 });
     }
-    return NextResponse.next();
-  }
-
-  // Payment list: admin only; POST (checkout, webhook, status check) is public
-  if (pathname === "/api/payments" && method === "GET") {
-    const session = await verifySession(req);
-    if (!session || session.role !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    return NextResponse.next();
-  }
-
-  // Event mutations: admin only; GET is public
-  if (pathname.startsWith("/api/events") && method !== "GET") {
-    const session = await verifySession(req);
-    if (!session || session.role !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    return NextResponse.next();
   }
 
   return NextResponse.next();
@@ -138,8 +124,11 @@ export const config = {
     "/api/invitations/:path*",
     "/api/newsletters/:path*",
     "/api/panelists/:path*",
+    "/api/info-requests/:path*",
     "/api/events/:path*",
     "/api/scan/:path*",
-    "/api/payments",
+    "/api/payments/:path*",
+    "/api/badges/:path*",
+    "/api/users/:path*",
   ],
 };

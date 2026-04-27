@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/requireRole";
 
+/**
+ * GET /api/badges?code=XYZ          — public, anyone with the code can fetch
+ *                                     (codes are full UUIDs, not enumerable).
+ * GET /api/badges?email=foo&eventId  — admin/staff only. Otherwise anyone could
+ *                                     enumerate which emails are registered.
+ */
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
   const email = req.nextUrl.searchParams.get("email");
+  const eventId = req.nextUrl.searchParams.get("eventId");
 
   if (!code && !email) {
     return NextResponse.json({ error: "Provide a badge code or email" }, { status: 400 });
@@ -20,8 +28,14 @@ export async function GET(req: NextRequest) {
       },
     });
   } else if (email) {
+    // Email lookup is admin/staff only — exposes registered emails otherwise.
+    const session = getSession(req);
+    if (!session) {
+      return NextResponse.json({ error: "Authentification requise" }, { status: 401 });
+    }
+
     const subscriber = await prisma.subscriber.findFirst({
-      where: { email },
+      where: eventId ? { email, eventId } : { email },
       include: { badge: true },
     });
     if (subscriber?.badge) {

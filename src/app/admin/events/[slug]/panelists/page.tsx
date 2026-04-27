@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from "react";
 import { UserCheck, Plus, Trash2, X, Pencil } from "lucide-react";
 import ImageUpload from "@/components/ImageUpload";
+import { AdminGate } from "@/components/AdminGate";
 import { t } from "@/lib/i18n";
 
 interface Panelist {
@@ -140,9 +141,11 @@ export default function EventPanelistsPage({ params }: { params: Promise<{ slug:
                 <button onClick={() => startEdit(p)} className="p-1 rounded hover:bg-primary/10 text-text-secondary hover:text-primary transition-colors" title="Modifier">
                   <Pencil className="w-3 h-3" />
                 </button>
-                <button onClick={() => remove(p.id)} className="p-1 rounded hover:bg-danger/10 text-text-secondary hover:text-danger transition-colors" title="Supprimer">
-                  <Trash2 className="w-3 h-3" />
-                </button>
+                <AdminGate>
+                  <button onClick={() => remove(p.id)} className="p-1 rounded hover:bg-danger/10 text-text-secondary hover:text-danger transition-colors" title="Supprimer">
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </AdminGate>
               </div>
               <div className="flex items-start gap-2">
                 {p.photo ? (

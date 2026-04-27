@@ -8,10 +8,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Email and password required" }, { status: 400 });
   }
 
-  const user = await authenticateUser(email, password);
-  if (!user) {
+  const result = await authenticateUser(email, password);
+  if (!result.ok) {
+    if (result.error === "disabled") {
+      return NextResponse.json({ error: "Compte désactivé" }, { status: 401 });
+    }
     return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
   }
+  const user = result.user;
 
   const token = generateSessionToken(user.id, user.role);
 

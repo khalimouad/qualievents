@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { initPayment, isConfigured } from "@/lib/cinetpay";
+import { initPayment, isPaymentReady } from "@/lib/cinetpay";
 import { v4 as uuidv4 } from "uuid";
 
 // POST: Initialize a payment for an event registration
@@ -18,8 +18,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Cet événement est gratuit" }, { status: 400 });
   }
 
-  if (!isConfigured()) {
-    return NextResponse.json({ error: "Paiement non configuré. Ajoutez CINETPAY_API_KEY et CINETPAY_SITE_ID dans .env" }, { status: 500 });
+  if (!(await isPaymentReady())) {
+    return NextResponse.json({ error: "Paiement non configuré. Configurez le fournisseur dans Paramètres → Paiements." }, { status: 500 });
   }
 
   const transactionId = `QE-${uuidv4().split("-")[0].toUpperCase()}`;

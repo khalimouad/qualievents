@@ -6,6 +6,7 @@ import { ArrowLeft, Save, Trash2 } from "lucide-react";
 import Link from "next/link";
 import ImageUpload from "@/components/ImageUpload";
 import CountryCitySelect from "@/components/CountryCitySelect";
+import { AdminGate } from "@/components/AdminGate";
 import { t } from "@/lib/i18n";
 
 export default function EditEventPage() {
@@ -154,9 +155,11 @@ export default function EditEventPage() {
         </div>
 
         <div className="flex items-center justify-between mt-4">
-          <button type="button" onClick={deleteEvent} disabled={deleting} className="px-3 py-2 text-xs text-danger hover:bg-danger/5 rounded-lg font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50">
-            <Trash2 className="w-3 h-3" /> {deleting ? "Suppression..." : t.common.delete}
-          </button>
+          <AdminGate fallback={<span />}>
+            <button type="button" onClick={deleteEvent} disabled={deleting} className="px-3 py-2 text-xs text-danger hover:bg-danger/5 rounded-lg font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50">
+              <Trash2 className="w-3 h-3" /> {deleting ? "Suppression..." : t.common.delete}
+            </button>
+          </AdminGate>
           <div className="flex items-center gap-2">
             <Link href={`/admin/events/${slug}`} className="px-4 py-2 text-xs text-text-secondary hover:text-foreground font-medium transition-colors">{t.common.cancel}</Link>
             <button type="submit" disabled={loading} className="btn-primary px-5 py-2 text-xs inline-flex items-center gap-1.5 disabled:opacity-50">

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import { Users, Search, Download, QrCode, Trash2, Upload, FileText } from "lucide-react";
+import { AdminGate } from "@/components/AdminGate";
 import { t } from "@/lib/i18n";
 
 interface Subscriber {
@@ -183,9 +184,11 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
                       ) : <span className="text-foreground/80 text-[10px]">—</span>}
                     </td>
                     <td className="px-4 py-2.5">
-                      <button onClick={() => remove(sub.id)} className="text-foreground/80 hover:text-danger opacity-0 group-hover:opacity-100 transition-all">
-                        <Trash2 className="w-3 h-3" />
-                      </button>
+                      <AdminGate>
+                        <button onClick={() => remove(sub.id)} className="text-foreground/80 hover:text-danger opacity-0 group-hover:opacity-100 transition-all">
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </AdminGate>
                     </td>
                   </tr>
                 ))}

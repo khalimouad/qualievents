@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { generateBadgeCode, generateQRDataURL } from "@/lib/qrcode";
+import { requireAdmin, passThrough } from "@/lib/requireRole";
 import { sendEmail, buildBadgeEmail } from "@/lib/email";
 
 export async function GET(req: NextRequest) {
@@ -19,6 +20,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  try { requireAdmin(req); } catch (e) { return passThrough(e); }
   const id = req.nextUrl.searchParams.get("id");
   if (!id) return NextResponse.json({ error: "ID required" }, { status: 400 });
   await prisma.subscriber.delete({ where: { id } });

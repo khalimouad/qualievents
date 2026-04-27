@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin, passThrough } from "@/lib/requireRole";
 
 export async function GET(
   req: NextRequest,
@@ -66,6 +67,7 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  try { requireAdmin(req); } catch (e) { return passThrough(e); }
   const { slug } = await params;
 
   const event = await prisma.event.findUnique({ where: { slug } });
