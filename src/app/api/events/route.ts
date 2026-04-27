@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
       longitude: body.longitude ? parseFloat(body.longitude) : null,
       themeColor: body.themeColor || null,
       heroImage: body.heroImage || null,
+      gallery: Array.isArray(body.gallery) ? body.gallery : [],
       maxAttendees: body.maxAttendees ? parseInt(body.maxAttendees) : 500,
       isPublished: body.isPublished ?? false,
       isPaid: body.isPaid ?? false,

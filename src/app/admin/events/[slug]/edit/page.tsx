@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Save, Trash2 } from "lucide-react";
 import Link from "next/link";
 import ImageUpload from "@/components/ImageUpload";
+import GalleryUpload from "@/components/GalleryUpload";
 import { t } from "@/lib/i18n";
 
 export default function EditEventPage() {
@@ -14,9 +15,14 @@ export default function EditEventPage() {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
   const [fetching, setFetching] = useState(true);
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    title: string; tagline: string; description: string; date: string; endDate: string;
+    venue: string; address: string; city: string; country: string; latitude: string; longitude: string;
+    themeColor: string; maxAttendees: string; isPublished: boolean; isPaid: boolean; ticketPrice: string;
+    heroImage: string; gallery: string[];
+  }>({
     title: "", tagline: "", description: "", date: "", endDate: "", venue: "", address: "", city: "", country: "",
-    latitude: "", longitude: "", themeColor: "#e94560", maxAttendees: "500", isPublished: false, isPaid: false, ticketPrice: "", heroImage: "",
+    latitude: "", longitude: "", themeColor: "#e94560", maxAttendees: "500", isPublished: false, isPaid: false, ticketPrice: "", heroImage: "", gallery: [],
   });
 
   useEffect(() => {
@@ -33,12 +39,13 @@ export default function EditEventPage() {
           themeColor: data.themeColor || "#e94560", maxAttendees: data.maxAttendees?.toString() || "500",
           isPublished: data.isPublished || false, isPaid: data.isPaid || false,
           ticketPrice: data.ticketPrice?.toString() || "", heroImage: data.heroImage || "",
+          gallery: Array.isArray(data.gallery) ? data.gallery : [],
         });
         setFetching(false);
       });
   }, [slug]);
 
-  const update = (field: string, value: string | boolean) => { setForm((f) => ({ ...f, [field]: value })); setError(""); };
+  const update = (field: string, value: string | boolean | string[]) => { setForm((f) => ({ ...f, [field]: value })); setError(""); };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,6 +103,7 @@ export default function EditEventPage() {
             <div><label className={labelClass}>{t.admin.endDate}</label><input type="datetime-local" value={form.endDate} onChange={(e) => update("endDate", e.target.value)} className={inputClass} /></div>
           </div>
           <ImageUpload value={form.heroImage} onChange={(url) => update("heroImage", url)} type="events" label={t.admin.heroImage} />
+          <GalleryUpload value={form.gallery} onChange={(urls) => update("gallery", urls)} label="Galerie photos (événements passés)" />
         </div>
 
         <div className="bg-white rounded-xl border border-gray-100 p-4 space-y-3 mt-3">

@@ -106,59 +106,88 @@ export default async function HomePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {upcomingEvents.map((event) => {
                 const daysUntil = Math.ceil((new Date(event.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-                // Emoji based on event theme (simplified)
-                const emoji = ["🎉", "🌟", "🚀", "🎯", "💡", "🎭"][Math.floor(Math.random() * 6)];
 
                 return (
-                  <Link key={event.id} href={`/events/${event.slug}`} className="event-card group">
-                    {/* Colored badge */}
-                    <div className="event-card-badge" style={{ background: event.themeColor || "linear-gradient(135deg, var(--primary), var(--accent))" }}>
-                      <span className="text-2xl">{emoji}</span>
+                  <Link
+                    key={event.id}
+                    href={`/events/${event.slug}`}
+                    className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-500 hover:shadow-xl hover:-translate-y-2 hover:border-primary/40"
+                  >
+                    {/* Hero image at top */}
+                    <div className="relative h-44 sm:h-52 overflow-hidden bg-bg-subtle flex-shrink-0">
+                      {event.heroImage ? (
+                        <img
+                          src={event.heroImage}
+                          alt={event.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div
+                          className="w-full h-full flex items-center justify-center"
+                          style={{
+                            background: `linear-gradient(135deg, ${event.themeColor || "#ff7a00"}30 0%, ${event.themeColor || "#009e60"}30 100%)`,
+                          }}
+                        />
+                      )}
+
+                      {/* Color accent bar at top */}
+                      <div
+                        className="absolute top-0 left-0 right-0 h-1.5"
+                        style={{ background: event.themeColor || "linear-gradient(90deg, var(--primary), var(--accent))" }}
+                      />
+
+                      {/* Countdown badge */}
+                      {daysUntil > 0 && (
+                        <div
+                          className="absolute top-3 right-3 px-3 py-1.5 rounded-full text-white text-xs font-bold uppercase tracking-wider shadow-lg"
+                          style={{ background: event.themeColor || "var(--primary)" }}
+                        >
+                          dans {daysUntil}j
+                        </div>
+                      )}
                     </div>
 
                     {/* Card content */}
-                    <div className="event-card-content">
-                      {/* Date & countdown */}
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-muted group-hover:text-primary transition-colors">
-                          {new Date(event.date).toLocaleDateString("fr-FR", { month: "short", day: "numeric", year: "numeric" })}
-                        </span>
-                        {daysUntil > 0 && (
-                          <span className="chip chip-primary text-[9px]">
-                            dans {daysUntil}j
-                          </span>
-                        )}
-                      </div>
+                    <div className="flex flex-col flex-1 p-6">
+                      {/* Date */}
+                      <p className="text-xs uppercase tracking-[0.2em] text-text-secondary font-semibold mb-3">
+                        {new Date(event.date).toLocaleDateString("fr-FR", { month: "long", day: "numeric", year: "numeric" })}
+                      </p>
 
                       {/* Title */}
-                      <h3 className="event-card-title group-hover:text-primary transition-colors">
+                      <h3 className="font-serif text-xl sm:text-2xl font-medium text-foreground mb-2 leading-tight group-hover:text-primary transition-colors">
                         {event.title}
                       </h3>
 
                       {/* Tagline */}
                       {event.tagline && (
-                        <p className="text-sm text-primary/75 font-medium mb-3">{event.tagline}</p>
+                        <p className="text-sm text-primary/80 font-medium mb-3">{event.tagline}</p>
                       )}
 
                       {/* Description */}
-                      <p className="text-sm text-muted line-clamp-2 mb-4 font-light">{event.description}</p>
+                      <p className="text-sm text-text-secondary line-clamp-2 mb-4 font-light leading-relaxed flex-1">
+                        {event.description}
+                      </p>
 
                       {/* Location */}
-                      <div className="flex items-center gap-2 text-xs text-muted mb-4 uppercase tracking-wider">
-                        <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                      <div className="flex items-center gap-2 text-xs text-text-secondary mb-4 uppercase tracking-wider">
+                        <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-primary" />
                         <span className="truncate">{event.venue}, {event.city}</span>
                       </div>
 
                       {/* Meta footer */}
-                      <div className="event-card-meta">
-                        <span className="event-card-meta-item">
-                          <Users className="w-3.5 h-3.5" />
-                          {event._count.subscribers}/{event.maxAttendees}
-                        </span>
-                        <span className="event-card-meta-item">
-                          {event._count.panelists} intervenants
-                        </span>
-                        <ArrowUpRight className="w-4 h-4 text-primary ml-auto opacity-0 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+                      <div className="flex items-center justify-between pt-4 border-t border-border">
+                        <div className="flex items-center gap-3 text-xs text-text-secondary font-medium">
+                          <span className="flex items-center gap-1.5">
+                            <Users className="w-3.5 h-3.5 text-primary" />
+                            {event._count.subscribers}/{event.maxAttendees}
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <Star className="w-3.5 h-3.5 text-primary" />
+                            {event._count.panelists}
+                          </span>
+                        </div>
+                        <ArrowUpRight className="w-5 h-5 text-muted group-hover:text-primary opacity-0 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
                       </div>
                     </div>
                   </Link>

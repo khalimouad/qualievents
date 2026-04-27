@@ -35,6 +35,7 @@ model Event {
   latitude     Float?
   longitude    Float?
   heroImage    String?
+  gallery      String[] @default([])
   themeColor   String?
   maxAttendees Int      @default(500)
   isPublished  Boolean  @default(false)
@@ -53,6 +54,20 @@ model Event {
   newsletters  Newsletter[]
   sponsors     Sponsor[]
   payments     Payment[]
+  infoRequests InfoRequest[]
+}
+
+model InfoRequest {
+  id        String   @id @default(uuid())
+  firstName String
+  lastName  String
+  email     String
+  phone     String?
+  company   String?
+  message   String?
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }
 
 model Subscriber {

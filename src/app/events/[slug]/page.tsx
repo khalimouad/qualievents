@@ -8,6 +8,8 @@ import CountdownTimer from "@/components/CountdownTimer";
 import SpeakerCard from "@/components/SpeakerCard";
 import SponsorBadge from "@/components/SponsorBadge";
 import EventMap from "@/components/EventMap";
+import EventGallery from "@/components/EventGallery";
+import InfoRequestForm from "@/components/InfoRequestForm";
 import { prisma } from "@/lib/prisma";
 import { t } from "@/lib/i18n";
 
@@ -56,6 +58,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   const eventDate = new Date(event.date);
   const formattedDate = eventDate.toLocaleDateString("fr-FR", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
   const dayCount = event.endDate ? Math.ceil((new Date(event.endDate).getTime() - eventDate.getTime()) / (1000 * 60 * 60 * 24)) : 1;
+  const isPastEvent = eventDate.getTime() <= Date.now();
 
   const platinumSponsors = event.sponsors.filter((s) => s.tier === "platinum");
   const goldSponsors = event.sponsors.filter((s) => s.tier === "gold");
@@ -93,8 +96,14 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         </div>
 
         <div className="relative z-10 max-w-5xl mx-auto px-4 text-center pt-20 pb-12">
+          {isPastEvent && (
+            <div className="inline-flex items-center gap-2 px-4 py-2 mb-4 rounded-full bg-foreground/10 border border-foreground/20 animate-fade-in-down">
+              <Clock className="w-3.5 h-3.5 text-text-secondary" />
+              <span className="text-text-secondary text-xs font-bold uppercase tracking-wider">{t.event.pastBadge}</span>
+            </div>
+          )}
           <div className="inline-flex items-center gap-2.5 glass rounded-full px-5 py-2.5 mb-6 animate-fade-in-down">
-            <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+            <div className={`w-2 h-2 rounded-full ${isPastEvent ? "bg-text-muted" : "bg-success animate-pulse"}`} />
             <Calendar className="w-3.5 h-3.5 text-primary" />
             <span className="text-foreground/80 text-sm font-medium">{formattedDate}</span>
           </div>
@@ -124,35 +133,47 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
             ))}
           </div>
 
-          <div className="mb-4 animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.4s" }}>
-            <CountdownTimer targetDate={event.date.toISOString()} />
-          </div>
+          {!isPastEvent && (
+            <div className="mb-4 animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.4s" }}>
+              <CountdownTimer targetDate={event.date.toISOString()} />
+            </div>
+          )}
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.5s" }}>
-            <Link href={registerUrl} className="btn-primary px-9 py-4 text-base inline-flex items-center justify-center gap-2.5 animate-pulse-glow">
-              <Sparkles className="w-4 h-4" /> {t.nav.registerNow} <ArrowRight className="w-4 h-4" />
-            </Link>
-            <a href="#about" className="btn-secondary px-9 py-4 text-base inline-flex items-center justify-center">{t.event.learnMore}</a>
+            {!isPastEvent ? (
+              <>
+                <Link href={registerUrl} className="btn-primary px-9 py-4 text-base inline-flex items-center justify-center gap-2.5 animate-pulse-glow">
+                  <Sparkles className="w-4 h-4" /> {t.nav.registerNow} <ArrowRight className="w-4 h-4" />
+                </Link>
+                <a href="#about" className="btn-secondary px-9 py-4 text-base inline-flex items-center justify-center">{t.event.learnMore}</a>
+              </>
+            ) : (
+              <a href="#info-request" className="btn-primary px-9 py-4 text-base inline-flex items-center justify-center gap-2.5">
+                <Sparkles className="w-4 h-4" /> {t.event.infoRequest.submit}
+              </a>
+            )}
           </div>
 
-          {/* Add to Calendar */}
-          <div className="mt-6 flex items-center justify-center gap-3 animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.6s" }}>
-            <a
-              href={calendarIcsUrl}
-              className="inline-flex items-center gap-2 text-text-secondary hover:text-foreground text-sm transition-colors"
-            >
-              <CalendarPlus className="w-4 h-4" /> {t.event.downloadIcs}
-            </a>
-            <span className="text-foreground/20">|</span>
-            <a
-              href={googleCalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-text-secondary hover:text-foreground text-sm transition-colors"
-            >
-              <Calendar className="w-4 h-4" /> {t.event.googleCalendar}
-            </a>
-          </div>
+          {/* Add to Calendar — only for upcoming */}
+          {!isPastEvent && (
+            <div className="mt-6 flex items-center justify-center gap-3 animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.6s" }}>
+              <a
+                href={calendarIcsUrl}
+                className="inline-flex items-center gap-2 text-text-secondary hover:text-foreground text-sm transition-colors"
+              >
+                <CalendarPlus className="w-4 h-4" /> {t.event.downloadIcs}
+              </a>
+              <span className="text-foreground/20">|</span>
+              <a
+                href={googleCalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-text-secondary hover:text-foreground text-sm transition-colors"
+              >
+                <Calendar className="w-4 h-4" /> {t.event.googleCalendar}
+              </a>
+            </div>
+          )}
         </div>
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-fade-in" style={{ animationDelay: "1.5s", opacity: 0, animationFillMode: "forwards" }}>
           <div className="w-5 h-9 border border-black/10 dark:border-white/20 rounded-full flex items-start justify-center p-1.5">
@@ -252,23 +273,47 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         </section>
       )}
 
-      {/* CTA */}
-      <section className="relative py-10 overflow-hidden bg-background noise-overlay">
-        <div className="absolute inset-0 grid-pattern" />
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[100px]" />
-        </div>
-        <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
-          <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-6 leading-tight">{t.event.readyJoin} <span className="text-gradient">{t.event.readyJoinAccent}</span> ?</h2>
-          <p className="text-text-secondary text-lg mb-6 max-w-xl mx-auto">{t.event.readyJoinSub}</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href={registerUrl} className="btn-primary px-9 py-4 text-base inline-flex items-center justify-center gap-2.5">
-              <Sparkles className="w-4 h-4" /> {t.nav.registerNow} <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link href={badgeUrl} className="btn-secondary px-9 py-4 text-base inline-flex items-center justify-center">{t.nav.getBadge}</Link>
+      {/* GALLERY — for events that have photos */}
+      {event.gallery && event.gallery.length > 0 && (
+        <section id="gallery" className="py-8 sm:py-12 bg-background noise-overlay relative">
+          <div className="absolute inset-0 grid-pattern opacity-50" />
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-8">
+              <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.event.gallery}</span>
+              <h2 className="text-2xl sm:text-4xl font-bold text-foreground mt-3 mb-3">{t.event.galleryTitle}</h2>
+              <p className="text-text-secondary max-w-xl mx-auto">{t.event.gallerySub}</p>
+            </div>
+            <EventGallery images={event.gallery} />
           </div>
-        </div>
-      </section>
+        </section>
+      )}
+
+      {/* CTA / Info Request */}
+      {isPastEvent ? (
+        <section id="info-request" className="relative py-12 overflow-hidden bg-background noise-overlay">
+          <div className="absolute inset-0 grid-pattern" />
+          <div className="relative z-10 max-w-3xl mx-auto px-4">
+            <InfoRequestForm eventId={event.id} />
+          </div>
+        </section>
+      ) : (
+        <section className="relative py-10 overflow-hidden bg-background noise-overlay">
+          <div className="absolute inset-0 grid-pattern" />
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[100px]" />
+          </div>
+          <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
+            <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-6 leading-tight">{t.event.readyJoin} <span className="text-gradient">{t.event.readyJoinAccent}</span> ?</h2>
+            <p className="text-text-secondary text-lg mb-6 max-w-xl mx-auto">{t.event.readyJoinSub}</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href={registerUrl} className="btn-primary px-9 py-4 text-base inline-flex items-center justify-center gap-2.5">
+                <Sparkles className="w-4 h-4" /> {t.nav.registerNow} <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link href={badgeUrl} className="btn-secondary px-9 py-4 text-base inline-flex items-center justify-center">{t.nav.getBadge}</Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       <Footer />
     </>
