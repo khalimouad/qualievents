@@ -222,7 +222,7 @@ export default function NewsletterBuilder({ value, onChange, subject, onSubjectC
           </div>
 
           {/* Inspector */}
-          <aside className="rounded-lg border border-border bg-card p-3 self-start sticky top-2 lg:max-h-[80vh] overflow-auto">
+          <aside className="rounded-lg border border-border bg-card p-3 lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-2rem)] lg:overflow-auto">
             <p className="text-[10px] font-semibold text-text-secondary uppercase tracking-wider mb-2">Propriétés</p>
             {selected ? (
               <BlockEditor
