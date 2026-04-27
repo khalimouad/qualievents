@@ -136,8 +136,26 @@ export default function EventSponsorsPage({ params }: { params: Promise<{ slug: 
                   <Trash2 className="w-3 h-3" />
                 </button>
               </div>
-              <div className="h-12 flex items-center justify-center mb-2">
-                {s.logo ? <img src={s.logo} alt={s.name} className="max-h-12 max-w-full object-contain" /> : <Award className="w-6 h-6 text-text-secondary" />}
+              <div className="h-14 flex items-center justify-center mb-2 bg-subtle rounded-md p-1.5">
+                {s.logo ? (
+                  <img
+                    src={s.logo}
+                    alt={s.name}
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
+                    className="max-h-full max-w-full object-contain"
+                    onError={(e) => {
+                      const img = e.currentTarget;
+                      img.style.display = "none";
+                      const fallback = img.nextElementSibling as HTMLElement | null;
+                      if (fallback) fallback.style.display = "block";
+                    }}
+                  />
+                ) : null}
+                <Award
+                  className="w-6 h-6 text-text-secondary"
+                  style={{ display: s.logo ? "none" : "block" }}
+                />
               </div>
               <p className="text-xs font-bold text-foreground truncate">{s.name}</p>
               <span className={`inline-block mt-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${tierColors[s.tier] || tierColors.gold}`}>{s.tier}</span>

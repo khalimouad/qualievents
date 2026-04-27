@@ -59,9 +59,15 @@ export default function ImageUpload({ value, onChange, type, label = "Image" }: 
     <div>
       <label className="text-[10px] font-semibold text-text-secondary uppercase tracking-wider mb-1.5 block">{label}</label>
       {value ? (
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <img src={value} alt="" className="h-24 w-24 rounded-lg border border-border object-cover" />
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="relative h-24 min-w-[6rem] max-w-[14rem] inline-flex items-center justify-center rounded-lg border border-border bg-subtle p-2 overflow-hidden">
+            <img
+              src={value}
+              alt=""
+              className="max-h-full max-w-full object-contain"
+              loading="lazy"
+              onError={(e) => { e.currentTarget.style.opacity = "0.4"; }}
+            />
             {uploading && (
               <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center">
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
