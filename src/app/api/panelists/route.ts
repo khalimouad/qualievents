@@ -14,9 +14,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const body = await req.json();
 
-  if (!body.firstName || !body.lastName || !body.email || !body.bio || !body.eventId) {
+  if (!body.firstName || !body.lastName || !body.eventId) {
     return NextResponse.json(
-      { error: "First name, last name, email, bio, and event ID are required" },
+      { error: "First name, last name, and event ID are required" },
       { status: 400 }
     );
   }
@@ -25,9 +25,9 @@ export async function POST(req: NextRequest) {
     data: {
       firstName: body.firstName,
       lastName: body.lastName,
-      email: body.email,
+      email: body.email || null,
       phone: body.phone || null,
-      bio: body.bio,
+      bio: body.bio || null,
       company: body.company || null,
       jobTitle: body.jobTitle || null,
       photo: body.photo || null,

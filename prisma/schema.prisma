@@ -114,9 +114,9 @@ model Panelist {
   id        String  @id @default(uuid())
   firstName String
   lastName  String
-  email     String
+  email     String?
   phone     String?
-  bio       String
+  bio       String?
   company   String?
   jobTitle  String?
   photo     String?

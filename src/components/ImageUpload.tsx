@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Upload, X, ImageIcon } from "lucide-react";
+import { Upload, X, RefreshCw } from "lucide-react";
 
 interface ImageUploadProps {
   value: string;
@@ -43,6 +43,8 @@ export default function ImageUpload({ value, onChange, type, label = "Image" }: 
   const onFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) handleFile(file);
+    // reset so re-selecting the same file fires onChange
+    e.target.value = "";
   };
 
   const onDrop = (e: React.DragEvent) => {
@@ -51,33 +53,53 @@ export default function ImageUpload({ value, onChange, type, label = "Image" }: 
     if (file) handleFile(file);
   };
 
+  const openPicker = () => inputRef.current?.click();
+
   return (
     <div>
-      <label className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1.5 block">{label}</label>
+      <label className="text-[10px] font-semibold text-text-secondary uppercase tracking-wider mb-1.5 block">{label}</label>
       {value ? (
-        <div className="relative inline-block group">
-          <img src={value} alt="" className="h-24 rounded-lg border border-gray-200 object-cover" />
-          <button
-            type="button"
-            onClick={() => onChange("")}
-            className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-danger text-foreground rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <X className="w-3 h-3" />
-          </button>
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <img src={value} alt="" className="h-24 w-24 rounded-lg border border-border object-cover" />
+            {uploading && (
+              <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={openPicker}
+              disabled={uploading}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-subtle border border-border text-text-secondary hover:text-foreground hover:border-primary text-xs font-medium transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className="w-3 h-3" /> Remplacer
+            </button>
+            <button
+              type="button"
+              onClick={() => onChange("")}
+              disabled={uploading}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-danger hover:bg-danger/10 text-xs font-medium transition-colors disabled:opacity-50"
+            >
+              <X className="w-3 h-3" /> Retirer
+            </button>
+          </div>
         </div>
       ) : (
         <div
-          onClick={() => inputRef.current?.click()}
+          onClick={openPicker}
           onDragOver={(e) => e.preventDefault()}
           onDrop={onDrop}
-          className="h-24 border-2 border-dashed border-gray-200 rounded-lg flex items-center justify-center cursor-pointer hover:border-primary/30 hover:bg-primary/[0.02] transition-colors"
+          className="h-24 border-2 border-dashed border-border rounded-lg flex items-center justify-center cursor-pointer hover:border-primary/40 hover:bg-primary/[0.04] transition-colors"
         >
           {uploading ? (
-            <div className="w-5 h-5 border-2 border-gray-200 border-t-primary rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-border border-t-primary rounded-full animate-spin" />
           ) : (
             <div className="text-center">
-              <Upload className="w-5 h-5 text-foreground/80 mx-auto mb-1" />
-              <p className="text-[10px] text-muted">Click or drag</p>
+              <Upload className="w-5 h-5 text-text-secondary mx-auto mb-1" />
+              <p className="text-[10px] text-text-secondary">Cliquer ou déposer</p>
             </div>
           )}
         </div>

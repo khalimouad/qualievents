@@ -3,7 +3,7 @@ import { ExternalLink, Globe } from "lucide-react";
 interface SpeakerCardProps {
   firstName: string;
   lastName: string;
-  bio: string;
+  bio?: string | null;
   company?: string | null;
   jobTitle?: string | null;
   topic?: string | null;
@@ -75,7 +75,7 @@ export default function SpeakerCard({
         )}
 
         {/* Bio */}
-        <p className="text-text-secondary text-xs mt-4 line-clamp-3 leading-relaxed">{bio}</p>
+        {bio && <p className="text-text-secondary text-xs mt-4 line-clamp-3 leading-relaxed">{bio}</p>}
 
         {/* Social links */}
         <div className="flex justify-center gap-2 mt-4 pt-4 border-t border-white/5">

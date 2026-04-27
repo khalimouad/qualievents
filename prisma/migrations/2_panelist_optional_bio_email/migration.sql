@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Panelist" ALTER COLUMN "email" DROP NOT NULL;
+ALTER TABLE "Panelist" ALTER COLUMN "bio" DROP NOT NULL;

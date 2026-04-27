@@ -6,7 +6,8 @@ import ImageUpload from "@/components/ImageUpload";
 import { t } from "@/lib/i18n";
 
 interface Panelist {
-  id: string; firstName: string; lastName: string; email: string; bio: string;
+  id: string; firstName: string; lastName: string;
+  email: string | null; bio: string | null;
   company: string | null; jobTitle: string | null; topic: string | null;
   linkedin: string | null; twitter: string | null; photo: string | null;
 }
@@ -44,8 +45,8 @@ export default function EventPanelistsPage({ params }: { params: Promise<{ slug:
   const startEdit = (p: Panelist) => {
     setEditingId(p.id);
     setForm({
-      firstName: p.firstName, lastName: p.lastName, email: p.email,
-      bio: p.bio, company: p.company || "", jobTitle: p.jobTitle || "",
+      firstName: p.firstName, lastName: p.lastName, email: p.email || "",
+      bio: p.bio || "", company: p.company || "", jobTitle: p.jobTitle || "",
       topic: p.topic || "", linkedin: p.linkedin || "",
       twitter: p.twitter || "", photo: p.photo || "",
     });
@@ -104,14 +105,14 @@ export default function EventPanelistsPage({ params }: { params: Promise<{ slug:
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div><label className={labelClass}>{t.register.firstName} *</label><input required value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} className={`${inputClass} w-full`} /></div>
             <div><label className={labelClass}>{t.register.lastName} *</label><input required value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} className={`${inputClass} w-full`} /></div>
-            <div><label className={labelClass}>{t.register.email} *</label><input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={`${inputClass} w-full`} /></div>
+            <div><label className={labelClass}>{t.register.email}</label><input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={`${inputClass} w-full`} /></div>
             <div><label className={labelClass}>{t.register.company}</label><input value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} className={`${inputClass} w-full`} /></div>
             <div><label className={labelClass}>{t.register.jobTitle}</label><input value={form.jobTitle} onChange={(e) => setForm({ ...form, jobTitle: e.target.value })} className={`${inputClass} w-full`} /></div>
             <div><label className={labelClass}>Sujet</label><input value={form.topic} onChange={(e) => setForm({ ...form, topic: e.target.value })} className={`${inputClass} w-full`} /></div>
             <div><label className={labelClass}>LinkedIn</label><input value={form.linkedin} onChange={(e) => setForm({ ...form, linkedin: e.target.value })} className={`${inputClass} w-full`} /></div>
             <div><label className={labelClass}>Twitter</label><input value={form.twitter} onChange={(e) => setForm({ ...form, twitter: e.target.value })} className={`${inputClass} w-full`} /></div>
           </div>
-          <div className="mt-3"><label className={labelClass}>Biographie *</label><textarea required value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} className={`${inputClass} w-full resize-none`} rows={2} /></div>
+          <div className="mt-3"><label className={labelClass}>Biographie</label><textarea value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} className={`${inputClass} w-full resize-none`} rows={2} /></div>
           <div className="mt-3"><ImageUpload value={form.photo} onChange={(url) => setForm({ ...form, photo: url })} type="panelists" label="Photo" /></div>
           <div className="flex items-center gap-2 mt-3">
             <button type="submit" className="btn-primary px-4 py-2 text-xs">
