@@ -75,48 +75,68 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
       <Navbar />
 
       {/* HERO */}
-      <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden bg-background noise-overlay">
+      <section className={`relative min-h-[80vh] flex items-center justify-center overflow-hidden ${event.heroImage ? "bg-black" : "bg-background noise-overlay"}`}>
         {/* Hero background image if set */}
         {event.heroImage && (
           <div className="absolute inset-0">
             <img src={event.heroImage} alt="" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-background/60 dark:bg-background/85 backdrop-blur-[2px] dark:backdrop-blur-0" />
+            {/* Theme-color tinted gradient overlay - keeps image visible */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background: `linear-gradient(135deg, ${event.themeColor || "#ff7a00"}66 0%, transparent 45%, ${event.themeColor || "#009e60"}55 100%)`,
+              }}
+            />
+            {/* Bottom-up dark gradient for text legibility */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/15" />
+            {/* Top vignette for navbar legibility */}
+            <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/40 to-transparent" />
           </div>
         )}
-        <div className="absolute inset-0 grid-pattern" />
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 -left-20 w-[500px] h-[500px] bg-primary/20 dark:bg-primary/8 rounded-full blur-[100px] animate-float-slow" />
-          <div className="absolute bottom-1/4 -right-20 w-[400px] h-[400px] bg-accent/25 dark:bg-accent/10 rounded-full blur-[80px] animate-float" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-primary/10 dark:bg-primary/3 rounded-full blur-[120px]" />
-        </div>
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-[15%] w-2 h-2 bg-primary/10 dark:bg-primary/30 rounded-full animate-float" />
-          <div className="absolute top-40 right-[20%] w-1.5 h-1.5 bg-white/20 rounded-full animate-float" style={{ animationDelay: "1s" }} />
-          <div className="absolute bottom-40 left-[25%] w-1 h-1 bg-primary/40 rounded-full animate-float" style={{ animationDelay: "2s" }} />
-        </div>
+        {!event.heroImage && (
+          <>
+            <div className="absolute inset-0 grid-pattern" />
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute top-1/4 -left-20 w-[500px] h-[500px] bg-primary/20 dark:bg-primary/8 rounded-full blur-[100px] animate-float-slow" />
+              <div className="absolute bottom-1/4 -right-20 w-[400px] h-[400px] bg-accent/25 dark:bg-accent/10 rounded-full blur-[80px] animate-float" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-primary/10 dark:bg-primary/3 rounded-full blur-[120px]" />
+            </div>
+          </>
+        )}
 
         <div className="relative z-10 max-w-5xl mx-auto px-4 text-center pt-20 pb-12">
           {isPastEvent && (
-            <div className="inline-flex items-center gap-2 px-4 py-2 mb-4 rounded-full bg-foreground/10 border border-foreground/20 animate-fade-in-down">
-              <Clock className="w-3.5 h-3.5 text-text-secondary" />
-              <span className="text-text-secondary text-xs font-bold uppercase tracking-wider">{t.event.pastBadge}</span>
+            <div className={`inline-flex items-center gap-2 px-4 py-2 mb-4 rounded-full animate-fade-in-down ${event.heroImage ? "bg-white/15 backdrop-blur-md border border-white/25" : "bg-foreground/10 border border-foreground/20"}`}>
+              <Clock className={`w-3.5 h-3.5 ${event.heroImage ? "text-white" : "text-text-secondary"}`} />
+              <span className={`text-xs font-bold uppercase tracking-wider ${event.heroImage ? "text-white" : "text-text-secondary"}`}>{t.event.pastBadge}</span>
             </div>
           )}
-          <div className="inline-flex items-center gap-2.5 glass rounded-full px-5 py-2.5 mb-6 animate-fade-in-down">
-            <div className={`w-2 h-2 rounded-full ${isPastEvent ? "bg-text-muted" : "bg-success animate-pulse"}`} />
-            <Calendar className="w-3.5 h-3.5 text-primary" />
-            <span className="text-foreground/80 text-sm font-medium">{formattedDate}</span>
+          <div className={`inline-flex items-center gap-2.5 rounded-full px-5 py-2.5 mb-6 animate-fade-in-down ${event.heroImage ? "bg-white/15 backdrop-blur-xl border border-white/25 shadow-xl" : "glass"}`}>
+            <div className={`w-2 h-2 rounded-full ${isPastEvent ? "bg-white/60" : "bg-success animate-pulse"}`} />
+            <Calendar className={`w-3.5 h-3.5 ${event.heroImage ? "text-white" : "text-primary"}`} />
+            <span className={`text-sm font-medium ${event.heroImage ? "text-white" : "text-foreground/80"}`}>{formattedDate}</span>
           </div>
 
           {event.tagline && (
-            <p className="text-primary text-sm font-semibold uppercase tracking-[0.2em] mb-4 animate-fade-in-up">{event.tagline}</p>
+            <p
+              className={`text-sm font-semibold uppercase tracking-[0.2em] mb-4 animate-fade-in-up ${event.heroImage ? "text-white" : "text-primary"}`}
+              style={event.heroImage ? { textShadow: `0 2px 16px ${event.themeColor || "#ff7a00"}, 0 0 40px rgba(0,0,0,0.6)` } : undefined}
+            >
+              {event.tagline}
+            </p>
           )}
 
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-foreground mb-4 leading-[0.95] tracking-tight animate-fade-in-up">
+          <h1
+            className={`text-4xl sm:text-5xl md:text-7xl font-bold mb-4 leading-[0.95] tracking-tight animate-fade-in-up ${event.heroImage ? "text-white" : "text-foreground"}`}
+            style={event.heroImage ? { textShadow: "0 4px 32px rgba(0,0,0,0.7), 0 2px 8px rgba(0,0,0,0.5)" } : undefined}
+          >
             {event.title}
           </h1>
 
-          <p className="text-base sm:text-lg text-text-secondary max-w-2xl mx-auto mb-6 leading-relaxed animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.2s" }}>
+          <p
+            className={`text-base sm:text-lg max-w-2xl mx-auto mb-6 leading-relaxed animate-fade-in-up ${event.heroImage ? "text-white/95" : "text-text-secondary"}`}
+            style={event.heroImage ? { opacity: 0, animationFillMode: "forwards", animationDelay: "0.2s", textShadow: "0 2px 16px rgba(0,0,0,0.7)" } : { opacity: 0, animationFillMode: "forwards", animationDelay: "0.2s" }}
+          >
             {event.description}
           </p>
 
@@ -126,16 +146,19 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
               { icon: <Users className="w-4 h-4" />, text: `${event._count.subscribers} / ${event.maxAttendees}` },
               { icon: <Clock className="w-4 h-4" />, text: `${dayCount} ${dayCount > 1 ? t.event.daysP : t.event.days}` },
             ].map((pill) => (
-              <div key={pill.text} className="glass rounded-full px-4 py-2 flex items-center gap-2 text-sm">
-                <span className="text-primary">{pill.icon}</span>
-                <span className="text-foreground/80">{pill.text}</span>
+              <div
+                key={pill.text}
+                className={`rounded-full px-4 py-2 flex items-center gap-2 text-sm ${event.heroImage ? "bg-white/15 backdrop-blur-xl border border-white/25 shadow-lg" : "glass"}`}
+              >
+                <span className={event.heroImage ? "text-white" : "text-primary"}>{pill.icon}</span>
+                <span className={event.heroImage ? "text-white" : "text-foreground/80"}>{pill.text}</span>
               </div>
             ))}
           </div>
 
           {!isPastEvent && (
             <div className="mb-4 animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.4s" }}>
-              <CountdownTimer targetDate={event.date.toISOString()} />
+              <CountdownTimer targetDate={event.date.toISOString()} onImage={!!event.heroImage} />
             </div>
           )}
 
@@ -145,7 +168,16 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
                 <Link href={registerUrl} className="btn-primary px-9 py-4 text-base inline-flex items-center justify-center gap-2.5 animate-pulse-glow">
                   <Sparkles className="w-4 h-4" /> {t.nav.registerNow} <ArrowRight className="w-4 h-4" />
                 </Link>
-                <a href="#about" className="btn-secondary px-9 py-4 text-base inline-flex items-center justify-center">{t.event.learnMore}</a>
+                <a
+                  href="#about"
+                  className={`px-9 py-4 text-base inline-flex items-center justify-center font-semibold rounded-full transition-all ${
+                    event.heroImage
+                      ? "bg-white/15 backdrop-blur-xl border-2 border-white/40 text-white hover:bg-white/25 shadow-lg"
+                      : "btn-secondary"
+                  }`}
+                >
+                  {t.event.learnMore}
+                </a>
               </>
             ) : (
               <a href="#info-request" className="btn-primary px-9 py-4 text-base inline-flex items-center justify-center gap-2.5">
@@ -159,25 +191,25 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
             <div className="mt-6 flex items-center justify-center gap-3 animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.6s" }}>
               <a
                 href={calendarIcsUrl}
-                className="inline-flex items-center gap-2 text-text-secondary hover:text-foreground text-sm transition-colors"
+                className={`inline-flex items-center gap-2 text-sm transition-colors ${event.heroImage ? "text-white/85 hover:text-white" : "text-text-secondary hover:text-foreground"}`}
               >
                 <CalendarPlus className="w-4 h-4" /> {t.event.downloadIcs}
               </a>
-              <span className="text-foreground/20">|</span>
+              <span className={event.heroImage ? "text-white/40" : "text-foreground/20"}>|</span>
               <a
                 href={googleCalUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-text-secondary hover:text-foreground text-sm transition-colors"
+                className={`inline-flex items-center gap-2 text-sm transition-colors ${event.heroImage ? "text-white/85 hover:text-white" : "text-text-secondary hover:text-foreground"}`}
               >
                 <Calendar className="w-4 h-4" /> {t.event.googleCalendar}
               </a>
             </div>
           )}
         </div>
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-fade-in" style={{ animationDelay: "1.5s", opacity: 0, animationFillMode: "forwards" }}>
-          <div className="w-5 h-9 border border-black/10 dark:border-white/20 rounded-full flex items-start justify-center p-1.5">
-            <div className="w-0.5 h-2.5 bg-white/40 rounded-full animate-bounce" />
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-fade-in z-10" style={{ animationDelay: "1.5s", opacity: 0, animationFillMode: "forwards" }}>
+          <div className={`w-5 h-9 border rounded-full flex items-start justify-center p-1.5 ${event.heroImage ? "border-white/50" : "border-black/10 dark:border-white/20"}`}>
+            <div className={`w-0.5 h-2.5 rounded-full animate-bounce ${event.heroImage ? "bg-white/80" : "bg-foreground/40"}`} />
           </div>
         </div>
       </section>
