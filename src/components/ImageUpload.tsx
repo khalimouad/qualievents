@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { Upload, X, RefreshCw } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Upload, X, RefreshCw, AlertTriangle } from "lucide-react";
 
 interface ImageUploadProps {
   value: string;
@@ -13,7 +13,11 @@ interface ImageUploadProps {
 export default function ImageUpload({ value, onChange, type, label = "Image" }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [imgFailed, setImgFailed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Reset the broken-image flag when the value changes
+  useEffect(() => { setImgFailed(false); }, [value]);
 
   const handleFile = async (file: File) => {
     setUploading(true);
@@ -24,14 +28,16 @@ export default function ImageUpload({ value, onChange, type, label = "Image" }: 
       fd.append("type", type);
       const res = await fetch("/api/upload", { method: "POST", body: fd });
 
-      let data;
+      let data: { url?: string; error?: string } | null = null;
       try {
         data = await res.json();
       } catch {
         throw new Error(res.statusText || "Server error");
       }
 
-      if (!res.ok) throw new Error(data.error || "Upload failed");
+      if (!res.ok || !data?.url) {
+        throw new Error(data?.error || `Upload failed (${res.status})`);
+      }
       onChange(data.url);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Upload failed");
@@ -43,7 +49,6 @@ export default function ImageUpload({ value, onChange, type, label = "Image" }: 
   const onFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) handleFile(file);
-    // reset so re-selecting the same file fires onChange
     e.target.value = "";
   };
 
@@ -58,16 +63,31 @@ export default function ImageUpload({ value, onChange, type, label = "Image" }: 
   return (
     <div>
       <label className="text-[10px] font-semibold text-text-secondary uppercase tracking-wider mb-1.5 block">{label}</label>
+
       {value ? (
         <div className="flex items-center gap-3 flex-wrap">
-          <div className="relative h-24 min-w-[6rem] max-w-[14rem] inline-flex items-center justify-center rounded-lg border border-border bg-subtle p-2 overflow-hidden">
-            <img
-              src={value}
-              alt=""
-              className="max-h-full max-w-full object-contain"
-              loading="lazy"
-              onError={(e) => { e.currentTarget.style.opacity = "0.4"; }}
-            />
+          <div
+            onClick={openPicker}
+            className={`relative h-24 min-w-[6rem] max-w-[14rem] inline-flex items-center justify-center rounded-lg border bg-subtle p-2 overflow-hidden cursor-pointer transition-colors ${
+              imgFailed ? "border-warning/40 bg-warning/5" : "border-border hover:border-primary/40"
+            }`}
+            title={imgFailed ? "Image introuvable — cliquez pour la remplacer" : "Cliquer pour remplacer"}
+          >
+            {imgFailed ? (
+              <div className="text-center">
+                <AlertTriangle className="w-5 h-5 mx-auto mb-1 text-warning" />
+                <p className="text-[9px] text-warning font-medium">Image introuvable</p>
+              </div>
+            ) : (
+              <img
+                src={value}
+                alt={label}
+                className="max-h-full max-w-full object-contain"
+                loading="lazy"
+                referrerPolicy="no-referrer"
+                onError={() => setImgFailed(true)}
+              />
+            )}
             {uploading && (
               <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center">
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -105,11 +125,12 @@ export default function ImageUpload({ value, onChange, type, label = "Image" }: 
           ) : (
             <div className="text-center">
               <Upload className="w-5 h-5 text-text-secondary mx-auto mb-1" />
-              <p className="text-[10px] text-text-secondary">Cliquer ou déposer</p>
+              <p className="text-[10px] text-text-secondary">Cliquer ou déposer une image</p>
             </div>
           )}
         </div>
       )}
+
       <input
         ref={inputRef}
         type="file"
@@ -117,7 +138,12 @@ export default function ImageUpload({ value, onChange, type, label = "Image" }: 
         onChange={onFileSelect}
         className="hidden"
       />
-      {error && <p className="text-[10px] text-danger mt-1">{error}</p>}
+      {error && <p className="text-[11px] text-danger mt-1.5 font-medium">{error}</p>}
+      {imgFailed && !uploading && !error && (
+        <p className="text-[11px] text-warning mt-1.5">
+          Le fichier d&apos;origine n&apos;est plus disponible. Cliquez sur l&apos;aperçu ou « Remplacer » pour téléverser une nouvelle image.
+        </p>
+      )}
     </div>
   );
 }
