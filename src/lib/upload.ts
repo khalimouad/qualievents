@@ -22,11 +22,12 @@ export async function saveUploadedFile(
 
     const blob = await put(pathname, file, {
       access: "public",
-      token: process.env.BLOB_READ_WRITE_TOKEN,
     });
 
     return { url: blob.url };
   } catch (error) {
-    return { url: "", error: "Upload failed. Check your configuration." };
+    console.error("Upload error:", error);
+    const msg = error instanceof Error ? error.message : String(error);
+    return { url: "", error: `Upload failed: ${msg}` };
   }
 }
