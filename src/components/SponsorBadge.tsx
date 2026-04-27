@@ -23,14 +23,14 @@ const tierConfig: Record<string, { bg: string; border: string; text: string; siz
   silver: {
     bg: "bg-black/5 dark:bg-white/5 backdrop-blur-sm",
     border: "border-white/15 hover:border-white/25",
-    text: "text-foreground/80 text-sm font-semibold",
+    text: "text-foreground text-sm font-semibold",
     size: "p-5",
     glow: "from-white/15 to-transparent",
   },
   bronze: {
     bg: "bg-orange-500/10 backdrop-blur-sm",
     border: "border-orange-500/30 hover:border-orange-500/50",
-    text: "text-orange-200 text-xs font-semibold",
+    text: "text-foreground text-xs font-semibold",
     size: "p-4",
     glow: "from-orange-500/30 to-transparent",
   },

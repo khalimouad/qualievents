@@ -99,8 +99,8 @@ export default async function HomePage() {
           {/* Events grid */}
           {upcomingEvents.length === 0 ? (
             <div className="text-center py-20 rounded-2xl border border-border bg-bg-subtle">
-              <Calendar className="w-10 h-10 mx-auto mb-4 text-muted opacity-40" />
-              <p className="text-muted text-sm uppercase tracking-wider font-semibold">{t.home.noUpcoming}</p>
+              <Calendar className="w-10 h-10 mx-auto mb-4 text-text-secondary opacity-70" />
+              <p className="text-text-secondary text-sm uppercase tracking-wider font-semibold">{t.home.noUpcoming}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

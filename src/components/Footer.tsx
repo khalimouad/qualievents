@@ -15,7 +15,7 @@ export default function Footer() {
           <div className="md:col-span-4">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
-                <span className="text-foreground font-bold text-lg">Q</span>
+                <span className="text-white font-bold text-lg">Q</span>
               </div>
               <div>
                 <span className="text-foreground font-bold text-lg">
@@ -23,19 +23,19 @@ export default function Footer() {
                 </span>
               </div>
             </div>
-            <p className="text-muted text-sm leading-relaxed max-w-sm">
+            <p className="text-text-secondary text-sm leading-relaxed max-w-sm">
               Plateforme premium de gestion d&apos;événements. Créez des expériences inoubliables avec des outils puissants pour l&apos;inscription, les badges, les invitations, et plus encore.
             </p>
           </div>
 
           <div className="md:col-span-2">
-            <h4 className="text-xs uppercase tracking-[0.15em] text-muted font-semibold mb-4">Événement</h4>
+            <h4 className="text-xs uppercase tracking-[0.15em] text-text-secondary font-semibold mb-4">Événement</h4>
             <ul className="space-y-2.5">
-              <li><a href="#about" className="text-muted hover:text-foreground text-sm transition-colors">À propos</a></li>
-              <li><a href="#speakers" className="text-muted hover:text-foreground text-sm transition-colors">Intervenants</a></li>
-              <li><a href="#location" className="text-muted hover:text-foreground text-sm transition-colors">Lieu</a></li>
+              <li><a href="#about" className="text-text-secondary hover:text-foreground text-sm transition-colors">À propos</a></li>
+              <li><a href="#speakers" className="text-text-secondary hover:text-foreground text-sm transition-colors">Intervenants</a></li>
+              <li><a href="#location" className="text-text-secondary hover:text-foreground text-sm transition-colors">Lieu</a></li>
               <li>
-                <Link href="/register" className="text-muted hover:text-foreground text-sm transition-colors inline-flex items-center gap-1 group">
+                <Link href="/register" className="text-text-secondary hover:text-foreground text-sm transition-colors inline-flex items-center gap-1 group">
                   S&apos;inscrire
                   <ArrowUpRight className="w-3 h-3 opacity-0 -translate-y-0.5 group-hover:opacity-100 group-hover:translate-y-0 transition-all" />
                 </Link>
@@ -44,39 +44,39 @@ export default function Footer() {
           </div>
 
           <div className="md:col-span-2">
-            <h4 className="text-xs uppercase tracking-[0.15em] text-muted font-semibold mb-4">Participants</h4>
+            <h4 className="text-xs uppercase tracking-[0.15em] text-text-secondary font-semibold mb-4">Participants</h4>
             <ul className="space-y-2.5">
-              <li><Link href="/badge" className="text-muted hover:text-foreground text-sm transition-colors inline-flex items-center gap-1 group">Mon badge <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /></Link></li>
-              <li><Link href="/register" className="text-muted hover:text-foreground text-sm transition-colors inline-flex items-center gap-1 group">S&apos;inscrire <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /></Link></li>
+              <li><Link href="/badge" className="text-text-secondary hover:text-foreground text-sm transition-colors inline-flex items-center gap-1 group">Mon badge <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /></Link></li>
+              <li><Link href="/register" className="text-text-secondary hover:text-foreground text-sm transition-colors inline-flex items-center gap-1 group">S&apos;inscrire <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /></Link></li>
             </ul>
           </div>
 
           <div className="md:col-span-2">
-            <h4 className="text-xs uppercase tracking-[0.15em] text-muted font-semibold mb-4">Gestion</h4>
+            <h4 className="text-xs uppercase tracking-[0.15em] text-text-secondary font-semibold mb-4">Gestion</h4>
             <ul className="space-y-2.5">
-              <li><Link href="/admin" className="text-muted hover:text-foreground text-sm transition-colors inline-flex items-center gap-1 group">Tableau de bord <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /></Link></li>
-              <li><Link href="/scan" className="text-muted hover:text-foreground text-sm transition-colors">Scanner</Link></li>
+              <li><Link href="/admin" className="text-text-secondary hover:text-foreground text-sm transition-colors inline-flex items-center gap-1 group">Tableau de bord <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /></Link></li>
+              <li><Link href="/scan" className="text-text-secondary hover:text-foreground text-sm transition-colors">Scanner</Link></li>
             </ul>
           </div>
 
           <div className="md:col-span-2">
-            <h4 className="text-xs uppercase tracking-[0.15em] text-muted font-semibold mb-4">Contact</h4>
+            <h4 className="text-xs uppercase tracking-[0.15em] text-text-secondary font-semibold mb-4">Contact</h4>
             <ul className="space-y-2.5">
-              <li><a href="#" className="text-muted hover:text-foreground text-sm transition-colors">Contact</a></li>
-              <li><a href="#" className="text-muted hover:text-foreground text-sm transition-colors">Support</a></li>
-              <li><a href="#" className="text-muted hover:text-foreground text-sm transition-colors">Confidentialité</a></li>
+              <li><a href="#" className="text-text-secondary hover:text-foreground text-sm transition-colors">Contact</a></li>
+              <li><a href="#" className="text-text-secondary hover:text-foreground text-sm transition-colors">Support</a></li>
+              <li><a href="#" className="text-text-secondary hover:text-foreground text-sm transition-colors">Confidentialité</a></li>
             </ul>
           </div>
         </div>
 
         <div className="mt-14 pt-8 border-t border-white/5">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-muted text-xs">
+            <p className="text-text-secondary text-xs">
               &copy; {currentYear} QualiEvents. Conçu avec soin.
             </p>
             <div className="flex items-center gap-2">
               <span className="inline-block w-2 h-2 rounded-full bg-success animate-pulse" />
-              <span className="text-muted text-xs">Tous les systèmes sont opérationnels</span>
+              <span className="text-text-secondary text-xs">Tous les systèmes sont opérationnels</span>
             </div>
           </div>
         </div>

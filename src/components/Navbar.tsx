@@ -70,7 +70,7 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="link-spell text-[11px] font-semibold uppercase tracking-[0.1em] text-muted hover:text-foreground transition-colors"
+                  className="link-spell text-[11px] font-semibold uppercase tracking-[0.1em] text-text-secondary hover:text-foreground transition-colors"
                 >
                   {link.label}
                 </Link>
@@ -78,7 +78,7 @@ export default function Navbar() {
                 <a
                   key={link.href}
                   href={link.href}
-                  className="link-spell text-[11px] font-semibold uppercase tracking-[0.1em] text-muted hover:text-foreground transition-colors"
+                  className="link-spell text-[11px] font-semibold uppercase tracking-[0.1em] text-text-secondary hover:text-foreground transition-colors"
                 >
                   {link.label}
                 </a>

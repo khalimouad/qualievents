@@ -44,7 +44,7 @@ export default function SpeakerCard({
             />
           ) : (
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary via-accent to-secondary-light flex items-center justify-center ring-2 ring-white/10 group-hover:ring-primary/40 transition-all duration-500 group-hover:scale-105">
-              <span className="text-foreground text-xl font-bold">{initials}</span>
+              <span className="text-white text-xl font-bold">{initials}</span>
             </div>
           )}
           {/* Status dot */}
@@ -59,23 +59,23 @@ export default function SpeakerCard({
             {firstName} {lastName}
           </h3>
           {jobTitle && (
-            <p className="text-sm text-muted font-medium mt-0.5">{jobTitle}</p>
+            <p className="text-sm text-text-secondary font-medium mt-0.5">{jobTitle}</p>
           )}
           {company && (
-            <p className="text-xs text-muted mt-0.5">{company}</p>
+            <p className="text-xs text-text-secondary mt-0.5">{company}</p>
           )}
         </div>
 
         {/* Topic badge */}
         {topic && (
           <div className="mt-4 bg-gradient-to-r from-primary/10 to-accent/10 rounded-xl px-3 py-2.5 text-center border border-primary/20">
-            <p className="text-[10px] text-muted uppercase tracking-wider font-medium">Sujet</p>
+            <p className="text-[10px] text-primary uppercase tracking-wider font-medium">Sujet</p>
             <p className="text-xs font-semibold text-foreground mt-0.5 leading-snug">{topic}</p>
           </div>
         )}
 
         {/* Bio */}
-        <p className="text-muted text-xs mt-4 line-clamp-3 leading-relaxed">{bio}</p>
+        <p className="text-text-secondary text-xs mt-4 line-clamp-3 leading-relaxed">{bio}</p>
 
         {/* Social links */}
         <div className="flex justify-center gap-2 mt-4 pt-4 border-t border-white/5">
@@ -84,7 +84,7 @@ export default function SpeakerCard({
               href={linkedin}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-primary/20 flex items-center justify-center text-muted hover:text-primary transition-all duration-200"
+              className="w-8 h-8 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-primary/20 flex items-center justify-center text-text-secondary hover:text-primary transition-all duration-200"
             >
               <ExternalLink size={14} />
             </a>
@@ -94,7 +94,7 @@ export default function SpeakerCard({
               href={twitter}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-accent/20 flex items-center justify-center text-muted hover:text-accent transition-all duration-200"
+              className="w-8 h-8 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-accent/20 flex items-center justify-center text-text-secondary hover:text-accent transition-all duration-200"
             >
               <Globe size={14} />
             </a>

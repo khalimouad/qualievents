@@ -107,7 +107,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
             {event.title}
           </h1>
 
-          <p className="text-base sm:text-lg text-muted max-w-2xl mx-auto mb-6 leading-relaxed animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.2s" }}>
+          <p className="text-base sm:text-lg text-text-secondary max-w-2xl mx-auto mb-6 leading-relaxed animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.2s" }}>
             {event.description}
           </p>
 
@@ -139,16 +139,16 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
           <div className="mt-6 flex items-center justify-center gap-3 animate-fade-in-up" style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.6s" }}>
             <a
               href={calendarIcsUrl}
-              className="inline-flex items-center gap-2 text-muted hover:text-foreground text-sm transition-colors"
+              className="inline-flex items-center gap-2 text-text-secondary hover:text-foreground text-sm transition-colors"
             >
               <CalendarPlus className="w-4 h-4" /> {t.event.downloadIcs}
             </a>
-            <span className="text-gray-600">|</span>
+            <span className="text-foreground/20">|</span>
             <a
               href={googleCalUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-muted hover:text-foreground text-sm transition-colors"
+              className="inline-flex items-center gap-2 text-text-secondary hover:text-foreground text-sm transition-colors"
             >
               <Calendar className="w-4 h-4" /> {t.event.googleCalendar}
             </a>
@@ -169,7 +169,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
           <div className="text-center mb-6">
             <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.event.whyAttend}</span>
             <h2 className="text-2xl sm:text-4xl font-bold text-foreground mt-3 mb-5">{t.event.aboutEvent}</h2>
-            <p className="text-muted max-w-xl mx-auto">{t.event.aboutSub}</p>
+            <p className="text-text-secondary max-w-xl mx-auto">{t.event.aboutSub}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-4">
             {[
@@ -180,10 +180,10 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
               <div key={card.title} className="group relative">
                 <div className="relative bg-black/5 dark:bg-white/5 backdrop-blur-sm rounded-[20px] p-8 border border-black/5 dark:border-black/5 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 border-black/10 dark:border-white/20 transition-all duration-300">
                   <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${card.color} flex items-center justify-center mb-6 shadow-lg ${card.shadow} group-hover:scale-110 transition-transform duration-500`}>
-                    <span className="text-foreground">{card.icon}</span>
+                    <span className="text-white">{card.icon}</span>
                   </div>
                   <h3 className="text-xl font-bold text-foreground mb-3">{card.title}</h3>
-                  <p className="text-muted leading-relaxed">{card.desc}</p>
+                  <p className="text-text-secondary leading-relaxed">{card.desc}</p>
                 </div>
               </div>
             ))}
@@ -260,7 +260,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         </div>
         <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
           <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-6 leading-tight">{t.event.readyJoin} <span className="text-gradient">{t.event.readyJoinAccent}</span> ?</h2>
-          <p className="text-muted text-lg mb-6 max-w-xl mx-auto">{t.event.readyJoinSub}</p>
+          <p className="text-text-secondary text-lg mb-6 max-w-xl mx-auto">{t.event.readyJoinSub}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href={registerUrl} className="btn-primary px-9 py-4 text-base inline-flex items-center justify-center gap-2.5">
               <Sparkles className="w-4 h-4" /> {t.nav.registerNow} <ArrowRight className="w-4 h-4" />
