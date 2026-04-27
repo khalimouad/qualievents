@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, Users, UserCheck, Award, Send, Mail, CreditCard } from "lucide-react";
+import { LayoutGrid, Users, UserCheck, Award, Send, Mail, CreditCard, Image as ImageIcon } from "lucide-react";
 import { t } from "@/lib/i18n";
 
 export default function EventTabs({ slug }: { slug: string }) {
@@ -14,6 +14,7 @@ export default function EventTabs({ slug }: { slug: string }) {
     { href: `${base}/subscribers`, label: t.admin.subscribers, icon: Users },
     { href: `${base}/panelists`, label: t.admin.panelists, icon: UserCheck },
     { href: `${base}/sponsors`, label: t.admin.sponsors, icon: Award },
+    { href: `${base}/gallery`, label: "Galerie", icon: ImageIcon },
     { href: `${base}/invitations`, label: t.admin.invitations, icon: Send },
     { href: `${base}/newsletters`, label: t.admin.newsletters, icon: Mail },
     { href: `${base}/payments`, label: "Paiements", icon: CreditCard },

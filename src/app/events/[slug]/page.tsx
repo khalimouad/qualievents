@@ -10,6 +10,7 @@ import SponsorBadge from "@/components/SponsorBadge";
 import EventMap from "@/components/EventMap";
 import EventGallery from "@/components/EventGallery";
 import InfoRequestForm from "@/components/InfoRequestForm";
+import Carousel from "@/components/Carousel";
 import { prisma } from "@/lib/prisma";
 import { t } from "@/lib/i18n";
 
@@ -253,9 +254,9 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
               <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.event.meetExperts}</span>
               <h2 className="text-2xl sm:text-4xl font-bold text-foreground mt-3 mb-5">{t.event.speakersPanelists}</h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Carousel ariaLabel="Intervenants" itemClass="w-[260px] sm:w-[280px]">
               {event.panelists.map((p) => <SpeakerCard key={p.id} {...p} />)}
-            </div>
+            </Carousel>
           </div>
         </section>
       )}
@@ -283,21 +284,21 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
               <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">{t.event.ourPartners}</span>
               <h2 className="text-2xl sm:text-4xl font-bold text-foreground mt-3 mb-5">{t.event.sponsorsTitle}</h2>
             </div>
-            <div className="space-y-14">
-              {[{ label: "Platinum", items: platinumSponsors, cols: "grid-cols-1 sm:grid-cols-2", max: "max-w-2xl" },
-                { label: "Gold", items: goldSponsors, cols: "grid-cols-2 sm:grid-cols-3", max: "max-w-3xl" },
-                { label: "Silver", items: silverSponsors, cols: "grid-cols-2 sm:grid-cols-4", max: "max-w-3xl" },
-                { label: "Bronze", items: bronzeSponsors, cols: "grid-cols-3 sm:grid-cols-5", max: "max-w-3xl" },
+            <div className="space-y-10">
+              {[{ label: "Platinum", items: platinumSponsors, size: "w-[220px] sm:w-[260px]" },
+                { label: "Gold", items: goldSponsors, size: "w-[180px] sm:w-[200px]" },
+                { label: "Silver", items: silverSponsors, size: "w-[150px] sm:w-[170px]" },
+                { label: "Bronze", items: bronzeSponsors, size: "w-[130px] sm:w-[140px]" },
               ].filter((t) => t.items.length > 0).map((tier) => (
                 <div key={tier.label}>
-                  <div className="flex items-center gap-3 justify-center mb-6">
-                    <div className="h-px w-12 bg-gradient-to-r from-transparent to-white/20" />
-                    <span className="text-xs uppercase tracking-[0.2em] text-muted font-semibold">{tier.label}</span>
-                    <div className="h-px w-12 bg-gradient-to-l from-transparent to-white/20" />
+                  <div className="flex items-center gap-3 justify-center mb-5">
+                    <div className="h-px w-12 bg-gradient-to-r from-transparent to-border" />
+                    <span className="text-xs uppercase tracking-[0.2em] text-text-secondary font-semibold">{tier.label}</span>
+                    <div className="h-px w-12 bg-gradient-to-l from-transparent to-border" />
                   </div>
-                  <div className={`grid ${tier.cols} gap-4 ${tier.max} mx-auto`}>
+                  <Carousel ariaLabel={`Sponsors ${tier.label}`} itemClass={tier.size}>
                     {tier.items.map((s) => <SponsorBadge key={s.id} {...s} />)}
-                  </div>
+                  </Carousel>
                 </div>
               ))}
             </div>

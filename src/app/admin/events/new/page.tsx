@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import Link from "next/link";
 import ImageUpload from "@/components/ImageUpload";
-import GalleryUpload from "@/components/GalleryUpload";
 import CountryCitySelect from "@/components/CountryCitySelect";
 import { t } from "@/lib/i18n";
 
@@ -13,17 +12,12 @@ export default function NewEventPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [form, setForm] = useState<{
-    title: string; tagline: string; description: string; date: string; endDate: string;
-    venue: string; address: string; city: string; country: string; latitude: string; longitude: string;
-    themeColor: string; maxAttendees: string; isPublished: boolean; isPaid: boolean; ticketPrice: string;
-    heroImage: string; gallery: string[];
-  }>({
+  const [form, setForm] = useState({
     title: "", tagline: "", description: "", date: "", endDate: "", venue: "", address: "", city: "", country: "",
-    latitude: "", longitude: "", themeColor: "#ff7a00", maxAttendees: "500", isPublished: false, isPaid: false, ticketPrice: "", heroImage: "", gallery: [],
+    latitude: "", longitude: "", themeColor: "#ff7a00", maxAttendees: "500", isPublished: false, isPaid: false, ticketPrice: "", heroImage: "",
   });
 
-  const update = (field: string, value: string | boolean | string[]) => { setForm((f) => ({ ...f, [field]: value })); setError(""); };
+  const update = (field: string, value: string | boolean) => { setForm((f) => ({ ...f, [field]: value })); setError(""); };
 
   const updateLocation = (value: { country: string; city: string; lat?: number; lng?: number }) => {
     setForm((f) => ({
@@ -97,7 +91,7 @@ export default function NewEventPage() {
             </div>
           </div>
           <ImageUpload value={form.heroImage} onChange={(url) => update("heroImage", url)} type="events" label={t.admin.heroImage} />
-          <GalleryUpload value={form.gallery} onChange={(urls) => update("gallery", urls)} label="Galerie photos (événements passés)" />
+          <p className="text-[10px] text-text-secondary">La galerie photo se gère dans l&apos;onglet « Galerie » après création.</p>
         </div>
 
         <div className={`${cardClass} mt-3`}>
