@@ -103,6 +103,7 @@ model Event {
   infoRequests InfoRequest[]
   sessions     EventSession[]
   ticketTiers  EventTicketTier[]
+  certifications Certification[]
 }
 
 /// A programme that groups several events under one umbrella — e.g.
@@ -142,6 +143,28 @@ model EventSession {
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+/// Issued certificate for a participant of an event.
+/// Two flavours:
+///   PARTICIPATION — attestation de participation (everyone who attended)
+///   CERTIFIED     — examen réussi / certifying course (Lead Implementer, Risk Manager, …)
+/// Each row carries a verificationCode that's printed (and QR-encoded) on the
+/// PDF so anyone can confirm authenticity at /verify/<code>.
+model Certification {
+  id               String     @id @default(uuid())
+  eventId          String
+  event            Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  subscriberId     String     @unique
+  subscriber       Subscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  type             String     @default("PARTICIPATION") // PARTICIPATION | CERTIFIED
+  examPassed       Boolean?
+  pdfUrl           String?
+  verificationCode String     @unique
+  issuedAt         DateTime?
+  revoked          Boolean    @default(false)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 }
 
 /// A pricing tier on a paid event — "Standard", "Early bird", "Group 3+", etc.
@@ -199,6 +222,7 @@ model Subscriber {
   badge       Badge?
   payment     Payment? @relation(fields: [paymentId], references: [id])
   tier        EventTicketTier? @relation(fields: [tierId], references: [id], onDelete: SetNull)
+  certification Certification?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

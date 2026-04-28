@@ -86,6 +86,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // Public certificate verification endpoint
+  if (pathname.startsWith("/api/certifications/verify/") && method === "GET") {
+    return NextResponse.next();
+  }
+
   // Public read of tiers (under /api/events/[slug]/tiers GET) is already
   // covered by the events-GET rule above.
 
@@ -141,5 +146,6 @@ export const config = {
     "/api/sessions/:path*",
     "/api/tiers/:path*",
     "/api/series/:path*",
+    "/api/certifications/:path*",
   ],
 };
