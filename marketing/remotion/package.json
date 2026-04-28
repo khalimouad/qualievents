@@ -1,0 +1,24 @@
+{
+  "name": "qualiconnect-marketing-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "90-second vertical (9:16) sales video for QualiConnect — pure Remotion, no screenshots.",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "video": "remotion render src/index.ts QualiConnect out/qualiconnect.mp4",
+    "still": "remotion still src/index.ts QualiConnect out/cover.png --frame=60",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.0",
+    "lucide-react": "^0.460.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "remotion": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.0.0"
+  }
+}
