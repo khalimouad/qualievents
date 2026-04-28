@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/requireRole";
+import { rateLimit } from "@/lib/rateLimit";
 
 /**
  * GET /api/badges?code=XYZ          — public, anyone with the code can fetch
@@ -9,6 +10,10 @@ import { getSession } from "@/lib/requireRole";
  *                                     enumerate which emails are registered.
  */
 export async function GET(req: NextRequest) {
+  // Public endpoint — guard against brute-force enumeration of codes.
+  const rl = await rateLimit(req, { name: "badges.lookup", limit: 30, windowSec: 60 });
+  if (!rl.allowed) return rl.response!;
+
   const code = req.nextUrl.searchParams.get("code");
   const email = req.nextUrl.searchParams.get("email");
   const eventId = req.nextUrl.searchParams.get("eventId");

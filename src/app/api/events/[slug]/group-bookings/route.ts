@@ -5,6 +5,7 @@ import { generateBadgeCode, generateQRDataURL } from "@/lib/qrcode";
 import { sendEmail, buildBadgeEmail } from "@/lib/email";
 import { decrypt } from "@/lib/crypto";
 import { generateBookingReference } from "@/lib/invoice";
+import { rateLimit } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -69,6 +70,9 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const rl = await rateLimit(req, { name: "group-bookings", limit: 5, windowSec: 3600 });
+  if (!rl.allowed) return rl.response!;
+
   const { slug } = await params;
   const event = await prisma.event.findUnique({ where: { slug } });
   if (!event) return NextResponse.json({ error: "Événement introuvable" }, { status: 404 });

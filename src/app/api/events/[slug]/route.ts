@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, passThrough } from "@/lib/requireRole";
 import { encrypt } from "@/lib/crypto";
+import { audit } from "@/lib/audit";
 
 const VALID_FORMATS = new Set(["IN_PERSON", "ONLINE", "HYBRID"]);
 const VALID_TYPES = new Set([
@@ -121,5 +122,6 @@ export async function DELETE(
   }
 
   await prisma.event.delete({ where: { slug } });
+  audit(req, { action: "event.delete", resource: `Event:${slug}`, metadata: { title: event.title } });
   return NextResponse.json({ success: true });
 }

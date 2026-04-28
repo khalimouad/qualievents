@@ -14,15 +14,31 @@ interface SendEmailOptions {
   to: string;
   subject: string;
   html: string;
+  /**
+   * Optional one-click unsubscribe URL.
+   * When set, two RFC 8058 / 2369 headers are added:
+   *   List-Unsubscribe: <url>
+   *   List-Unsubscribe-Post: List-Unsubscribe=One-Click
+   * This flips the "unsubscribe" pill that Gmail / Apple Mail / Outlook
+   * surface inline in the message header — required for marketing volume
+   * + RGPD compliance.
+   */
+  unsubscribeUrl?: string;
 }
 
-export async function sendEmail({ to, subject, html }: SendEmailOptions) {
+export async function sendEmail({ to, subject, html, unsubscribeUrl }: SendEmailOptions) {
   try {
+    const headers: Record<string, string> = {};
+    if (unsubscribeUrl) {
+      headers["List-Unsubscribe"] = `<${unsubscribeUrl}>`;
+      headers["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click";
+    }
     const info = await transporter.sendMail({
       from: `"QualiEvents" <${process.env.SMTP_USER || "noreply@qualievents.com"}>`,
       to,
       subject,
       html,
+      headers: Object.keys(headers).length ? headers : undefined,
     });
     return { success: true, messageId: info.messageId };
   } catch (error) {

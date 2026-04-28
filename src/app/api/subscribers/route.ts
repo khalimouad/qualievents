@@ -4,6 +4,7 @@ import { generateBadgeCode, generateQRDataURL } from "@/lib/qrcode";
 import { requireAdmin, passThrough } from "@/lib/requireRole";
 import { sendEmail, buildBadgeEmail } from "@/lib/email";
 import { decrypt } from "@/lib/crypto";
+import { rateLimit } from "@/lib/rateLimit";
 
 export async function GET(req: NextRequest) {
   const eventId = req.nextUrl.searchParams.get("eventId");
@@ -29,6 +30,9 @@ export async function DELETE(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const rl = await rateLimit(req, { name: "subscribers.register", limit: 10, windowSec: 3600 });
+  if (!rl.allowed) return rl.response!;
+
   const body = await req.json();
 
   if (!body.firstName || !body.lastName || !body.email || !body.eventId) {

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth, passThrough } from "@/lib/requireRole";
 import { generateVerificationCode, renderCertificatePdf, type CertificationType } from "@/lib/certificate";
 import { sendEmail } from "@/lib/email";
+import { audit } from "@/lib/audit";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -160,5 +161,10 @@ export async function POST(
     }
   }
 
+  audit(req, {
+    action: "certification.issue",
+    resource: `Event:${event.slug}`,
+    metadata: { type, issued, skipped, failed, sendEmails, regenerate },
+  });
   return NextResponse.json({ issued, skipped, failed, errors });
 }

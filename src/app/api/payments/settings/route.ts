@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { encrypt, decrypt, maskSecret } from "@/lib/crypto";
 import { requireAdmin, passThrough } from "@/lib/requireRole";
 import { invalidateCredsCache } from "@/lib/cinetpay";
+import { audit } from "@/lib/audit";
 
 export const runtime = "nodejs";
 
@@ -103,5 +104,15 @@ export async function PUT(req: NextRequest) {
 
   const updated = await prisma.paymentSettings.update({ where: { id: row.id }, data });
   invalidateCredsCache();
+  audit(req, {
+    action: "payment.settings.update",
+    resource: `PaymentSettings:${updated.id}`,
+    metadata: {
+      // Don't log the secrets — only which fields changed.
+      changedFields: Object.keys(data).filter((k) => k !== "updatedById"),
+      mode: updated.mode,
+      enabled: updated.enabled,
+    },
+  });
   return NextResponse.json(maskRow(updated));
 }

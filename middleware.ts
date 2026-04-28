@@ -104,6 +104,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // Public one-click unsubscribe (token-protected via HMAC in the URL)
+  if (pathname.startsWith("/api/unsubscribe/")) {
+    return NextResponse.next();
+  }
+
   // Everything else under /admin, /scan or these /api/* matchers requires a session.
   const session = await verifySession(req);
   const isPage = pathname.startsWith("/admin") || pathname.startsWith("/scan");
@@ -118,8 +123,10 @@ export async function middleware(req: NextRequest) {
   const adminOnlyPrefixes = [
     "/admin/users",
     "/admin/settings",
+    "/admin/audit",
     "/api/users",
     "/api/payments/settings",
+    "/api/audit",
   ];
   if (adminOnlyPrefixes.some((p) => pathname.startsWith(p))) {
     if (session.role !== "admin") {
@@ -154,5 +161,6 @@ export const config = {
     "/api/certifications/:path*",
     "/api/documents/:path*",
     "/api/group-bookings/:path*",
+    "/api/audit/:path*",
   ],
 };

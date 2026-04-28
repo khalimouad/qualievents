@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, passThrough } from "@/lib/requireRole";
+import { audit } from "@/lib/audit";
 
 const safeFields = {
   id: true,
@@ -89,6 +90,17 @@ export async function PUT(
     },
     select: safeFields,
   });
+  audit(req, {
+    action: "user.update",
+    resource: `User:${id}`,
+    metadata: {
+      changes: {
+        ...(name !== undefined && name !== existing.name ? { name: { from: existing.name, to: name } } : {}),
+        ...(role !== undefined && role !== existing.role ? { role: { from: existing.role, to: role } } : {}),
+        ...(active !== undefined && active !== existing.active ? { active: { from: existing.active, to: active } } : {}),
+      },
+    },
+  });
   return NextResponse.json(updated);
 }
 
@@ -120,5 +132,6 @@ export async function DELETE(
   }
 
   await prisma.adminUser.delete({ where: { id } });
+  audit(req, { action: "user.delete", resource: `User:${id}`, metadata: { email: existing.email } });
   return NextResponse.json({ success: true });
 }

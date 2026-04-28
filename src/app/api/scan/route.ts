@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { rateLimit } from "@/lib/rateLimit";
 
 export async function GET(req: NextRequest) {
+  const rl = await rateLimit(req, { name: "scan", limit: 60, windowSec: 60 });
+  if (!rl.allowed) return rl.response!;
+
   const code = req.nextUrl.searchParams.get("code");
   if (!code) {
     return NextResponse.json({ error: "Badge code required" }, { status: 400 });

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth";
 import { requireAdmin, passThrough } from "@/lib/requireRole";
+import { audit } from "@/lib/audit";
 
 const safeFields = {
   id: true,
@@ -62,6 +63,7 @@ export async function POST(req: NextRequest) {
     data: { email, name, role, passwordHash, active: true },
     select: safeFields,
   });
+  audit(req, { action: "user.create", resource: `User:${user.id}`, metadata: { email: user.email, role: user.role } });
 
   return NextResponse.json(user, { status: 201 });
 }

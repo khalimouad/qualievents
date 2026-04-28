@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendEmail, buildNewsletterEmail } from "@/lib/email";
 import { applyVariables, applyVariablesToDoc, parseContent, renderToHtml, type SubstitutionContext } from "@/lib/newsletter";
+import { unsubscribeUrl } from "@/lib/unsubscribe";
 
 export async function GET(req: NextRequest) {
   const eventId = req.nextUrl.searchParams.get("eventId");
@@ -46,8 +47,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Event not found" }, { status: 404 });
   }
 
+  // Skip people who clicked the one-click unsubscribe link in a previous send.
   const subscribers = await prisma.subscriber.findMany({
-    where: { eventId: body.eventId, status: "confirmed" },
+    where: { eventId: body.eventId, status: "confirmed", unsubscribed: false },
     include: { badge: { select: { code: true } } },
   });
 
@@ -77,11 +79,25 @@ export async function POST(req: NextRequest) {
     };
 
     const personalizedSubject = applyVariables(body.subject, ctx);
-    const html = doc
+    const personalizedUnsubscribe = unsubscribeUrl(baseUrl, sub.id);
+    // Append a small "Se désinscrire" footer to the rendered HTML so the
+    // recipient still has a visible link even when their client doesn't
+    // surface List-Unsubscribe inline.
+    const footerHtml = `<div style="margin:24px auto 0;padding:16px;text-align:center;font-family:Arial,sans-serif;font-size:11px;color:#888;max-width:600px;">
+      Vous recevez cet email car vous êtes inscrit·e à <strong>${event.title}</strong>.
+      <a href="${personalizedUnsubscribe}" style="color:#888;text-decoration:underline;">Se désinscrire</a>.
+    </div>`;
+    const baseHtml = doc
       ? renderToHtml(applyVariablesToDoc(doc, ctx), { eventTitle: event.title, themeColor: event.themeColor || undefined })
       : buildNewsletterEmail(applyVariables(body.content, ctx));
+    const html = baseHtml.replace(/<\/body>/i, `${footerHtml}</body>`);
 
-    const result = await sendEmail({ to: sub.email, subject: personalizedSubject, html });
+    const result = await sendEmail({
+      to: sub.email,
+      subject: personalizedSubject,
+      html,
+      unsubscribeUrl: personalizedUnsubscribe,
+    });
     if (result.success) sentCount++;
   }
 

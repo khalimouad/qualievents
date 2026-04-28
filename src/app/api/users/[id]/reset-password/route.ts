@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth";
 import { requireAdmin, passThrough } from "@/lib/requireRole";
+import { audit } from "@/lib/audit";
 
 /**
  * POST /api/users/[id]/reset-password
@@ -37,6 +38,7 @@ export async function POST(
 
   const passwordHash = await hashPassword(tempPassword);
   await prisma.adminUser.update({ where: { id }, data: { passwordHash } });
+  audit(req, { action: "user.reset-password", resource: `User:${id}`, metadata: { email: user.email } });
 
   return NextResponse.json({ tempPassword });
 }

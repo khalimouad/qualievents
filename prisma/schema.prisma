@@ -267,6 +267,7 @@ model Subscriber {
   jobTitle    String?
   dietaryReqs String?
   status      String   @default("pending")
+  unsubscribed Boolean  @default(false)
   paymentId   String?
   tierId      String?
   groupBookingId String?
@@ -385,4 +386,21 @@ model AdminUser {
   orgId        String?
   org          Organization? @relation(fields: [orgId], references: [id])
   createdAt    DateTime @default(now())
+}
+
+/// Append-only log of admin actions and security-relevant events.
+/// Powers the audit trail in /admin/audit.
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String?           // AdminUser.id; null for system / public events
+  actorEmail String?           // duplicated to survive admin deletion
+  action     String            // dot-namespaced: "event.delete", "user.create", "payment.settings.update", …
+  resource   String?           // human-readable target: "Event:contactexpo", "User:abc-…"
+  metadata   String?           // JSON blob of useful context, when relevant
+  ip         String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([action, createdAt])
+  @@index([actorId, createdAt])
 }

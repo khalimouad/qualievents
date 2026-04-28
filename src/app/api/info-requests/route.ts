@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, passThrough } from "@/lib/requireRole";
+import { rateLimit } from "@/lib/rateLimit";
 
 export async function GET(req: NextRequest) {
   const eventId = req.nextUrl.searchParams.get("eventId");
@@ -17,6 +18,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const rl = await rateLimit(req, { name: "info-requests", limit: 10, windowSec: 3600 });
+  if (!rl.allowed) return rl.response!;
+
   const body = await req.json();
 
   if (!body.firstName || !body.lastName || !body.email || !body.eventId) {
