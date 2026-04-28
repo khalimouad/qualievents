@@ -5,6 +5,7 @@ import { requireAuth, passThrough } from "@/lib/requireRole";
 import { generateVerificationCode, renderCertificatePdf, type CertificationType } from "@/lib/certificate";
 import { sendEmail } from "@/lib/email";
 import { audit } from "@/lib/audit";
+import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -148,7 +149,11 @@ export async function POST(
           </div>
         </body></html>`;
         sendEmail({ to: s.email, subject, html }).catch((err) =>
-          console.error(`[certification] email to ${s.email} failed:`, err)
+          logger.error("certification", "delivery email failed", {
+            error: err,
+            subscriberId: s.id,
+            email: s.email,
+          })
         );
       }
     } catch (err) {
@@ -157,7 +162,7 @@ export async function POST(
         subscriberId: s.id,
         error: err instanceof Error ? err.message : String(err),
       });
-      console.error(`[certification] generation failed for ${s.id}:`, err);
+      logger.error("certification", "generation failed", { error: err, subscriberId: s.id });
     }
   }
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, Save, Trash2, Globe, MapPin, Video } from "lucide-react";
+import { ArrowLeft, Save, Trash2, Copy, Globe, MapPin, Video } from "lucide-react";
 import Link from "next/link";
 import ImageUpload from "@/components/ImageUpload";
 import CountryCitySelect from "@/components/CountryCitySelect";
@@ -27,6 +27,7 @@ export default function EditEventPage() {
   const { slug } = useParams<{ slug: string }>();
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [cloning, setCloning] = useState(false);
   const [error, setError] = useState("");
   const [fetching, setFetching] = useState(true);
   const [form, setForm] = useState<FormState>({
@@ -135,6 +136,21 @@ export default function EditEventPage() {
     } catch {
       setError("Échec de la suppression");
       setDeleting(false);
+    }
+  };
+
+  const cloneEvent = async () => {
+    if (!confirm("Dupliquer cet événement ? Programme, tarifs, intervenants, sponsors et documents seront copiés. Les inscrits, badges et paiements ne le seront pas. Les dates seront décalées d'un an.")) return;
+    setCloning(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/events/${slug}/clone`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Échec de la duplication");
+      router.push(`/admin/events/${data.slug}/edit`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Échec de la duplication");
+      setCloning(false);
     }
   };
 
@@ -342,9 +358,14 @@ export default function EditEventPage() {
 
         <div className="flex items-center justify-between mt-4">
           <AdminGate fallback={<span />}>
-            <button type="button" onClick={deleteEvent} disabled={deleting} className="px-3 py-2 text-xs text-danger hover:bg-danger/5 rounded-lg font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50">
-              <Trash2 className="w-3 h-3" /> {deleting ? "Suppression..." : t.common.delete}
-            </button>
+            <div className="flex items-center gap-1">
+              <button type="button" onClick={deleteEvent} disabled={deleting || cloning} className="px-3 py-2 text-xs text-danger hover:bg-danger/5 rounded-lg font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50">
+                <Trash2 className="w-3 h-3" /> {deleting ? "Suppression..." : t.common.delete}
+              </button>
+              <button type="button" onClick={cloneEvent} disabled={deleting || cloning} className="px-3 py-2 text-xs text-text-secondary hover:text-foreground hover:bg-hover rounded-lg font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50">
+                <Copy className="w-3 h-3" /> {cloning ? "Duplication..." : "Dupliquer"}
+              </button>
+            </div>
           </AdminGate>
           <div className="flex items-center gap-2">
             <Link href={`/admin/events/${slug}`} className="px-4 py-2 text-xs text-text-secondary hover:text-foreground font-medium transition-colors">{t.common.cancel}</Link>

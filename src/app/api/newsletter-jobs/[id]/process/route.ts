@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { tickNewsletterJob, fireProcessTick } from "@/lib/newsletterDispatch";
 import { getSession } from "@/lib/requireRole";
+import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -33,7 +34,7 @@ export async function POST(
     if (!result.done) fireProcessTick(baseUrl, id);
     return NextResponse.json(result);
   } catch (err) {
-    console.error("[newsletter-jobs/process] failed:", err);
+    logger.error("newsletter.dispatch", "tick failed", { error: err, jobId: id });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Échec" },
       { status: 500 }

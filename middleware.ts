@@ -71,8 +71,9 @@ export async function middleware(req: NextRequest) {
     // Admin-only payment paths fall through to the auth check below
   }
 
-  // Public registration (POST /api/subscribers); listing requires auth
-  if (pathname.startsWith("/api/subscribers") && method === "POST") {
+  // Public registration: only the exact /api/subscribers POST. Sub-paths
+  // (e.g. /api/subscribers/bulk, /api/subscribers/import) require auth.
+  if (pathname === "/api/subscribers" && method === "POST") {
     return NextResponse.next();
   }
 

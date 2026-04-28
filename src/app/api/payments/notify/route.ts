@@ -9,6 +9,7 @@ import {
 import { decrypt } from "@/lib/crypto";
 import { generateBadgeCode, generateQRDataURL } from "@/lib/qrcode";
 import { sendEmail, buildBadgeEmail } from "@/lib/email";
+import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 
@@ -55,15 +56,17 @@ export async function POST(req: NextRequest) {
   const creds = await getCinetPayCreds();
   if (creds.secretKey) {
     if (!verifyWebhookSignature(fields, token, creds.secretKey)) {
+      logger.warn("payments.notify", "invalid signature", { txId: cpm_trans_id });
       return NextResponse.json({ error: "Invalid signature" }, { status: 403 });
     }
   } else if (process.env.NODE_ENV === "production") {
+    logger.error("payments.notify", "webhook secret not configured", { txId: cpm_trans_id });
     return NextResponse.json(
       { error: "Webhook secret not configured" },
       { status: 503 }
     );
   } else {
-    console.warn("[cinetpay] webhook signature skipped — secret key not set (dev only)");
+    logger.warn("payments.notify", "signature skipped — secret key not set (dev only)");
   }
 
   // ---- 3. Look up payment ----
@@ -89,9 +92,11 @@ export async function POST(req: NextRequest) {
     // CinetPay returns `data.amount` as a string.
     const reported = Number(result.data.amount);
     if (!Number.isFinite(reported) || reported !== payment.amount) {
-      console.error(
-        `[cinetpay] amount mismatch for ${cpm_trans_id}: expected ${payment.amount}, got ${result.data.amount}`
-      );
+      logger.error("payments.notify", "amount mismatch", {
+        txId: cpm_trans_id,
+        expected: payment.amount,
+        reported: result.data.amount,
+      });
       await prisma.payment.update({
         where: { id: payment.id },
         data: { status: "failed", method: result.data.payment_method },
@@ -101,9 +106,11 @@ export async function POST(req: NextRequest) {
 
     // Verify the currency matches too.
     if (result.data.currency && result.data.currency !== payment.currency) {
-      console.error(
-        `[cinetpay] currency mismatch for ${cpm_trans_id}: expected ${payment.currency}, got ${result.data.currency}`
-      );
+      logger.error("payments.notify", "currency mismatch", {
+        txId: cpm_trans_id,
+        expected: payment.currency,
+        reported: result.data.currency,
+      });
       return NextResponse.json({ error: "Currency mismatch" }, { status: 400 });
     }
 
@@ -179,7 +186,7 @@ export async function POST(req: NextRequest) {
         subject: `Votre badge pour ${payment.event.title} est prêt !`,
         html: emailHtml,
       }).catch((err) => {
-        console.error("[cinetpay] badge email failed:", err);
+        logger.error("payments.notify", "badge email failed", { error: err, subscriberId: subscriber.id });
       });
     }
   } else if (result.data.status === "REFUSED" || result.data.status === "ERROR") {

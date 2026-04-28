@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { fireProcessTick, STALL_MS } from "@/lib/newsletterDispatch";
+import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -50,6 +51,13 @@ export async function GET(req: NextRequest) {
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(req.url).origin;
   for (const job of stuck) fireProcessTick(baseUrl, job.id);
+
+  if (stuck.length > 0) {
+    logger.info("cron.newsletter-recover", "recovered jobs", {
+      count: stuck.length,
+      jobIds: stuck.map((j) => j.id),
+    });
+  }
 
   return NextResponse.json({ recovered: stuck.length, jobs: stuck.map((j) => j.id) });
 }

@@ -8,6 +8,7 @@ import {
   type SubstitutionContext,
 } from "./newsletter";
 import { unsubscribeUrl } from "./unsubscribe";
+import { logger } from "./logger";
 
 /** How many recipients each /process tick handles. Tune so each tick fits the
  * Vercel function maxDuration with margin. ~25 sends ≈ 5–10s on Gmail SMTP. */
@@ -203,5 +204,5 @@ export function fireProcessTick(baseUrl: string, jobId: string): void {
       "Content-Type": "application/json",
       "x-internal-token": process.env.SESSION_SECRET || "",
     },
-  }).catch((err) => console.error("[newsletter-dispatch] tick fetch failed:", err));
+  }).catch((err) => logger.error("newsletter.dispatch", "tick fetch failed", { error: err, jobId }));
 }

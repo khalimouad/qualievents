@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
 import { getClientIp } from "./rateLimit";
+import { logger } from "./logger";
 
 export interface AuditEntry {
   /** Dot-namespaced action key, e.g. "event.delete", "user.create". */
@@ -55,6 +56,6 @@ export async function audit(req: Request | null, entry: AuditEntry): Promise<voi
       },
     });
   } catch (err) {
-    console.error("[audit] write failed:", err);
+    logger.error("audit", "write failed", { error: err, action: entry.action });
   }
 }
