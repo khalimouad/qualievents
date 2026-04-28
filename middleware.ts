@@ -81,6 +81,14 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // Public read of series; mutations require auth
+  if (pathname.startsWith("/api/series") && method === "GET") {
+    return NextResponse.next();
+  }
+
+  // Public read of tiers (under /api/events/[slug]/tiers GET) is already
+  // covered by the events-GET rule above.
+
   // Public submission of info-requests (lead capture on past events)
   if (pathname.startsWith("/api/info-requests") && method === "POST") {
     return NextResponse.next();
@@ -131,5 +139,7 @@ export const config = {
     "/api/badges/:path*",
     "/api/users/:path*",
     "/api/sessions/:path*",
+    "/api/tiers/:path*",
+    "/api/series/:path*",
   ],
 };

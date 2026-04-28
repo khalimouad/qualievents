@@ -26,6 +26,7 @@ export async function GET(
       panelists: { orderBy: { sortOrder: "asc" } },
       sponsors: { orderBy: { sortOrder: "asc" } },
       sessions: { orderBy: [{ day: "asc" }, { sortOrder: "asc" }, { startTime: "asc" }] },
+      ticketTiers: { orderBy: [{ sortOrder: "asc" }, { price: "asc" }] },
       _count: { select: { subscribers: true } },
     },
   });
@@ -91,6 +92,8 @@ export async function PUT(
       longitude: body.longitude !== undefined ? parseFloat(body.longitude) : event.longitude,
       themeColor: body.themeColor !== undefined ? body.themeColor : event.themeColor,
       heroImage: body.heroImage !== undefined ? body.heroImage : event.heroImage,
+      brochureUrl: body.brochureUrl !== undefined ? body.brochureUrl : event.brochureUrl,
+      seriesId: body.seriesId !== undefined ? (body.seriesId || null) : event.seriesId,
       gallery: Array.isArray(body.gallery) ? body.gallery : event.gallery,
       maxAttendees: body.maxAttendees ? parseInt(body.maxAttendees) : event.maxAttendees,
       isPublished: body.isPublished !== undefined ? body.isPublished : event.isPublished,

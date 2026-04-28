@@ -51,6 +51,10 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
       panelists: { orderBy: { sortOrder: "asc" } },
       sponsors: { orderBy: { sortOrder: "asc" } },
       sessions: { orderBy: [{ day: "asc" }, { sortOrder: "asc" }, { startTime: "asc" }] },
+      ticketTiers: {
+        orderBy: [{ sortOrder: "asc" }, { price: "asc" }],
+        include: { _count: { select: { subscribers: true } } },
+      },
       _count: { select: { subscribers: true } },
     },
   });
@@ -366,6 +370,90 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
                       })}
                     </ol>
                   </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* TARIFS — pricing tiers for paid events */}
+      {event.isPaid && event.ticketTiers && event.ticketTiers.length > 0 && (
+        <section id="tarifs" className="py-8 sm:py-12 bg-background noise-overlay relative">
+          <div className="absolute inset-0 grid-pattern opacity-50" />
+          <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-6">
+              <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">Inscription</span>
+              <h2 className="text-2xl sm:text-4xl font-bold text-foreground mt-3 mb-3">Choisissez votre tarif</h2>
+              <p className="text-text-secondary max-w-xl mx-auto">
+                {isPastEvent ? "Cet événement est passé." : "Cliquez sur le tarif qui vous convient pour finaliser votre inscription."}
+              </p>
+            </div>
+
+            <div className={`grid gap-4 ${event.ticketTiers.length === 1 ? "max-w-md mx-auto" : event.ticketTiers.length === 2 ? "sm:grid-cols-2 max-w-3xl mx-auto" : "sm:grid-cols-2 lg:grid-cols-3"}`}>
+              {event.ticketTiers.map((t) => {
+                const sold = t._count?.subscribers ?? 0;
+                const remaining = t.capacity == null ? null : Math.max(t.capacity - sold, 0);
+                const now = Date.now();
+                const inWindow =
+                  (!t.availableFrom || new Date(t.availableFrom).getTime() <= now) &&
+                  (!t.availableUntil || new Date(t.availableUntil).getTime() >= now);
+                const purchasable = !isPastEvent && t.available && inWindow && (remaining == null || remaining > 0);
+                const priceFormatted = new Intl.NumberFormat("fr-FR", {
+                  style: "currency",
+                  currency: t.currency,
+                  maximumFractionDigits: 0,
+                }).format(t.price);
+
+                return (
+                  <article
+                    key={t.id}
+                    className={`card p-5 flex flex-col transition-all ${
+                      purchasable ? "hover:border-primary hover:shadow-lg" : "opacity-70"
+                    }`}
+                  >
+                    <header className="mb-3">
+                      <h3 className="text-lg font-bold text-foreground">{t.name}</h3>
+                      {t.description && (
+                        <p className="text-xs text-text-secondary mt-1">{t.description}</p>
+                      )}
+                    </header>
+
+                    <div className="mb-4">
+                      <span className="text-3xl font-bold text-primary tabular-nums">{priceFormatted}</span>
+                      <span className="text-xs text-text-secondary ml-2">/ personne</span>
+                    </div>
+
+                    {t.inclusions && t.inclusions.length > 0 && (
+                      <ul className="space-y-1.5 flex-1 mb-4">
+                        {t.inclusions.map((inc, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                            <span className="text-primary mt-0.5 flex-shrink-0">✓</span>
+                            <span className="leading-snug">{inc}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    {remaining !== null && remaining <= 5 && remaining > 0 && (
+                      <p className="text-[11px] text-warning font-medium mb-2">
+                        Plus que {remaining} place{remaining > 1 ? "s" : ""}
+                      </p>
+                    )}
+
+                    {purchasable ? (
+                      <Link
+                        href={`/events/${slug}/register?tier=${t.id}`}
+                        className="btn-primary w-full py-2.5 text-xs uppercase tracking-wider justify-center"
+                      >
+                        Choisir ce tarif
+                      </Link>
+                    ) : (
+                      <span className="block w-full py-2.5 text-xs uppercase tracking-wider text-center rounded-full bg-subtle text-text-secondary border border-border">
+                        {isPastEvent ? "Événement passé" : remaining === 0 ? "Complet" : "Indisponible"}
+                      </span>
+                    )}
+                  </article>
                 );
               })}
             </div>

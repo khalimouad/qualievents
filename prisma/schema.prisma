@@ -19,6 +19,7 @@ model Organization {
   events           Event[]
   users            AdminUser[]
   paymentSettings  PaymentSettings?
+  series           EventSeries[]
 }
 
 model PaymentSettings {
@@ -86,6 +87,9 @@ model Event {
   currency     String   @default("XOF")
   orgId        String?
   org          Organization? @relation(fields: [orgId], references: [id])
+  seriesId     String?
+  series       EventSeries?  @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  brochureUrl  String?  // optional PDF (programme brochure, plan d'accès…)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -98,6 +102,26 @@ model Event {
   payments     Payment[]
   infoRequests InfoRequest[]
   sessions     EventSession[]
+  ticketTiers  EventTicketTier[]
+}
+
+/// A programme that groups several events under one umbrella — e.g.
+/// "QUALI CONNECT 2026" (12 séminaires across 11 cities).
+model EventSeries {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  title       String
+  description String?
+  heroImage   String?
+  brochureUrl String?
+  themeColor  String?
+  isPublished Boolean  @default(false)
+  orgId       String?
+  org         Organization? @relation(fields: [orgId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  events      Event[]
 }
 
 /// Day-by-day program block (module, workshop, break, networking, …)
@@ -118,6 +142,31 @@ model EventSession {
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+/// A pricing tier on a paid event — "Standard", "Early bird", "Group 3+", etc.
+/// The brochure for QUALI CONNECT lists 12 different prices, each bundling the
+/// same kind of inclusions (5 nuitées B&B, transferts, mallette, certification…),
+/// so we keep `inclusions` as a free-form list of bullets the admin can edit.
+model EventTicketTier {
+  id              String    @id @default(uuid())
+  eventId         String
+  event           Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name            String
+  description     String?
+  price           Int                    // minor units (e.g. 3500 EUR -> 350000)
+  currency        String    @default("EUR")
+  inclusions      String[]  @default([])
+  capacity        Int?                   // null = unlimited; counted vs Subscriber.tierId
+  available       Boolean   @default(true)
+  availableFrom   DateTime?
+  availableUntil  DateTime?
+  sortOrder       Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  subscribers     Subscriber[]
+  payments        Payment[]
 }
 
 model InfoRequest {
@@ -144,10 +193,12 @@ model Subscriber {
   dietaryReqs String?
   status      String   @default("pending")
   paymentId   String?
+  tierId      String?
   eventId     String
   event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   badge       Badge?
   payment     Payment? @relation(fields: [paymentId], references: [id])
+  tier        EventTicketTier? @relation(fields: [tierId], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -166,8 +217,10 @@ model Payment {
   payerEmail      String?
   cinetpayPayId   String?  // CinetPay payment_token
   metadata        String?  // JSON string for extra data
+  tierId          String?
   eventId         String
   event           Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  tier            EventTicketTier? @relation(fields: [tierId], references: [id], onDelete: SetNull)
   subscribers     Subscriber[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

@@ -138,6 +138,7 @@ export async function POST(req: NextRequest) {
           jobTitle: meta.jobTitle || null,
           status: "confirmed",
           paymentId: payment.id,
+          tierId: payment.tierId ?? null,
           eventId: payment.eventId,
         },
       });

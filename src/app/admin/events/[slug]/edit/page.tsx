@@ -17,7 +17,10 @@ interface FormState {
   platform: string; streamUrl: string; streamPassword: string; streamInstructions: string; recordingUrl: string;
   venue: string; address: string; city: string; country: string; latitude: string; longitude: string;
   themeColor: string; maxAttendees: string; isPublished: boolean; isPaid: boolean; ticketPrice: string; heroImage: string;
+  seriesId: string; brochureUrl: string;
 }
+
+interface SeriesOption { id: string; slug: string; title: string }
 
 export default function EditEventPage() {
   const router = useRouter();
@@ -34,8 +37,13 @@ export default function EditEventPage() {
     venue: "", address: "", city: "", country: "",
     latitude: "", longitude: "",
     themeColor: "#ff7a00", maxAttendees: "500", isPublished: false, isPaid: false, ticketPrice: "",
-    heroImage: "",
+    heroImage: "", seriesId: "", brochureUrl: "",
   });
+  const [seriesList, setSeriesList] = useState<SeriesOption[]>([]);
+
+  useEffect(() => {
+    fetch("/api/series?all=true").then((r) => r.json()).then(setSeriesList).catch(() => setSeriesList([]));
+  }, []);
 
   useEffect(() => {
     fetch(`/api/events/${slug}`)
@@ -73,6 +81,8 @@ export default function EditEventPage() {
           isPaid: data.isPaid || false,
           ticketPrice: data.ticketPrice?.toString() || "",
           heroImage: data.heroImage || "",
+          seriesId: data.seriesId || "",
+          brochureUrl: data.brochureUrl || "",
         });
         setFetching(false);
       });
@@ -209,6 +219,26 @@ export default function EditEventPage() {
             <div><label className={labelClass}>{t.admin.endDate}</label><input type="datetime-local" value={form.endDate} onChange={(e) => update("endDate", e.target.value)} className={inputClass} /></div>
           </div>
           <ImageUpload value={form.heroImage} onChange={(url) => update("heroImage", url)} type="events" label={t.admin.heroImage} />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Rattacher à un programme</label>
+              <select value={form.seriesId} onChange={(e) => update("seriesId", e.target.value)} className={inputClass}>
+                <option value="">— aucun —</option>
+                {seriesList.map((s) => (
+                  <option key={s.id} value={s.id}>{s.title}</option>
+                ))}
+              </select>
+              <p className="text-[10px] text-text-secondary mt-1">
+                Les programmes se créent dans <Link href="/admin/series" className="text-primary hover:underline">Programmes</Link>.
+              </p>
+            </div>
+            <div>
+              <label className={labelClass}>Brochure (URL PDF)</label>
+              <input value={form.brochureUrl} onChange={(e) => update("brochureUrl", e.target.value)} className={inputClass} placeholder="https://…/brochure.pdf" />
+            </div>
+          </div>
+
           <p className="text-[10px] text-text-secondary">La galerie photo et le programme se gèrent dans des onglets dédiés.</p>
         </div>
 

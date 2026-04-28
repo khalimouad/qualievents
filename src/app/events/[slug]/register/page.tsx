@@ -2,10 +2,19 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check, User, Briefcase, Calendar, Sparkles, PartyPopper, Clock } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { t } from "@/lib/i18n";
+
+interface Tier {
+  id: string;
+  name: string;
+  price: number;
+  currency: string;
+  inclusions: string[];
+  purchasable: boolean;
+}
 
 interface EventInfo {
   id: string;
@@ -17,12 +26,16 @@ interface EventInfo {
   isPaid: boolean;
   ticketPrice: number | null;
   currency: string;
+  ticketTiers?: Tier[];
 }
 
 export default function EventRegisterPage() {
   const { slug } = useParams<{ slug: string }>();
+  const searchParams = useSearchParams();
+  const initialTierId = searchParams.get("tier");
   const [step, setStep] = useState(1);
   const [event, setEvent] = useState<EventInfo | null>(null);
+  const [tierId, setTierId] = useState<string | null>(initialTierId);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [waitlisted, setWaitlisted] = useState(false);
@@ -32,8 +45,21 @@ export default function EventRegisterPage() {
   });
 
   useEffect(() => {
-    fetch(`/api/events/${slug}`).then((r) => r.json()).then(setEvent);
-  }, [slug]);
+    Promise.all([
+      fetch(`/api/events/${slug}`).then((r) => r.json()),
+      fetch(`/api/events/${slug}/tiers`).then((r) => (r.ok ? r.json() : [])),
+    ]).then(([ev, tiers]) => {
+      setEvent({ ...ev, ticketTiers: tiers });
+      // Default to the first purchasable tier if none was passed in the URL
+      if (!initialTierId && Array.isArray(tiers)) {
+        const first = tiers.find((t: Tier) => t.purchasable);
+        if (first) setTierId(first.id);
+      }
+    });
+  }, [slug, initialTierId]);
+
+  const selectedTier = event?.ticketTiers?.find((t) => t.id === tierId) || null;
+  const hasTiers = (event?.ticketTiers?.length ?? 0) > 0;
 
   const updateForm = (field: string, value: string) => { setForm((f) => ({ ...f, [field]: value })); setError(""); };
 
@@ -51,24 +77,33 @@ export default function EventRegisterPage() {
 
   const submit = async () => {
     if (!event) return;
+    if (hasTiers && !tierId) {
+      setError("Veuillez choisir un tarif.");
+      return;
+    }
     setLoading(true); setError("");
     try {
-      // Paid event: redirect to CinetPay
-      if (event.isPaid && event.ticketPrice) {
+      const isPaidPath = event.isPaid && (selectedTier ? selectedTier.price > 0 : !!event.ticketPrice);
+      const payload = { ...form, eventId: event.id, tierId };
+
+      if (isPaidPath) {
         const res = await fetch("/api/payments", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...form, eventId: event.id }),
+          body: JSON.stringify(payload),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Échec d'initialisation du paiement");
-        // Redirect to CinetPay payment page
         window.location.href = data.paymentUrl;
         return;
       }
 
-      // Free event: direct registration
-      const res = await fetch("/api/subscribers", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, eventId: event.id }) });
+      // Free path (free event OR free tier on a paid event)
+      const res = await fetch("/api/subscribers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Échec de l'inscription");
       if (data.waitlisted) setWaitlisted(true);

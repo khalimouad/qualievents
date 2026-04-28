@@ -60,6 +60,29 @@ export async function POST(req: NextRequest) {
   const isAtCapacity = event._count.subscribers >= event.maxAttendees;
   const status = isAtCapacity ? "waitlisted" : "confirmed";
 
+  // Optional tier — only valid if the tier belongs to this event AND is free
+  // (paid tiers go through /api/payments).
+  let tierId: string | null = null;
+  if (body.tierId) {
+    const tier = await prisma.eventTicketTier.findUnique({ where: { id: body.tierId } });
+    if (!tier || tier.eventId !== body.eventId) {
+      return NextResponse.json({ error: "Tarif invalide" }, { status: 400 });
+    }
+    if (tier.price > 0) {
+      return NextResponse.json({ error: "Ce tarif est payant — utilisez le flux de paiement." }, { status: 400 });
+    }
+    if (!tier.available) {
+      return NextResponse.json({ error: "Ce tarif n'est plus disponible" }, { status: 400 });
+    }
+    if (tier.capacity != null) {
+      const sold = await prisma.subscriber.count({ where: { tierId: tier.id } });
+      if (sold >= tier.capacity) {
+        return NextResponse.json({ error: "Ce tarif est complet" }, { status: 400 });
+      }
+    }
+    tierId = tier.id;
+  }
+
   // Create subscriber (waitlisted if at capacity)
   const subscriber = await prisma.subscriber.create({
     data: {
@@ -72,6 +95,7 @@ export async function POST(req: NextRequest) {
       dietaryReqs: body.dietaryReqs || null,
       status,
       eventId: body.eventId,
+      tierId,
     },
   });
 

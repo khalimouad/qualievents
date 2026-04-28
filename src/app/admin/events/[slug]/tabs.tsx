@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, Users, UserCheck, Award, Send, Mail, CreditCard, Image as ImageIcon, CalendarDays } from "lucide-react";
+import { LayoutGrid, Users, UserCheck, Award, Send, Mail, CreditCard, Image as ImageIcon, CalendarDays, Tag } from "lucide-react";
 import { t } from "@/lib/i18n";
 
 export default function EventTabs({ slug }: { slug: string }) {
@@ -16,6 +16,7 @@ export default function EventTabs({ slug }: { slug: string }) {
   const tabs = [
     { href: base, label: t.admin.overview, icon: LayoutGrid },
     { href: `${base}/programme`, label: "Programme", icon: CalendarDays },
+    { href: `${base}/tiers`, label: "Tarifs", icon: Tag },
     { href: `${base}/subscribers`, label: t.admin.subscribers, icon: Users },
     { href: `${base}/panelists`, label: t.admin.panelists, icon: UserCheck },
     { href: `${base}/sponsors`, label: t.admin.sponsors, icon: Award },

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, QrCode, ArrowLeft, ChevronRight, LogOut, Users, Settings } from "lucide-react";
+import { LayoutDashboard, QrCode, ArrowLeft, ChevronRight, LogOut, Users, Settings, Layers } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AdminRoleProvider } from "@/components/AdminGate";
 import { t } from "@/lib/i18n";
@@ -11,6 +11,7 @@ type Role = "admin" | "staff" | null;
 
 const baseNavItems = [
   { href: "/admin", label: t.admin.dashboard, icon: LayoutDashboard, role: null as Role },
+  { href: "/admin/series", label: "Programmes", icon: Layers, role: null as Role },
   { href: "/admin/users", label: "Utilisateurs", icon: Users, role: "admin" as Role },
   { href: "/scan", label: t.admin.scanner, icon: QrCode, role: null as Role },
   { href: "/admin/settings/payments", label: "Paramètres", icon: Settings, role: "admin" as Role },
