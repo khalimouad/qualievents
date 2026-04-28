@@ -104,6 +104,57 @@ model Event {
   sessions     EventSession[]
   ticketTiers  EventTicketTier[]
   certifications Certification[]
+  documents    EventDocument[]
+  groupBookings GroupBooking[]
+}
+
+/// One transaction that registers several attendees at once.
+/// Useful for B2B: an HR director registers 5 employees in one go, gets one
+/// invoice. Each Subscriber row created from this booking carries the same
+/// groupBookingId so the admin can group/list them.
+model GroupBooking {
+  id             String   @id @default(uuid())
+  reference      String   @unique
+  eventId        String
+  event          Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  tierId         String?
+  tier           EventTicketTier? @relation(fields: [tierId], references: [id], onDelete: SetNull)
+  payerName      String
+  payerEmail     String
+  payerPhone     String?
+  companyName    String?
+  vatNumber      String?
+  billingAddress String?
+  totalAmount    Int      @default(0)
+  currency       String   @default("EUR")
+  status         String   @default("pending") // pending | confirmed | cancelled | refunded
+  paymentId      String?
+  payment        Payment? @relation(fields: [paymentId], references: [id])
+  invoiceUrl     String?
+  invoiceNumber  String?
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  subscribers    Subscriber[]
+}
+
+/// Downloadable documents attached to an event (programme PDF, plan d'accès,
+/// fiche logistique, conditions générales, etc.). The URL is whatever the
+/// admin uploads or types in — typically a Vercel Blob URL after using the
+/// existing /api/upload route, but external URLs are fine too.
+model EventDocument {
+  id        String   @id @default(uuid())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  /// PROGRAMME | BROCHURE | LOGISTICS | TERMS | OTHER
+  kind      String   @default("OTHER")
+  title     String
+  url       String
+  sizeBytes Int?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 /// A programme that groups several events under one umbrella — e.g.
@@ -190,6 +241,7 @@ model EventTicketTier {
 
   subscribers     Subscriber[]
   payments        Payment[]
+  groupBookings   GroupBooking[]
 }
 
 model InfoRequest {
@@ -217,11 +269,13 @@ model Subscriber {
   status      String   @default("pending")
   paymentId   String?
   tierId      String?
+  groupBookingId String?
   eventId     String
   event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   badge       Badge?
   payment     Payment? @relation(fields: [paymentId], references: [id])
   tier        EventTicketTier? @relation(fields: [tierId], references: [id], onDelete: SetNull)
+  groupBooking GroupBooking? @relation(fields: [groupBookingId], references: [id], onDelete: SetNull)
   certification Certification?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -246,6 +300,7 @@ model Payment {
   event           Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   tier            EventTicketTier? @relation(fields: [tierId], references: [id], onDelete: SetNull)
   subscribers     Subscriber[]
+  groupBookings   GroupBooking[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }

@@ -99,6 +99,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // Public submission of group bookings (POST only — list/admin actions auth)
+  if (pathname.match(/^\/api\/events\/[^/]+\/group-bookings$/) && method === "POST") {
+    return NextResponse.next();
+  }
+
   // Everything else under /admin, /scan or these /api/* matchers requires a session.
   const session = await verifySession(req);
   const isPage = pathname.startsWith("/admin") || pathname.startsWith("/scan");
@@ -147,5 +152,7 @@ export const config = {
     "/api/tiers/:path*",
     "/api/series/:path*",
     "/api/certifications/:path*",
+    "/api/documents/:path*",
+    "/api/group-bookings/:path*",
   ],
 };

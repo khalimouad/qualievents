@@ -55,6 +55,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         orderBy: [{ sortOrder: "asc" }, { price: "asc" }],
         include: { _count: { select: { subscribers: true } } },
       },
+      documents: { orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }] },
       _count: { select: { subscribers: true } },
     },
   });
@@ -370,6 +371,45 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
                       })}
                     </ol>
                   </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* DOCUMENTS — downloadable PDFs */}
+      {event.documents && event.documents.length > 0 && (
+        <section id="documents" className="py-6 sm:py-8 bg-background relative">
+          <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h3 className="text-xs uppercase tracking-[0.15em] text-text-secondary font-semibold mb-3">À télécharger</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {event.documents.map((d) => {
+                const emoji =
+                  d.kind === "PROGRAMME" ? "📅" :
+                  d.kind === "BROCHURE" ? "📕" :
+                  d.kind === "LOGISTICS" ? "🗺️" :
+                  d.kind === "TERMS" ? "📜" : "📎";
+                return (
+                  <a
+                    key={d.id}
+                    href={d.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="card p-3 flex items-center gap-3 hover:border-primary/40 hover:shadow-md transition-all group"
+                  >
+                    <span className="text-2xl flex-shrink-0" aria-hidden>{emoji}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors truncate">{d.title}</p>
+                      <p className="text-[10px] uppercase tracking-wider text-text-secondary mt-0.5">
+                        {d.kind === "PROGRAMME" ? "Programme" :
+                         d.kind === "BROCHURE" ? "Brochure" :
+                         d.kind === "LOGISTICS" ? "Logistique" :
+                         d.kind === "TERMS" ? "Conditions" : "Document"}
+                      </p>
+                    </div>
+                    <span className="text-text-secondary group-hover:text-primary transition-colors text-sm">↓</span>
+                  </a>
                 );
               })}
             </div>

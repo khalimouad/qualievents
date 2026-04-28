@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, Users, UserCheck, Award, Send, Mail, CreditCard, Image as ImageIcon, CalendarDays, Tag, ShieldCheck } from "lucide-react";
+import { LayoutGrid, Users, UserCheck, Award, Send, Mail, CreditCard, Image as ImageIcon, CalendarDays, Tag, ShieldCheck, FileText, Building2 } from "lucide-react";
 import { t } from "@/lib/i18n";
 
 export default function EventTabs({ slug }: { slug: string }) {
@@ -18,9 +18,11 @@ export default function EventTabs({ slug }: { slug: string }) {
     { href: `${base}/programme`, label: "Programme", icon: CalendarDays },
     { href: `${base}/tiers`, label: "Tarifs", icon: Tag },
     { href: `${base}/subscribers`, label: t.admin.subscribers, icon: Users },
+    { href: `${base}/group-bookings`, label: "Réservations", icon: Building2 },
     { href: `${base}/panelists`, label: t.admin.panelists, icon: UserCheck },
     { href: `${base}/sponsors`, label: t.admin.sponsors, icon: Award },
     { href: `${base}/certifications`, label: "Attestations", icon: ShieldCheck },
+    { href: `${base}/documents`, label: "Documents", icon: FileText },
     { href: `${base}/gallery`, label: "Galerie", icon: ImageIcon },
     { href: `${base}/invitations`, label: t.admin.invitations, icon: Send },
     { href: `${base}/newsletters`, label: t.admin.newsletters, icon: Mail },
