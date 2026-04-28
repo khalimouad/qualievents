@@ -360,8 +360,32 @@ model Newsletter {
   sentAt    DateTime?
   eventId   String
   event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  jobs      NewsletterJob[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+/// Dispatch job for sending a Newsletter to confirmed subscribers in chunks.
+/// Avoids serverless timeouts on big lists — each "tick" of /api/newsletter-jobs/[id]/process
+/// processes one chunk and advances the cursor; the client polls until status=completed.
+/// Stalled jobs (no progress for >5 min while running) are picked back up by the cron.
+model NewsletterJob {
+  id              String   @id @default(uuid())
+  newsletterId    String
+  newsletter      Newsletter @relation(fields: [newsletterId], references: [id], onDelete: Cascade)
+  status          String   @default("pending") // pending | running | completed | failed
+  totalRecipients Int      @default(0)
+  sentCount       Int      @default(0)
+  failedCount     Int      @default(0)
+  cursor          Int      @default(0)
+  errorMessage    String?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  lastTickAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status, lastTickAt])
 }
 
 model Sponsor {

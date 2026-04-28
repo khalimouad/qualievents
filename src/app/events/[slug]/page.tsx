@@ -20,24 +20,38 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const event = await prisma.event.findUnique({
     where: { slug },
-    select: { title: true, tagline: true, description: true, venue: true, city: true, date: true },
+    select: {
+      title: true,
+      tagline: true,
+      description: true,
+      venue: true,
+      city: true,
+      date: true,
+      heroImage: true,
+    },
   });
   if (!event) return { title: "Événement introuvable" };
   const description = event.tagline || event.description.slice(0, 160);
   const dateStr = new Date(event.date).toLocaleDateString("fr-FR", { month: "long", day: "numeric", year: "numeric" });
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+  const canonical = baseUrl ? `${baseUrl}/events/${slug}` : `/events/${slug}`;
   return {
     title: `${event.title} - QualiEvents`,
     description,
+    alternates: { canonical },
     openGraph: {
       title: event.title,
       description: `${dateStr} — ${event.venue}, ${event.city}. ${description}`,
       type: "website",
       siteName: "QualiEvents",
+      url: canonical,
+      images: event.heroImage ? [{ url: event.heroImage, width: 1200, height: 630, alt: event.title }] : undefined,
     },
     twitter: {
       card: "summary_large_image",
       title: event.title,
       description: `${dateStr} — ${event.venue}, ${event.city}`,
+      images: event.heroImage ? [event.heroImage] : undefined,
     },
   };
 }
@@ -77,8 +91,93 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   const calendarIcsUrl = `/api/events/${slug}/calendar`;
   const googleCalUrl = googleCalendarUrl(event);
 
+  // ----- JSON-LD (Schema.org Event) -----
+  // Helps Google / Bing surface the event in their rich-result panels.
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+  const eventUrl = baseUrl ? `${baseUrl}/events/${slug}` : `/events/${slug}`;
+  const cheapestTier =
+    event.ticketTiers && event.ticketTiers.length > 0
+      ? event.ticketTiers.reduce((min, t) => (t.price < min.price ? t : min))
+      : null;
+  const offerPrice = cheapestTier?.price ?? event.ticketPrice ?? 0;
+  const offerCurrency = cheapestTier?.currency ?? event.currency;
+  const eventStatus = isPastEvent
+    ? "https://schema.org/EventPostponed"
+    : "https://schema.org/EventScheduled";
+  const attendanceMode =
+    event.format === "ONLINE"
+      ? "https://schema.org/OnlineEventAttendanceMode"
+      : event.format === "HYBRID"
+        ? "https://schema.org/MixedEventAttendanceMode"
+        : "https://schema.org/OfflineEventAttendanceMode";
+
+  const jsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: event.title,
+    description: event.description,
+    startDate: event.date.toISOString(),
+    endDate: (event.endDate ?? event.date).toISOString(),
+    eventStatus,
+    eventAttendanceMode: attendanceMode,
+    image: event.heroImage ? [event.heroImage] : undefined,
+    url: eventUrl,
+    organizer: {
+      "@type": "Organization",
+      name: process.env.ORG_NAME || "QualiEvents",
+      url: baseUrl || undefined,
+    },
+    location:
+      event.format === "ONLINE"
+        ? {
+            "@type": "VirtualLocation",
+            url: event.streamUrl || eventUrl,
+          }
+        : {
+            "@type": "Place",
+            name: event.venue,
+            address: {
+              "@type": "PostalAddress",
+              streetAddress: event.address,
+              addressLocality: event.city,
+              addressCountry: event.country,
+            },
+            ...(event.latitude && event.longitude
+              ? {
+                  geo: {
+                    "@type": "GeoCoordinates",
+                    latitude: event.latitude,
+                    longitude: event.longitude,
+                  },
+                }
+              : {}),
+          },
+    performer: event.panelists.length
+      ? event.panelists.map((p) => ({
+          "@type": "Person",
+          name: `${p.firstName} ${p.lastName}`.trim(),
+          ...(p.jobTitle ? { jobTitle: p.jobTitle } : {}),
+        }))
+      : undefined,
+    offers:
+      event.isPaid && offerPrice > 0
+        ? {
+            "@type": "Offer",
+            url: `${eventUrl}/register`,
+            price: offerPrice,
+            priceCurrency: offerCurrency,
+            availability: isPastEvent ? "https://schema.org/SoldOut" : "https://schema.org/InStock",
+            validFrom: new Date().toISOString(),
+          }
+        : undefined,
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
 
       {/* HERO */}

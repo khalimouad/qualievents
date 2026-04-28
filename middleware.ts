@@ -109,6 +109,19 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // Cron endpoints authenticate themselves via Bearer token + admin fallback.
+  // The route handler does the actual check; we just let it through here.
+  if (pathname.startsWith("/api/cron/")) {
+    return NextResponse.next();
+  }
+
+  // Newsletter dispatch self-fetches with x-internal-token. The route checks
+  // it; we can't rely on a session for the self-call since fetch() doesn't
+  // forward cookies to itself.
+  if (pathname.match(/^\/api\/newsletter-jobs\/[^/]+\/process$/) && method === "POST") {
+    return NextResponse.next();
+  }
+
   // Everything else under /admin, /scan or these /api/* matchers requires a session.
   const session = await verifySession(req);
   const isPage = pathname.startsWith("/admin") || pathname.startsWith("/scan");
@@ -162,5 +175,7 @@ export const config = {
     "/api/documents/:path*",
     "/api/group-bookings/:path*",
     "/api/audit/:path*",
+    "/api/newsletter-jobs/:path*",
+    "/api/cron/:path*",
   ],
 };

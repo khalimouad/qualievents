@@ -9,6 +9,19 @@ import { newId, parseContent, type NewsletterDoc } from "@/lib/newsletter";
 interface Newsletter {
   id: string; subject: string; content: string; status: string;
   sentAt: string | null; createdAt: string;
+  jobs?: NewsletterJob[];
+}
+
+interface NewsletterJob {
+  id: string;
+  status: "pending" | "running" | "completed" | "failed";
+  totalRecipients: number;
+  sentCount: number;
+  failedCount: number;
+  cursor: number;
+  errorMessage: string | null;
+  startedAt: string | null;
+  completedAt: string | null;
 }
 
 interface EventLite {
@@ -59,11 +72,34 @@ export default function EventNewslettersPage({ params }: { params: Promise<{ slu
     setDoc(blankDoc());
   };
 
+  const [activeJob, setActiveJob] = useState<NewsletterJob | null>(null);
+
+  // Poll the active dispatch job until it completes / fails.
+  useEffect(() => {
+    if (!activeJob || activeJob.status === "completed" || activeJob.status === "failed") return;
+    const t = setInterval(async () => {
+      try {
+        const r = await fetch(`/api/newsletter-jobs/${activeJob.id}`);
+        if (!r.ok) return;
+        const next = (await r.json()) as NewsletterJob;
+        setActiveJob(next);
+        if (next.status === "completed" || next.status === "failed") {
+          clearInterval(t);
+          load();
+        }
+      } catch {
+        // transient — keep polling
+      }
+    }, 2000);
+    return () => clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeJob?.id, activeJob?.status]);
+
   const submit = async (sendNow: boolean) => {
     if (!subject.trim() || doc.blocks.length === 0 || !event) return;
     setSending(true);
     try {
-      await fetch("/api/newsletters", {
+      const res = await fetch("/api/newsletters", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -73,6 +109,21 @@ export default function EventNewslettersPage({ params }: { params: Promise<{ slu
           send: sendNow,
         }),
       });
+      const data = await res.json();
+      if (sendNow && data.jobId) {
+        // Drop the editor and surface the live progress.
+        setActiveJob({
+          id: data.jobId,
+          status: data.totalRecipients === 0 ? "completed" : "pending",
+          totalRecipients: data.totalRecipients ?? 0,
+          sentCount: 0,
+          failedCount: 0,
+          cursor: 0,
+          errorMessage: null,
+          startedAt: null,
+          completedAt: null,
+        });
+      }
       cancel();
       load();
     } finally {
@@ -169,6 +220,53 @@ export default function EventNewslettersPage({ params }: { params: Promise<{ slu
   return (
     <div>
       {header}
+
+      {/* Active dispatch progress */}
+      {activeJob && (
+        <div className="card p-4 mb-3">
+          <div className="flex items-center justify-between mb-2 gap-2">
+            <p className="text-sm font-semibold text-foreground">
+              {activeJob.status === "completed"
+                ? "✓ Envoi terminé"
+                : activeJob.status === "failed"
+                  ? "✗ Échec de l'envoi"
+                  : "Envoi en cours…"}
+            </p>
+            <p className="text-xs text-text-secondary tabular-nums">
+              {activeJob.sentCount + activeJob.failedCount} / {activeJob.totalRecipients}
+            </p>
+          </div>
+          <div className="h-2 bg-subtle rounded-full overflow-hidden">
+            <div
+              className={`h-full transition-all duration-500 ${
+                activeJob.status === "completed"
+                  ? "bg-success"
+                  : activeJob.status === "failed"
+                    ? "bg-danger"
+                    : "bg-gradient-to-r from-primary to-accent"
+              }`}
+              style={{
+                width: `${
+                  activeJob.totalRecipients === 0
+                    ? 100
+                    : Math.min(
+                        100,
+                        ((activeJob.sentCount + activeJob.failedCount) /
+                          activeJob.totalRecipients) *
+                          100
+                      )
+                }%`,
+              }}
+            />
+          </div>
+          <div className="flex items-center justify-between mt-2 text-[11px] text-text-secondary">
+            <span>{activeJob.sentCount} envoyés{activeJob.failedCount > 0 ? ` · ${activeJob.failedCount} échecs` : ""}</span>
+            {activeJob.status === "completed" && (
+              <button onClick={() => setActiveJob(null)} className="text-primary hover:underline">Fermer</button>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="space-y-2">
         {loading ? (
