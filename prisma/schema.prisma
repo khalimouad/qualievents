@@ -47,12 +47,35 @@ model Event {
   description  String
   date         DateTime
   endDate      DateTime?
+
+  // Event archetype (drives default fields shown in the form):
+  //   TRAINING_SEMINAR | CONFERENCE | WEBINAR | FORUM | WORKSHOP | NETWORKING | OTHER
+  eventType    String   @default("CONFERENCE")
+
+  // Delivery format. ONLINE events skip venue requirement and surface stream
+  // info to attendees; HYBRID has both physical + remote.
+  format       String   @default("IN_PERSON") // IN_PERSON | ONLINE | HYBRID
+
+  // Rich content blocks shown on the public page
+  objectives     String?
+  targetAudience String?
+  context        String?
+
+  // Stream / virtual fields (used when format != IN_PERSON)
+  platform           String?  // "Zoom" | "Teams" | "YouTube Live" | ...
+  streamUrl          String?
+  streamPasswordEnc  String?  // encrypted via src/lib/crypto.ts
+  streamInstructions String?
+  recordingUrl       String?
+
+  // Physical location (still relevant for HYBRID)
   venue        String
   address      String
   city         String
   country      String
   latitude     Float?
   longitude    Float?
+
   heroImage    String?
   gallery      String[] @default([])
   themeColor   String?
@@ -74,6 +97,27 @@ model Event {
   sponsors     Sponsor[]
   payments     Payment[]
   infoRequests InfoRequest[]
+  sessions     EventSession[]
+}
+
+/// Day-by-day program block (module, workshop, break, networking, …)
+model EventSession {
+  id          String   @id @default(uuid())
+  eventId     String
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  /// SESSION | WORKSHOP | BREAK | VISIT | DINNER | NETWORKING | EXAM
+  kind        String   @default("SESSION")
+  day         Int      @default(1)
+  startTime   String?  // "09:00"
+  endTime     String?  // "12:30"
+  location    String?  // "Salle A" — useful in big venues
+  speakerName String?  // free-form; can be a Panelist's full name
+  streamUrl   String?  // override per-session (rare)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model InfoRequest {

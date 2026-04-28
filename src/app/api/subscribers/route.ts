@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { generateBadgeCode, generateQRDataURL } from "@/lib/qrcode";
 import { requireAdmin, passThrough } from "@/lib/requireRole";
 import { sendEmail, buildBadgeEmail } from "@/lib/email";
+import { decrypt } from "@/lib/crypto";
 
 export async function GET(req: NextRequest) {
   const eventId = req.nextUrl.searchParams.get("eventId");
@@ -100,11 +101,27 @@ export async function POST(req: NextRequest) {
   const eventDate = event.date.toLocaleDateString("en-US", {
     year: "numeric", month: "long", day: "numeric",
   });
+  let streamPassword: string | null = null;
+  if (event.streamPasswordEnc) {
+    try {
+      streamPassword = decrypt(event.streamPasswordEnc);
+    } catch {
+      streamPassword = null;
+    }
+  }
+
   const emailHtml = buildBadgeEmail(
     `${subscriber.firstName} ${subscriber.lastName}`,
     event.title,
     badgeCode,
-    qrData
+    qrData,
+    {
+      format: (event.format as "IN_PERSON" | "ONLINE" | "HYBRID") || "IN_PERSON",
+      streamUrl: event.streamUrl,
+      streamPassword,
+      platform: event.platform,
+      streamInstructions: event.streamInstructions,
+    }
   );
   sendEmail({
     to: subscriber.email,

@@ -37,7 +37,10 @@ export async function POST(req: NextRequest) {
   // ----- Send path: per-recipient variable substitution -----
   const event = await prisma.event.findUnique({
     where: { id: body.eventId },
-    select: { title: true, date: true, venue: true, city: true, slug: true, themeColor: true },
+    select: {
+      title: true, date: true, venue: true, city: true, slug: true, themeColor: true,
+      streamUrl: true, recordingUrl: true, platform: true,
+    },
   });
   if (!event) {
     return NextResponse.json({ error: "Event not found" }, { status: 404 });
@@ -68,6 +71,9 @@ export async function POST(req: NextRequest) {
       eventSlug: event.slug,
       baseUrl,
       badgeCode: sub.badge?.code ?? null,
+      streamUrl: event.streamUrl,
+      recordingUrl: event.recordingUrl,
+      platform: event.platform,
     };
 
     const personalizedSubject = applyVariables(body.subject, ctx);

@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, passThrough } from "@/lib/requireRole";
+import { encrypt } from "@/lib/crypto";
+
+const VALID_FORMATS = new Set(["IN_PERSON", "ONLINE", "HYBRID"]);
+const VALID_TYPES = new Set([
+  "TRAINING_SEMINAR",
+  "CONFERENCE",
+  "WEBINAR",
+  "FORUM",
+  "WORKSHOP",
+  "NETWORKING",
+  "OTHER",
+]);
 
 export async function GET(
   req: NextRequest,
@@ -13,6 +25,7 @@ export async function GET(
     include: {
       panelists: { orderBy: { sortOrder: "asc" } },
       sponsors: { orderBy: { sortOrder: "asc" } },
+      sessions: { orderBy: [{ day: "asc" }, { sortOrder: "asc" }, { startTime: "asc" }] },
       _count: { select: { subscribers: true } },
     },
   });
@@ -21,7 +34,12 @@ export async function GET(
     return NextResponse.json({ error: "Event not found" }, { status: 404 });
   }
 
-  return NextResponse.json(event);
+  // Strip the encrypted password from public reads — admin tooling that needs
+  // the cleartext should consult /api/events/[slug]/stream-password (not built
+  // here yet; the cleartext is also surfaced to confirmed attendees over email).
+  const { streamPasswordEnc, ...rest } = event;
+  void streamPasswordEnc;
+  return NextResponse.json(rest);
 }
 
 export async function PUT(
@@ -36,6 +54,9 @@ export async function PUT(
     return NextResponse.json({ error: "Event not found" }, { status: 404 });
   }
 
+  const eventType = VALID_TYPES.has(body.eventType) ? body.eventType : event.eventType;
+  const format = VALID_FORMATS.has(body.format) ? body.format : event.format;
+
   const updated = await prisma.event.update({
     where: { slug },
     data: {
@@ -44,6 +65,24 @@ export async function PUT(
       description: body.description ?? event.description,
       date: body.date ? new Date(body.date) : event.date,
       endDate: body.endDate ? new Date(body.endDate) : event.endDate,
+
+      eventType,
+      format,
+      objectives: body.objectives !== undefined ? body.objectives : event.objectives,
+      targetAudience: body.targetAudience !== undefined ? body.targetAudience : event.targetAudience,
+      context: body.context !== undefined ? body.context : event.context,
+      platform: body.platform !== undefined ? body.platform : event.platform,
+      streamUrl: body.streamUrl !== undefined ? body.streamUrl : event.streamUrl,
+      // Empty string = clear; non-empty = re-encrypt; undefined = leave as-is.
+      streamPasswordEnc:
+        body.streamPassword === undefined
+          ? event.streamPasswordEnc
+          : body.streamPassword === ""
+            ? null
+            : encrypt(String(body.streamPassword)),
+      streamInstructions: body.streamInstructions !== undefined ? body.streamInstructions : event.streamInstructions,
+      recordingUrl: body.recordingUrl !== undefined ? body.recordingUrl : event.recordingUrl,
+
       venue: body.venue ?? event.venue,
       address: body.address ?? event.address,
       city: body.city ?? event.city,
@@ -60,7 +99,10 @@ export async function PUT(
     },
   });
 
-  return NextResponse.json(updated);
+  // Don't leak the encrypted blob to the client.
+  const { streamPasswordEnc, ...rest } = updated;
+  void streamPasswordEnc;
+  return NextResponse.json(rest);
 }
 
 export async function DELETE(

@@ -130,5 +130,6 @@ export const config = {
     "/api/payments/:path*",
     "/api/badges/:path*",
     "/api/users/:path*",
+    "/api/sessions/:path*",
   ],
 };

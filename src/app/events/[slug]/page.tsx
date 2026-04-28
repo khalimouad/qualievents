@@ -50,6 +50,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
     include: {
       panelists: { orderBy: { sortOrder: "asc" } },
       sponsors: { orderBy: { sortOrder: "asc" } },
+      sessions: { orderBy: [{ day: "asc" }, { sortOrder: "asc" }, { startTime: "asc" }] },
       _count: { select: { subscribers: true } },
     },
   });
@@ -112,10 +113,21 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
               <span className={`text-xs font-bold uppercase tracking-wider ${event.heroImage ? "text-white" : "text-text-secondary"}`}>{t.event.pastBadge}</span>
             </div>
           )}
-          <div className={`inline-flex items-center gap-2.5 rounded-full px-5 py-2.5 mb-6 animate-fade-in-down ${event.heroImage ? "bg-white/15 backdrop-blur-xl border border-white/25 shadow-xl" : "glass"}`}>
-            <div className={`w-2 h-2 rounded-full ${isPastEvent ? "bg-white/60" : "bg-success animate-pulse"}`} />
-            <Calendar className={`w-3.5 h-3.5 ${event.heroImage ? "text-white" : "text-primary"}`} />
-            <span className={`text-sm font-medium ${event.heroImage ? "text-white" : "text-foreground/80"}`}>{formattedDate}</span>
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-6 animate-fade-in-down">
+            <div className={`inline-flex items-center gap-2.5 rounded-full px-5 py-2.5 ${event.heroImage ? "bg-white/15 backdrop-blur-xl border border-white/25 shadow-xl" : "glass"}`}>
+              <div className={`w-2 h-2 rounded-full ${isPastEvent ? "bg-white/60" : "bg-success animate-pulse"}`} />
+              <Calendar className={`w-3.5 h-3.5 ${event.heroImage ? "text-white" : "text-primary"}`} />
+              <span className={`text-sm font-medium ${event.heroImage ? "text-white" : "text-foreground/80"}`}>{formattedDate}</span>
+            </div>
+            {event.format !== "IN_PERSON" && (
+              <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 ${event.heroImage ? "bg-white/15 backdrop-blur-xl border border-white/25 shadow-xl" : "glass"}`}>
+                <span className="text-base">🎥</span>
+                <span className={`text-sm font-medium ${event.heroImage ? "text-white" : "text-foreground/80"}`}>
+                  {event.format === "ONLINE" ? "100% en ligne" : "Hybride — sur place + en ligne"}
+                  {event.platform ? ` · ${event.platform}` : ""}
+                </span>
+              </div>
+            )}
           </div>
 
           {event.tagline && (
@@ -229,7 +241,9 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
             {[
               { icon: <Users className="w-6 h-6" />, title: t.event.networking.title, desc: `${t.event.networking.desc} (${event.maxAttendees}+)`, color: "from-blue-500 to-indigo-600", shadow: "shadow-blue-500/20" },
               { icon: <Zap className="w-6 h-6" />, title: t.event.workshops.title, desc: t.event.workshops.desc, color: "from-primary to-primary-dark", shadow: "shadow-primary/20" },
-              { icon: <Globe className="w-6 h-6" />, title: t.event.venue.title, desc: `${event.venue}, ${event.city}, ${event.country}`, color: "from-accent to-accent-light", shadow: "shadow-accent/20" },
+              event.format === "ONLINE"
+                ? { icon: <Globe className="w-6 h-6" />, title: "Diffusion en ligne", desc: `${event.platform || "Visioconférence"} — le lien d'accès vous est envoyé après inscription.`, color: "from-accent to-accent-light", shadow: "shadow-accent/20" }
+                : { icon: <Globe className="w-6 h-6" />, title: t.event.venue.title, desc: `${event.venue}, ${event.city}, ${event.country}${event.format === "HYBRID" ? " — diffusion en ligne disponible" : ""}`, color: "from-accent to-accent-light", shadow: "shadow-accent/20" },
             ].map((card) => (
               <div key={card.title} className="group relative">
                 <div className="relative bg-black/5 dark:bg-white/5 backdrop-blur-sm rounded-[20px] p-8 border border-black/5 dark:border-black/5 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 border-black/10 dark:border-white/20 transition-all duration-300">
@@ -244,6 +258,120 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
           </div>
         </div>
       </section>
+
+      {/* CONTEXT / OBJECTIVES / TARGET AUDIENCE */}
+      {(event.context || event.objectives || event.targetAudience) && (
+        <section id="programme-detail" className="py-8 sm:py-12 bg-background noise-overlay relative">
+          <div className="absolute inset-0 grid-pattern opacity-50" />
+          <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5">
+              {event.context && (
+                <article className="card p-6 md:col-span-2">
+                  <h3 className="text-xs uppercase tracking-[0.15em] text-primary font-semibold mb-2">Contexte et enjeux</h3>
+                  <p className="text-foreground leading-relaxed whitespace-pre-line">{event.context}</p>
+                </article>
+              )}
+              {event.objectives && (
+                <article className="card p-6">
+                  <h3 className="text-xs uppercase tracking-[0.15em] text-primary font-semibold mb-3">Objectifs</h3>
+                  <ul className="space-y-1.5 text-sm text-foreground">
+                    {event.objectives.split(/\n+/).filter(Boolean).map((line, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <span className="text-primary mt-1.5 flex-shrink-0 w-1 h-1 rounded-full bg-primary" />
+                        <span className="leading-relaxed">{line.replace(/^[-•·]\s*/, "")}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              )}
+              {event.targetAudience && (
+                <article className="card p-6">
+                  <h3 className="text-xs uppercase tracking-[0.15em] text-primary font-semibold mb-3">Public cible</h3>
+                  <ul className="space-y-1.5 text-sm text-foreground">
+                    {event.targetAudience.split(/\n+/).filter(Boolean).map((line, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <span className="text-primary mt-1.5 flex-shrink-0 w-1 h-1 rounded-full bg-primary" />
+                        <span className="leading-relaxed">{line.replace(/^[-•·]\s*/, "")}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* PROGRAMME — sessions grouped by day */}
+      {event.sessions && event.sessions.length > 0 && (
+        <section id="programme" className="py-8 sm:py-12 bg-surface noise-overlay relative">
+          <div className="absolute inset-0 grid-pattern opacity-30" />
+          <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-6">
+              <span className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">Le programme</span>
+              <h2 className="text-2xl sm:text-4xl font-bold text-foreground mt-3 mb-5">Contenu et déroulé</h2>
+            </div>
+            <div className="space-y-6">
+              {Array.from(new Set(event.sessions.map((s) => s.day))).sort((a, b) => a - b).map((day) => {
+                const items = event.sessions.filter((s) => s.day === day);
+                const dayDate = new Date(eventDate);
+                dayDate.setDate(dayDate.getDate() + (day - 1));
+                return (
+                  <div key={day} className="card overflow-hidden">
+                    <header className="px-5 py-3 border-b border-border bg-subtle/50">
+                      <p className="text-xs uppercase tracking-[0.15em] text-text-secondary font-semibold">Jour {day}</p>
+                      <p className="text-sm text-foreground font-medium mt-0.5">
+                        {dayDate.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}
+                      </p>
+                    </header>
+                    <ol className="divide-y divide-border">
+                      {items.map((s) => {
+                        const emoji =
+                          s.kind === "WORKSHOP" ? "🛠️" :
+                          s.kind === "BREAK" ? "☕" :
+                          s.kind === "VISIT" ? "🏛️" :
+                          s.kind === "DINNER" ? "🍽️" :
+                          s.kind === "NETWORKING" ? "🤝" :
+                          s.kind === "EXAM" ? "📝" : "📘";
+                        return (
+                          <li key={s.id} className="px-5 py-4 flex items-start gap-4">
+                            <div className="hidden sm:flex flex-col items-end pt-0.5 w-20 flex-shrink-0">
+                              {(s.startTime || s.endTime) && (
+                                <span className="text-xs text-foreground font-mono font-semibold">
+                                  {s.startTime || ""}{s.endTime ? ` – ${s.endTime}` : ""}
+                                </span>
+                              )}
+                              {s.location && (
+                                <span className="text-[10px] text-text-secondary mt-0.5 truncate max-w-full">📍 {s.location}</span>
+                              )}
+                            </div>
+                            <span className="text-2xl flex-shrink-0" aria-hidden>{emoji}</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-foreground">{s.title}</p>
+                              {s.speakerName && (
+                                <p className="text-xs text-primary mt-0.5">Avec {s.speakerName}</p>
+                              )}
+                              {s.description && (
+                                <p className="text-sm text-text-secondary mt-1.5 leading-relaxed whitespace-pre-line">{s.description}</p>
+                              )}
+                              <div className="sm:hidden mt-1.5 flex items-center gap-3 text-[11px] text-text-secondary">
+                                {(s.startTime || s.endTime) && (
+                                  <span className="font-mono">{s.startTime || ""}{s.endTime ? ` – ${s.endTime}` : ""}</span>
+                                )}
+                                {s.location && <span>📍 {s.location}</span>}
+                              </div>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* SPEAKERS */}
       {event.panelists.length > 0 && (

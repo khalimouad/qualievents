@@ -27,6 +27,9 @@ export const VARIABLES = [
   { token: "{registrationUrl}", label: "Lien d'inscription" },
   { token: "{badgeUrl}", label: "Lien du badge" },
   { token: "{eventUrl}", label: "Page de l'événement" },
+  { token: "{streamUrl}", label: "Lien visioconférence" },
+  { token: "{recordingUrl}", label: "Lien rediffusion" },
+  { token: "{platform}", label: "Plateforme (Zoom, Teams…)" },
 ] as const;
 
 export interface SubstitutionContext {
@@ -42,6 +45,9 @@ export interface SubstitutionContext {
   eventSlug: string;
   baseUrl: string;
   badgeCode?: string | null;
+  streamUrl?: string | null;
+  recordingUrl?: string | null;
+  platform?: string | null;
 }
 
 export function applyVariables(text: string, ctx: SubstitutionContext): string {
@@ -61,6 +67,9 @@ export function applyVariables(text: string, ctx: SubstitutionContext): string {
     "{registrationUrl}": `${eventUrl}/register`,
     "{badgeUrl}": ctx.badgeCode ? `${eventUrl}/badge?code=${ctx.badgeCode}` : `${eventUrl}/badge`,
     "{eventUrl}": eventUrl,
+    "{streamUrl}": ctx.streamUrl || "",
+    "{recordingUrl}": ctx.recordingUrl || "",
+    "{platform}": ctx.platform || "",
   };
   return text.replace(/\{[a-zA-Z]+\}/g, (m) => (m in map ? map[m] : m));
 }

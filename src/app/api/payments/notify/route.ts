@@ -6,6 +6,7 @@ import {
   verifyWebhookSignature,
   getCinetPayCreds,
 } from "@/lib/cinetpay";
+import { decrypt } from "@/lib/crypto";
 import { generateBadgeCode, generateQRDataURL } from "@/lib/qrcode";
 import { sendEmail, buildBadgeEmail } from "@/lib/email";
 
@@ -150,11 +151,27 @@ export async function POST(req: NextRequest) {
         data: { code: badgeCode, qrData, subscriberId: subscriber.id, eventId: payment.eventId },
       });
 
+      let streamPassword: string | null = null;
+      if (payment.event.streamPasswordEnc) {
+        try {
+          streamPassword = decrypt(payment.event.streamPasswordEnc);
+        } catch {
+          streamPassword = null;
+        }
+      }
+
       const emailHtml = buildBadgeEmail(
         `${subscriber.firstName} ${subscriber.lastName}`,
         payment.event.title,
         badgeCode,
-        qrData
+        qrData,
+        {
+          format: (payment.event.format as "IN_PERSON" | "ONLINE" | "HYBRID") || "IN_PERSON",
+          streamUrl: payment.event.streamUrl,
+          streamPassword,
+          platform: payment.event.platform,
+          streamInstructions: payment.event.streamInstructions,
+        }
       );
       sendEmail({
         to: subscriber.email,
