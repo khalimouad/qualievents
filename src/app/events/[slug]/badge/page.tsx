@@ -63,7 +63,7 @@ export default function EventBadgePage() {
               {searchBy === "code" ? (
                 <div>
                   <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">{t.badge.byCode}</label>
-                  <input type="text" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} className="w-full px-4 py-4 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl focus:bg-white/10 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-center text-2xl font-bold tracking-[0.3em] uppercase text-foreground placeholder:text-gray-600" placeholder="A1B2C3D4" maxLength={8} />
+                  <input type="text" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} className="w-full px-4 py-4 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl focus:bg-white/10 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-center text-2xl font-bold tracking-[0.3em] uppercase text-foreground placeholder:text-gray-600" placeholder="A1B2C3D4..." maxLength={32} />
                 </div>
               ) : (
                 <div>

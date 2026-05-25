@@ -85,7 +85,7 @@ export default function BadgePage() {
                   <input
                     type="text" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())}
                     className="w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-center text-2xl font-bold tracking-[0.3em] uppercase"
-                    placeholder="A1B2C3D4" maxLength={8}
+                    placeholder="A1B2C3D4..." maxLength={32}
                   />
                 </div>
               ) : (
