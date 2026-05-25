@@ -273,14 +273,16 @@ print_step 4 "Database"
 if [ "$DEPLOY_MODE" = "saas" ]; then
   echo -e "  ${YELLOW}PostgreSQL connection string required.${NC}"
   echo -e "  ${DIM}Format: postgresql://user:password@host:5432/dbname${NC}"
-  prompt_with_default "PostgreSQL URL" "" DATABASE_URL
-  while [ -z "$DATABASE_URL" ]; do
+  prompt_with_default "PostgreSQL URL (pooled)" "" POSTGRES_PRISMA_URL
+  while [ -z "$POSTGRES_PRISMA_URL" ]; do
     echo -e "  ${RED}Database URL is required for SaaS mode.${NC}"
-    prompt_with_default "PostgreSQL URL" "" DATABASE_URL
+    prompt_with_default "PostgreSQL URL (pooled)" "" POSTGRES_PRISMA_URL
   done
-  print_success "PostgreSQL: ${DATABASE_URL:0:30}..."
+  prompt_with_default "PostgreSQL URL (direct, for migrations)" "$POSTGRES_PRISMA_URL" POSTGRES_URL_NON_POOLING
+  print_success "PostgreSQL: ${POSTGRES_PRISMA_URL:0:30}..."
 else
-  DATABASE_URL="file:./dev.db"
+  POSTGRES_PRISMA_URL="file:./dev.db"
+  POSTGRES_URL_NON_POOLING="file:./dev.db"
   print_success "SQLite: ./prisma/dev.db (local file)"
 fi
 
@@ -402,7 +404,8 @@ cat > .env << ENVEOF
 # ============================================
 
 DEPLOY_MODE="$DEPLOY_MODE"
-DATABASE_URL="$DATABASE_URL"
+POSTGRES_PRISMA_URL="$POSTGRES_PRISMA_URL"
+POSTGRES_URL_NON_POOLING="$POSTGRES_URL_NON_POOLING"
 NEXT_PUBLIC_APP_URL="$APP_URL"
 PORT="$APP_PORT"
 HOSTNAME="0.0.0.0"
