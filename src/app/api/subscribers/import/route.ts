@@ -20,8 +20,27 @@ export async function POST(req: NextRequest) {
   let skipped = 0;
   const errors: string[] = [];
 
+  function parseCSVLine(line: string): string[] {
+    const result: string[] = [];
+    let cur = "";
+    let inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      if (line[i] === '"') {
+        if (inQ && line[i + 1] === '"') { cur += '"'; i++; }
+        else { inQ = !inQ; }
+      } else if (line[i] === ',' && !inQ) {
+        result.push(cur.trim());
+        cur = "";
+      } else {
+        cur += line[i];
+      }
+    }
+    result.push(cur.trim());
+    return result;
+  }
+
   for (const line of lines) {
-    const parts = line.split(",").map((s: string) => s.trim().replace(/^"|"$/g, ""));
+    const parts = parseCSVLine(line);
     if (parts.length < 3) {
       errors.push(`Ligne invalide: ${line.slice(0, 50)}`);
       continue;

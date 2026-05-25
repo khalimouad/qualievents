@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, use, useMemo } from "react";
-import { Users, Search, Download, QrCode, Trash2, Upload, Mail, CheckSquare, Square } from "lucide-react";
+import { Users, Search, Download, QrCode, Trash2, Upload, Mail, CheckSquare, Square, UserPlus, Printer, X } from "lucide-react";
 import { AdminGate } from "@/components/AdminGate";
 import { t } from "@/lib/i18n";
 
@@ -18,6 +18,8 @@ interface Subscriber {
   badge: { code: string; isScanned: boolean } | null;
 }
 
+const EMPTY_FORM = { firstName: "", lastName: "", email: "", phone: "", company: "", jobTitle: "" };
+
 export default function EventSubscribersPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
@@ -28,6 +30,15 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
   const [bulkMessage, setBulkMessage] = useState<string | null>(null);
+
+  // Add subscriber modal
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addForm, setAddForm] = useState(EMPTY_FORM);
+  const [adding, setAdding] = useState(false);
+  const [addError, setAddError] = useState("");
+
+  // Per-row badge send
+  const [sendingBadgeFor, setSendingBadgeFor] = useState<string | null>(null);
 
   const load = async () => {
     const evRes = await fetch(`/api/events/${slug}`);
@@ -63,6 +74,40 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
     setImporting(false);
     setCsvText("");
     load();
+  };
+
+  const addSubscriber = async () => {
+    if (!addForm.firstName.trim() || !addForm.lastName.trim() || !addForm.email.trim() || !_eventId) return;
+    setAdding(true);
+    setAddError("");
+    const q = (v: string) => `"${v.replace(/"/g, '""')}"`;
+    const row = [addForm.firstName, addForm.lastName, addForm.email, addForm.phone, addForm.company, addForm.jobTitle]
+      .map(q).join(",");
+    const res = await fetch("/api/subscribers/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ eventId: _eventId, csv: row }),
+    });
+    const data = await res.json();
+    setAdding(false);
+    if (!res.ok) { setAddError(data.error || "Échec de l'ajout"); return; }
+    if (data.skipped > 0) { setAddError("Cet email est déjà inscrit pour cet événement"); return; }
+    setShowAddModal(false);
+    setAddForm(EMPTY_FORM);
+    setBulkMessage(`${addForm.firstName} ${addForm.lastName} ajouté(e) avec succès`);
+    load();
+  };
+
+  const sendBadgeTo = async (id: string) => {
+    setSendingBadgeFor(id);
+    const res = await fetch("/api/subscribers/bulk", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids: [id], action: "resend-badge" }),
+    });
+    const data = await res.json();
+    setSendingBadgeFor(null);
+    setBulkMessage(data.sent > 0 ? "Badge envoyé par email" : "Échec de l'envoi (statut non confirmé ?)");
   };
 
   useEffect(() => { load(); }, [slug]);
@@ -145,9 +190,121 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
 
   return (
     <div>
+      {/* Add Subscriber Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md p-6 border border-border">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-base font-bold text-foreground">Ajouter un participant</h2>
+              <button
+                onClick={() => { setShowAddModal(false); setAddError(""); setAddForm(EMPTY_FORM); }}
+                className="w-8 h-8 rounded-lg bg-subtle flex items-center justify-center text-muted hover:text-foreground transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {addError && (
+              <div className="bg-danger/10 border border-danger/20 text-danger px-3 py-2.5 rounded-lg text-xs mb-4">{addError}</div>
+            )}
+
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div>
+                <label className="block text-[10px] font-semibold text-muted uppercase tracking-wider mb-1">Prénom *</label>
+                <input
+                  type="text" value={addForm.firstName}
+                  onChange={e => setAddForm(f => ({ ...f, firstName: e.target.value }))}
+                  className="w-full px-3 py-2 bg-subtle border border-border rounded-lg text-xs focus:bg-card focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none"
+                  placeholder="Jean"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-semibold text-muted uppercase tracking-wider mb-1">Nom *</label>
+                <input
+                  type="text" value={addForm.lastName}
+                  onChange={e => setAddForm(f => ({ ...f, lastName: e.target.value }))}
+                  className="w-full px-3 py-2 bg-subtle border border-border rounded-lg text-xs focus:bg-card focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none"
+                  placeholder="Dupont"
+                />
+              </div>
+            </div>
+
+            <div className="mb-3">
+              <label className="block text-[10px] font-semibold text-muted uppercase tracking-wider mb-1">Email *</label>
+              <input
+                type="email" value={addForm.email}
+                onChange={e => setAddForm(f => ({ ...f, email: e.target.value }))}
+                className="w-full px-3 py-2 bg-subtle border border-border rounded-lg text-xs focus:bg-card focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none"
+                placeholder="jean@journal.com"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div>
+                <label className="block text-[10px] font-semibold text-muted uppercase tracking-wider mb-1">Poste</label>
+                <input
+                  type="text" value={addForm.jobTitle}
+                  onChange={e => setAddForm(f => ({ ...f, jobTitle: e.target.value }))}
+                  className="w-full px-3 py-2 bg-subtle border border-border rounded-lg text-xs focus:bg-card focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none"
+                  placeholder="Journaliste"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-semibold text-muted uppercase tracking-wider mb-1">Téléphone</label>
+                <input
+                  type="tel" value={addForm.phone}
+                  onChange={e => setAddForm(f => ({ ...f, phone: e.target.value }))}
+                  className="w-full px-3 py-2 bg-subtle border border-border rounded-lg text-xs focus:bg-card focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none"
+                  placeholder="+225 07 00 00 00 00"
+                />
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-[10px] font-semibold text-muted uppercase tracking-wider mb-1">Entreprise / Rédaction</label>
+              <input
+                type="text" value={addForm.company}
+                onChange={e => setAddForm(f => ({ ...f, company: e.target.value }))}
+                className="w-full px-3 py-2 bg-subtle border border-border rounded-lg text-xs focus:bg-card focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none"
+                placeholder="Le Monde"
+              />
+            </div>
+
+            <p className="text-[10px] text-muted mb-4">
+              Le participant sera directement <strong>confirmé</strong> avec un badge généré. Envoyez-lui le badge par email depuis la liste.
+            </p>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setShowAddModal(false); setAddError(""); setAddForm(EMPTY_FORM); }}
+                className="flex-1 px-4 py-2 bg-subtle text-muted hover:text-foreground rounded-lg text-xs font-medium transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={addSubscriber}
+                disabled={adding || !addForm.firstName.trim() || !addForm.lastName.trim() || !addForm.email.trim()}
+                className="flex-1 btn-primary px-4 py-2 text-xs inline-flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+              >
+                {adding
+                  ? <><span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Ajout...</>
+                  : <><UserPlus className="w-3.5 h-3.5" /> Ajouter</>
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between gap-3 mb-3">
         <p className="text-xs text-muted">{subscribers.length} au total</p>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => { setShowAddModal(true); setAddError(""); }}
+            className="px-3 py-1.5 text-xs inline-flex items-center gap-1.5 rounded-[10px] border font-medium transition-colors bg-card text-text-secondary border-border hover:text-foreground"
+          >
+            <UserPlus className="w-3 h-3" /> Ajouter
+          </button>
           <button onClick={() => setShowImport(!showImport)} className={`px-3 py-1.5 text-xs inline-flex items-center gap-1.5 rounded-[10px] border font-medium transition-colors ${showImport ? "bg-subtle text-foreground border-border" : "bg-card text-text-secondary border-border hover:text-foreground"}`}>
             <Upload className="w-3 h-3" /> Importer CSV
           </button>
@@ -264,7 +421,7 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
                   <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider hidden md:table-cell">{t.register.company}</th>
                   <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">Statut</th>
                   <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-muted uppercase tracking-wider">Badge</th>
-                  <th className="px-4 py-2.5 w-8"></th>
+                  <th className="px-4 py-2.5 w-16"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -300,9 +457,31 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
                       </td>
                       <td className="px-4 py-2.5">
                         {sub.badge ? (
-                          <div className="flex items-center gap-1">
-                            <QrCode className={`w-3 h-3 ${sub.badge.isScanned ? "text-success" : "text-foreground/80"}`} />
-                            <span className="text-[10px] font-mono text-muted">{sub.badge.code}</span>
+                          <div className="flex items-center gap-1.5">
+                            <QrCode className={`w-3 h-3 flex-shrink-0 ${sub.badge.isScanned ? "text-success" : "text-foreground/80"}`} />
+                            <span className="text-[10px] font-mono text-muted">{sub.badge.code.slice(0, 8)}…</span>
+                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                              <a
+                                href={`/api/badges/pdf?code=${sub.badge.code}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-muted hover:text-primary transition-colors"
+                                title="Imprimer le badge"
+                              >
+                                <Printer className="w-3 h-3" />
+                              </a>
+                              <button
+                                onClick={() => sendBadgeTo(sub.id)}
+                                disabled={sendingBadgeFor === sub.id}
+                                className="text-muted hover:text-primary transition-colors disabled:opacity-30"
+                                title="Envoyer le badge par email"
+                              >
+                                {sendingBadgeFor === sub.id
+                                  ? <span className="w-3 h-3 border border-muted border-t-primary rounded-full animate-spin block" />
+                                  : <Mail className="w-3 h-3" />
+                                }
+                              </button>
+                            </div>
                           </div>
                         ) : <span className="text-foreground/80 text-[10px]">—</span>}
                       </td>
