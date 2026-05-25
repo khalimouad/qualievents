@@ -39,8 +39,9 @@ export async function GET(req: NextRequest) {
     .name { font-size: 22px; font-weight: 800; color: #0f172a; margin-bottom: 4px; }
     .company { font-size: 13px; color: #64748b; margin-bottom: 2px; }
     .title { font-size: 12px; color: ${themeColor}; font-weight: 600; }
+    .badge-num { font-size: 13px; font-weight: 800; color: ${themeColor}; font-family: monospace; letter-spacing: 0.05em; margin-bottom: 12px; }
     .code-box { background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 10px; padding: 10px 20px; margin-top: 16px; }
-    .code { font-size: 24px; font-weight: 800; letter-spacing: 0.2em; color: ${themeColor}; font-family: monospace; }
+    .code { font-size: 14px; font-weight: 700; letter-spacing: 0.1em; color: #64748b; font-family: monospace; }
     .code-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #94a3b8; margin-bottom: 4px; }
     .footer { background: #f8fafc; padding: 12px; text-align: center; font-size: 10px; color: #94a3b8; border-top: 1px solid #e2e8f0; }
     @media print { body { width: 4in; height: 6in; } .badge { border: none; } }
@@ -53,6 +54,7 @@ export async function GET(req: NextRequest) {
       <p>${eventDate} · ${badge.event.venue}, ${badge.event.city}</p>
     </div>
     <div class="body">
+      <div class="badge-num">#${String(badge.badgeNumber).padStart(3, "0")}</div>
       <img src="${badge.qrData}" alt="QR" class="qr" />
       <div class="name">${badge.subscriber.firstName} ${badge.subscriber.lastName}</div>
       ${badge.subscriber.company ? `<div class="company">${badge.subscriber.company}</div>` : ""}

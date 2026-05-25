@@ -154,9 +154,10 @@ export async function POST(req: NextRequest) {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
       const qrContent = `${appUrl}/api/scan?code=${badgeCode}`;
       const qrData = await generateQRDataURL(qrContent);
+      const badgeNumber = await prisma.badge.count({ where: { eventId: payment.eventId } }) + 1;
 
       await prisma.badge.create({
-        data: { code: badgeCode, qrData, subscriberId: subscriber.id, eventId: payment.eventId },
+        data: { code: badgeCode, badgeNumber, qrData, subscriberId: subscriber.id, eventId: payment.eventId },
       });
 
       let streamPassword: string | null = null;

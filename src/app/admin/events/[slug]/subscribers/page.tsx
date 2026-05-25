@@ -15,7 +15,7 @@ interface Subscriber {
   jobTitle: string | null;
   status: string;
   createdAt: string;
-  badge: { code: string; isScanned: boolean } | null;
+  badge: { code: string; badgeNumber: number; isScanned: boolean } | null;
 }
 
 const EMPTY_FORM = { firstName: "", lastName: "", email: "", phone: "", company: "", jobTitle: "" };
@@ -459,7 +459,7 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
                         {sub.badge ? (
                           <div className="flex items-center gap-1.5">
                             <QrCode className={`w-3 h-3 flex-shrink-0 ${sub.badge.isScanned ? "text-success" : "text-foreground/80"}`} />
-                            <span className="text-[10px] font-mono text-muted">{sub.badge.code.slice(0, 8)}…</span>
+                            <span className="text-[10px] font-mono font-bold text-foreground">#{String(sub.badge.badgeNumber).padStart(3, "0")}</span>
                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
                               <a
                                 href={`/api/badges/pdf?code=${sub.badge.code}`}

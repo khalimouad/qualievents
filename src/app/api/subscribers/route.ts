@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     where: eventId ? { eventId } : undefined,
     include: {
       event: { select: { title: true } },
-      badge: { select: { code: true, isScanned: true } },
+      badge: { select: { code: true, badgeNumber: true, isScanned: true } },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -115,10 +115,12 @@ export async function POST(req: NextRequest) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const qrContent = `${appUrl}/api/scan?code=${badgeCode}`;
   const qrData = await generateQRDataURL(qrContent);
+  const badgeNumber = await prisma.badge.count({ where: { eventId: body.eventId } }) + 1;
 
   await prisma.badge.create({
     data: {
       code: badgeCode,
+      badgeNumber,
       qrData,
       subscriberId: subscriber.id,
       eventId: body.eventId,
