@@ -2,23 +2,24 @@ import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 import crypto from "crypto";
 
-const RAW_SECRET = process.env.SESSION_SECRET;
 const FALLBACK = "fallback-dev-secret-change-me";
-const isBadSecret = !RAW_SECRET || RAW_SECRET === FALLBACK || /^0+$/.test(RAW_SECRET);
 
-if (isBadSecret) {
-  if (process.env.NODE_ENV === "production") {
-    throw new Error(
-      "SESSION_SECRET is missing or insecure. Generate one with: openssl rand -hex 32"
-    );
-  } else {
+function getSecret(): string {
+  const raw = process.env.SESSION_SECRET;
+  const bad = !raw || raw === FALLBACK || /^0+$/.test(raw);
+  if (bad) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "SESSION_SECRET is missing or insecure. Generate one with: openssl rand -hex 32"
+      );
+    }
     console.warn(
       "[auth] SESSION_SECRET is missing or insecure — using a development fallback. Set it via: openssl rand -hex 32"
     );
+    return FALLBACK;
   }
+  return raw;
 }
-
-const SESSION_SECRET = RAW_SECRET || FALLBACK;
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 12);
@@ -30,7 +31,7 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 
 export function generateSessionToken(userId: string, role: string): string {
   const payload = `${userId}:${role}:${Date.now()}`;
-  const hmac = crypto.createHmac("sha256", SESSION_SECRET).update(payload).digest("hex");
+  const hmac = crypto.createHmac("sha256", getSecret()).update(payload).digest("hex");
   return Buffer.from(`${payload}:${hmac}`).toString("base64");
 }
 
@@ -41,7 +42,7 @@ export function verifySessionToken(token: string): { userId: string; role: strin
     if (parts.length !== 4) return null;
     const [userId, role, timestamp, hmac] = parts;
     const payload = `${userId}:${role}:${timestamp}`;
-    const expectedHmac = crypto.createHmac("sha256", SESSION_SECRET).update(payload).digest("hex");
+    const expectedHmac = crypto.createHmac("sha256", getSecret()).update(payload).digest("hex");
     if (hmac !== expectedHmac) return null;
     if (Date.now() - parseInt(timestamp) > 24 * 60 * 60 * 1000) return null;
     return { userId, role };
