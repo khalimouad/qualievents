@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
+import { Nunito, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const fontSerif = Fraunces({
+const fontDisplay = Nunito({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700", "800", "900"],
   variable: "--font-serif",
   display: "swap",
 });
 
 const fontSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["300", "400", "500", "600", "700", "800"],
   variable: "--font-sans",
   display: "swap",
 });
@@ -29,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className={`h-full antialiased ${fontSerif.variable} ${fontSans.variable}`} suppressHydrationWarning>
+    <html lang="fr" className={`h-full antialiased ${fontDisplay.variable} ${fontSans.variable}`} suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.json" />
         <link rel="icon" href="/icon-192.svg" type="image/svg+xml" />
