@@ -19,7 +19,22 @@ model Organization {
   events           Event[]
   users            AdminUser[]
   paymentSettings  PaymentSettings?
+  emailSettings    EmailSettings?
   series           EventSeries[]
+}
+
+model EmailSettings {
+  id          String        @id @default(uuid())
+  orgId       String?       @unique
+  org         Organization? @relation(fields: [orgId], references: [id])
+  smtpHost    String        @default("smtp.gmail.com")
+  smtpPort    Int           @default(587)
+  smtpUser    String?
+  smtpPassEnc String?
+  senderName  String        @default("QualiEvents")
+  senderEmail String?
+  updatedAt   DateTime      @updatedAt
+  updatedById String?
 }
 
 model PaymentSettings {

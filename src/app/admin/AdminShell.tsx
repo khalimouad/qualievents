@@ -15,7 +15,7 @@ const baseNavItems = [
   { href: "/admin/users", label: "Utilisateurs", icon: Users, role: "admin" as Role },
   { href: "/admin/audit", label: "Journal", icon: ScrollText, role: "admin" as Role },
   { href: "/scan", label: t.admin.scanner, icon: QrCode, role: null as Role },
-  { href: "/admin/settings/payments", label: "Paramètres", icon: Settings, role: "admin" as Role },
+  { href: "/admin/settings/email", label: "Paramètres", icon: Settings, role: "admin" as Role },
 ];
 
 export default function AdminShell({
@@ -60,7 +60,8 @@ export default function AdminShell({
               const Icon = item.icon;
               const isActive =
                 pathname === item.href ||
-                (item.href === "/admin" && pathname.startsWith("/admin/events"));
+                (item.href === "/admin" && pathname.startsWith("/admin/events")) ||
+                (item.href === "/admin/settings/email" && pathname.startsWith("/admin/settings"));
               return (
                 <Link
                   key={item.href}

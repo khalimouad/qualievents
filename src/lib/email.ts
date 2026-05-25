@@ -1,40 +1,73 @@
 import nodemailer from "nodemailer";
+import { prisma } from "@/lib/prisma";
+import { decrypt } from "@/lib/crypto";
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || "smtp.gmail.com",
-  port: parseInt(process.env.SMTP_PORT || "587"),
-  secure: false,
-  auth: {
+interface SmtpConfig {
+  host: string;
+  port: number;
+  user: string | undefined;
+  pass: string | undefined;
+  senderName: string;
+  senderEmail: string;
+}
+
+async function getSmtpConfig(): Promise<SmtpConfig> {
+  try {
+    const row = await prisma.emailSettings.findFirst();
+    if (row && (row.smtpUser || row.smtpPassEnc)) {
+      let pass: string | undefined;
+      if (row.smtpPassEnc) {
+        try { pass = decrypt(row.smtpPassEnc); } catch { pass = undefined; }
+      }
+      return {
+        host: row.smtpHost,
+        port: row.smtpPort,
+        user: row.smtpUser ?? undefined,
+        pass,
+        senderName: row.senderName,
+        senderEmail: row.senderEmail || row.smtpUser || "noreply@qualievents.com",
+      };
+    }
+  } catch {
+    // DB unavailable — fall through to env vars
+  }
+  return {
+    host: process.env.SMTP_HOST || "smtp.gmail.com",
+    port: parseInt(process.env.SMTP_PORT || "587"),
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
-  },
-});
+    senderName: "QualiEvents",
+    senderEmail: process.env.SMTP_USER || "noreply@qualievents.com",
+  };
+}
 
 interface SendEmailOptions {
   to: string;
   subject: string;
   html: string;
   /**
-   * Optional one-click unsubscribe URL.
-   * When set, two RFC 8058 / 2369 headers are added:
-   *   List-Unsubscribe: <url>
-   *   List-Unsubscribe-Post: List-Unsubscribe=One-Click
-   * This flips the "unsubscribe" pill that Gmail / Apple Mail / Outlook
-   * surface inline in the message header — required for marketing volume
-   * + RGPD compliance.
+   * Optional one-click unsubscribe URL (RFC 8058 / 2369).
+   * Adds List-Unsubscribe headers for Gmail / Apple Mail / Outlook.
    */
   unsubscribeUrl?: string;
 }
 
 export async function sendEmail({ to, subject, html, unsubscribeUrl }: SendEmailOptions) {
   try {
+    const cfg = await getSmtpConfig();
+    const transporter = nodemailer.createTransport({
+      host: cfg.host,
+      port: cfg.port,
+      secure: cfg.port === 465,
+      auth: cfg.user ? { user: cfg.user, pass: cfg.pass } : undefined,
+    });
     const headers: Record<string, string> = {};
     if (unsubscribeUrl) {
       headers["List-Unsubscribe"] = `<${unsubscribeUrl}>`;
       headers["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click";
     }
     const info = await transporter.sendMail({
-      from: `"QualiEvents" <${process.env.SMTP_USER || "noreply@qualievents.com"}>`,
+      from: `"${cfg.senderName}" <${cfg.senderEmail}>`,
       to,
       subject,
       html,
