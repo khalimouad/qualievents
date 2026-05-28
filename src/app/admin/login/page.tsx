@@ -23,7 +23,7 @@ export default function AdminLoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({})) as Record<string, string>;
       if (!res.ok) throw new Error(data.error || t.admin.login.invalid);
 
       if (data.user.role === "staff") {
