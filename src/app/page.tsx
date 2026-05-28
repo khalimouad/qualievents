@@ -18,15 +18,44 @@ export default async function HomePage() {
     orderBy: { date: "asc" },
   });
 
-  const upcomingEvents = events.filter((e) => new Date(e.date) > new Date());
-  const pastEvents = events.filter((e) => new Date(e.date) <= new Date());
+  const now = new Date();
+  const todayStart = new Date(now);
+  todayStart.setHours(0, 0, 0, 0);
+
+  // Ongoing: started AND (endDate in future OR no endDate but started today)
+  const ongoingEvents = events.filter((e) => {
+    const start = new Date(e.date);
+    if (start > now) return false;
+    if (e.endDate) return new Date(e.endDate) >= now;
+    return start >= todayStart;
+  });
+
+  const upcomingEvents = events.filter((e) => new Date(e.date) > now);
+
+  // Past: endDate passed OR (no endDate AND started before today)
+  const pastEvents = events.filter((e) => {
+    const start = new Date(e.date);
+    if (start > now) return false;
+    if (e.endDate) return new Date(e.endDate) < now;
+    return start < todayStart;
+  });
+
+  const activeTab = ongoingEvents.length > 0 ? "ongoing" : "upcoming";
+
+  const tabs = [
+    ...(ongoingEvents.length > 0
+      ? [{ key: "ongoing", label: t.home.ongoingEvents, count: ongoingEvents.length }]
+      : []),
+    { key: "upcoming", label: t.home.upcomingEvents, count: upcomingEvents.length },
+    { key: "past", label: t.home.pastEvents, count: pastEvents.length },
+  ];
 
   return (
     <>
       <Navbar />
 
       {/* ── HERO ── */}
-      <section className="relative min-h-[72vh] flex items-center overflow-hidden">
+      <section className="relative min-h-[80vh] flex items-center overflow-hidden">
         <div
           className="absolute inset-0"
           style={{
@@ -69,7 +98,7 @@ export default async function HomePage() {
           </svg>
         </div>
 
-        <div className="relative z-10 max-w-6xl mx-auto px-6 py-20 w-full grid lg:grid-cols-[1fr_auto] gap-16 items-center">
+        <div className="relative z-10 max-w-6xl mx-auto px-6 py-20 w-full grid lg:grid-cols-[1fr_auto] gap-14 items-center">
           {/* Left: text */}
           <div className="max-w-[560px]">
             <div
@@ -152,57 +181,113 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {/* Right: event pills panel */}
-          {upcomingEvents.length > 0 && (
-            <div className="hidden lg:flex flex-col gap-3 flex-shrink-0 relative">
-              {/* Soft glow behind the pills */}
-              <div
-                className="absolute -inset-6 rounded-[28px] pointer-events-none"
-                style={{
-                  background: "radial-gradient(ellipse at center, rgba(232,197,71,0.05) 0%, transparent 70%)",
-                  border: "1px solid rgba(232,197,71,0.06)",
-                }}
-              />
-              {/* Header */}
-              <div className="hero-event-label animate-fade-in-down">
-                <Calendar className="w-3.5 h-3.5" />
-                Prochains événements
+          {/* Right: hero illustration + event pills */}
+          <div className="hidden lg:flex flex-col gap-3 flex-shrink-0 w-[285px] relative">
+            {/* Soft glow behind the whole panel */}
+            <div
+              className="absolute -inset-8 rounded-[32px] pointer-events-none"
+              style={{
+                background: "radial-gradient(ellipse at center, rgba(232,197,71,0.05) 0%, transparent 70%)",
+                border: "1px solid rgba(232,197,71,0.05)",
+              }}
+            />
+
+            {/* Badge card illustration */}
+            <div className="hero-badge-card animate-float-slow">
+              <div className="hero-badge-card-top">
+                {/* QR code pattern */}
+                <svg viewBox="0 0 72 72" fill="none" className="w-[52px] h-[52px] flex-shrink-0">
+                  {/* TL finder */}
+                  <rect x="1" y="1" width="27" height="27" rx="4" stroke="white" strokeWidth="1.8" strokeOpacity="0.9"/>
+                  <rect x="6" y="6" width="17" height="17" rx="2" fill="white" fillOpacity="0.2"/>
+                  <rect x="11" y="11" width="7" height="7" rx="1" fill="white" fillOpacity="0.85"/>
+                  {/* TR finder */}
+                  <rect x="44" y="1" width="27" height="27" rx="4" stroke="white" strokeWidth="1.8" strokeOpacity="0.9"/>
+                  <rect x="49" y="6" width="17" height="17" rx="2" fill="white" fillOpacity="0.2"/>
+                  <rect x="54" y="11" width="7" height="7" rx="1" fill="white" fillOpacity="0.85"/>
+                  {/* BL finder */}
+                  <rect x="1" y="44" width="27" height="27" rx="4" stroke="white" strokeWidth="1.8" strokeOpacity="0.9"/>
+                  <rect x="6" y="49" width="17" height="17" rx="2" fill="white" fillOpacity="0.2"/>
+                  <rect x="11" y="54" width="7" height="7" rx="1" fill="white" fillOpacity="0.85"/>
+                  {/* Data module dots */}
+                  <rect x="44" y="44" width="5" height="5" rx="1" fill="white" fillOpacity="0.7"/>
+                  <rect x="52" y="44" width="5" height="5" rx="1" fill="white" fillOpacity="0.7"/>
+                  <rect x="60" y="44" width="5" height="5" rx="1" fill="white" fillOpacity="0.7"/>
+                  <rect x="44" y="52" width="5" height="5" rx="1" fill="white" fillOpacity="0.7"/>
+                  <rect x="60" y="52" width="5" height="5" rx="1" fill="white" fillOpacity="0.7"/>
+                  <rect x="52" y="60" width="5" height="5" rx="1" fill="white" fillOpacity="0.7"/>
+                  <rect x="60" y="60" width="5" height="5" rx="1" fill="white" fillOpacity="0.7"/>
+                  <rect x="44" y="60" width="5" height="5" rx="1" fill="white" fillOpacity="0.4"/>
+                </svg>
+                <div className="flex flex-col items-end">
+                  <span className="text-white/55 text-[9px] font-bold uppercase tracking-widest">Badge</span>
+                  <span className="text-white font-serif font-black text-[2rem] leading-none">#001</span>
+                </div>
               </div>
-              {/* Pills */}
-              {upcomingEvents.slice(0, 5).map((ev, i) => (
-                <Link
-                  key={ev.id}
-                  href={`/events/${ev.slug}`}
-                  className="hero-pill animate-fade-in-up group"
-                  style={{
-                    animationDelay: `${i * 80}ms`,
-                    opacity: 0,
-                    animationFillMode: "forwards",
-                  }}
+              <div className="hero-badge-card-body">
+                <div className="font-serif font-black text-base text-foreground leading-tight">Marie Dubois</div>
+                <div className="text-xs font-semibold mt-1" style={{ color: "var(--primary)" }}>Intervenant principal</div>
+                <div
+                  className="text-[10px] font-semibold mt-3 uppercase tracking-wider truncate"
+                  style={{ color: "var(--muted)" }}
                 >
-                  <span
-                    className="hero-pill-dot"
-                    style={{ background: ev.themeColor || "var(--gold)" }}
-                  />
-                  <span className="group-hover:text-primary transition-colors">{ev.title}</span>
-                </Link>
-              ))}
-              {/* Stat badge */}
-              <div
-                className="hero-stat-badge animate-fade-in-up"
-                style={{
-                  opacity: 0,
-                  animationFillMode: "forwards",
-                  animationDelay: `${upcomingEvents.slice(0, 5).length * 80 + 100}ms`,
-                }}
-              >
-                <CheckCircle2 className="w-3 h-3" style={{ color: "var(--accent)" }} />
-                <span>
-                  {events.reduce((s, e) => s + e._count.subscribers, 0).toLocaleString("fr-FR")} participants inscrits
-                </span>
+                  Forum Tech Abidjan 2025
+                </div>
               </div>
             </div>
-          )}
+
+            {/* Floating check-in confirmation */}
+            <div
+              className="hero-checkin-badge animate-fade-in-up"
+              style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.55s" }}
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
+              <span>Check-in validé</span>
+            </div>
+
+            {/* Event pills */}
+            {upcomingEvents.length > 0 && (
+              <>
+                <div className="hero-event-label mt-1">
+                  <Calendar className="w-3.5 h-3.5" />
+                  Prochains événements
+                </div>
+
+                {upcomingEvents.slice(0, 3).map((ev, i) => (
+                  <Link
+                    key={ev.id}
+                    href={`/events/${ev.slug}`}
+                    className="hero-pill animate-fade-in-up group"
+                    style={{
+                      animationDelay: `${600 + i * 80}ms`,
+                      opacity: 0,
+                      animationFillMode: "forwards",
+                    }}
+                  >
+                    <span
+                      className="hero-pill-dot"
+                      style={{ background: ev.themeColor || "var(--gold)" }}
+                    />
+                    <span className="group-hover:text-primary transition-colors truncate">{ev.title}</span>
+                  </Link>
+                ))}
+
+                <div
+                  className="hero-stat-badge animate-fade-in-up"
+                  style={{
+                    opacity: 0,
+                    animationFillMode: "forwards",
+                    animationDelay: `${600 + Math.min(upcomingEvents.length, 3) * 80 + 80}ms`,
+                  }}
+                >
+                  <CheckCircle2 className="w-3 h-3" style={{ color: "var(--accent)" }} />
+                  <span>
+                    {events.reduce((s, e) => s + e._count.subscribers, 0).toLocaleString("fr-FR")} participants inscrits
+                  </span>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </section>
 
@@ -216,15 +301,11 @@ export default async function HomePage() {
             style={{ borderColor: "rgba(232,197,71,0.12)" }}
           >
             <div className="tab-bar">
-              {[
-                { key: "upcoming", label: t.home.upcomingEvents, count: upcomingEvents.length },
-                { key: "past", label: t.home.pastEvents, count: pastEvents.length },
-              ].map(({ key, label, count }) => (
-                /* Static tabs — server component, no JS state needed; upcoming shown first */
+              {tabs.map(({ key, label, count }) => (
                 <a
                   key={key}
                   href={`#${key}`}
-                  className={`tab-item ${key === "upcoming" ? "active" : ""}`}
+                  className={`tab-item ${key === activeTab ? "active" : ""}`}
                 >
                   {label}
                   <span
@@ -233,7 +314,7 @@ export default async function HomePage() {
                   >
                     {count}
                   </span>
-                  {key === "upcoming" && <span className="tab-line" />}
+                  {key === activeTab && <span className="tab-line" />}
                 </a>
               ))}
             </div>
@@ -246,7 +327,79 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          {/* Upcoming */}
+          {/* ── Ongoing ── */}
+          {ongoingEvents.length > 0 && (
+            <div id="ongoing" className="mb-20">
+              <div
+                className="flex items-center gap-3 mb-8 pb-4 border-b"
+                style={{ borderColor: "rgba(232,197,71,0.12)" }}
+              >
+                <span
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold"
+                  style={{ background: "rgba(16,185,129,0.12)", color: "var(--success)", border: "1px solid rgba(16,185,129,0.25)" }}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+                  Live
+                </span>
+                <h2 className="font-serif font-black text-2xl">{t.home.ongoingEvents}</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {ongoingEvents.map((event) => {
+                  const color = event.themeColor || "#E8C547";
+                  return (
+                    <Link key={event.id} href={`/events/${event.slug}`} className="ev-card">
+                      <div className="ev-card-img">
+                        {event.heroImage ? (
+                          <img src={event.heroImage} alt={event.title} />
+                        ) : (
+                          <div
+                            className="w-full h-full"
+                            style={{ background: `linear-gradient(135deg, ${color}28, ${color}10)` }}
+                          />
+                        )}
+                        {event.format && (
+                          <span className="ev-card-badge" style={{ background: color }}>
+                            {event.format === "ONLINE" ? "En ligne" : event.format === "HYBRID" ? "Hybride" : "Présentiel"}
+                          </span>
+                        )}
+                        <span
+                          className="ev-card-countdown"
+                          style={{ background: "var(--success)" }}
+                        >
+                          🔴 En cours
+                        </span>
+                      </div>
+                      <div className="ev-card-body">
+                        <p className="ev-card-date">
+                          {new Date(event.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
+                        </p>
+                        <h3 className="ev-card-title">{event.title}</h3>
+                        {(event.tagline || event.description) && (
+                          <p className="ev-card-tagline">{event.tagline || event.description}</p>
+                        )}
+                        <div className="ev-card-meta">
+                          <span className="flex items-center gap-1">
+                            <MapPin className="w-3 h-3" /> {event.city}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Users className="w-3 h-3" /> {event._count.subscribers}/{event.maxAttendees}
+                          </span>
+                        </div>
+                        <div className="ev-card-footer">
+                          <span className="ev-card-attendees">{event._count.panelists} intervenants</span>
+                          <span className="ev-card-btn" style={{ borderColor: color, color }}>
+                            Voir →
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ── Upcoming ── */}
           <div id="upcoming">
             {upcomingEvents.length === 0 ? (
               <div className="text-center py-20 rounded-2xl border" style={{ borderColor: "var(--border)", color: "var(--muted)" }}>
@@ -255,7 +408,7 @@ export default async function HomePage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {upcomingEvents.map((event) => {
-                  const daysUntil = Math.ceil((new Date(event.date).getTime() - Date.now()) / (86400000));
+                  const daysUntil = Math.ceil((new Date(event.date).getTime() - Date.now()) / 86400000);
                   const color = event.themeColor || "#E8C547";
                   return (
                     <Link key={event.id} href={`/events/${event.slug}`} className="ev-card">
@@ -309,7 +462,7 @@ export default async function HomePage() {
             )}
           </div>
 
-          {/* Past */}
+          {/* ── Past ── */}
           {pastEvents.length > 0 && (
             <div id="past" className="mt-20">
               <div
