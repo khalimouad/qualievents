@@ -81,14 +81,8 @@ export default async function HomePage() {
             >
               <a
                 href="#events"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-serif font-black text-sm uppercase tracking-wider transition-all hover:-translate-y-0.5"
-                style={{
-                  background: "var(--gold)",
-                  color: "#0C0B09",
-                  boxShadow: "0 0 0 0 rgba(232,197,71,0)",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "0 14px 44px rgba(232,197,71,0.35)")}
-                onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "0 0 0 0 rgba(232,197,71,0)")}
+                className="hero-gold-btn inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-serif font-black text-sm uppercase tracking-wider"
+                style={{ background: "var(--gold)", color: "#0C0B09" }}
               >
                 {t.home.explore} <ArrowRight className="w-4 h-4" />
               </a>
