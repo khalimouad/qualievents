@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Save, Settings as SettingsIcon, AlertTriangle, CheckCircle2, FlaskConical } from "lucide-react";
+import { ArrowLeft, Save, Settings as SettingsIcon, AlertTriangle, CheckCircle2, FlaskConical, Mail } from "lucide-react";
 
 interface PublicSettings {
   id: string;
@@ -127,6 +127,15 @@ export default function PaymentSettingsPage() {
       <Link href="/admin" className="inline-flex items-center gap-1.5 text-text-secondary hover:text-foreground text-xs font-medium transition-colors">
         <ArrowLeft className="w-3.5 h-3.5" /> Tableau de bord
       </Link>
+
+      <div className="flex gap-1 p-1 bg-subtle rounded-xl border border-border w-fit">
+        <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-card text-foreground shadow-sm border border-border">
+          <SettingsIcon className="w-3.5 h-3.5" /> Paiements
+        </span>
+        <Link href="/admin/settings/email" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-muted hover:text-foreground transition-colors">
+          <Mail className="w-3.5 h-3.5" /> Email / SMTP
+        </Link>
+      </div>
 
       <div className="flex items-start gap-3">
         <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-sm">

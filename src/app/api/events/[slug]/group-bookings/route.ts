@@ -190,8 +190,9 @@ export async function POST(
       const badgeCode = generateBadgeCode();
       const qrContent = `${appUrl}/api/scan?code=${badgeCode}`;
       const qrData = await generateQRDataURL(qrContent);
+      const badgeNumber = await prisma.badge.count({ where: { eventId: event.id } }) + 1;
       await prisma.badge.create({
-        data: { code: badgeCode, qrData, subscriberId: sub.id, eventId: event.id },
+        data: { code: badgeCode, badgeNumber, qrData, subscriberId: sub.id, eventId: event.id },
       });
       const html = buildBadgeEmail(
         `${sub.firstName} ${sub.lastName}`,

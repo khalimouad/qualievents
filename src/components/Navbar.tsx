@@ -71,15 +71,15 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between gap-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group flex-shrink-0">
-            <div className={`w-8 h-8 flex items-center justify-center ${isEventPage && !scrolled ? "bg-white" : "bg-foreground"}`}>
-              <span className={`font-serif font-bold text-lg leading-none ${isEventPage && !scrolled ? "text-black" : "text-background"}`}>Q</span>
-            </div>
-            <div className="flex flex-col">
-              <span className={`font-serif font-medium text-lg leading-none tracking-tight ${isEventPage && !scrolled ? "text-white" : "text-foreground"}`}>
-                Quali<i className={`opacity-90 ${isEventPage && !scrolled ? "text-primary-light" : "text-primary"}`}>Events</i>
-              </span>
-            </div>
+          <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
+            <span className="logo-dot" />
+            <span
+              className={`font-serif font-black text-[1.15rem] leading-none tracking-tight transition-colors ${
+                isEventPage && !scrolled ? "text-white" : "text-foreground"
+              }`}
+            >
+              QualiEvents
+            </span>
           </Link>
 
           {/* Desktop nav */}
@@ -172,13 +172,11 @@ export default function Navbar() {
               <Link
                 href="/"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3"
+                className="flex items-center gap-2.5"
               >
-                <div className="w-8 h-8 flex items-center justify-center bg-foreground">
-                  <span className="font-serif font-bold text-lg leading-none text-background">Q</span>
-                </div>
-                <span className="font-serif font-medium text-lg leading-none tracking-tight text-foreground">
-                  Quali<i className="opacity-90 text-primary">Events</i>
+                <span className="logo-dot" />
+                <span className="font-serif font-black text-[1.1rem] leading-none tracking-tight text-foreground">
+                  QualiEvents
                 </span>
               </Link>
               <button

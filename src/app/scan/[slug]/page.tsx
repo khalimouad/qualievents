@@ -437,8 +437,8 @@ export default function ScannerPage() {
                     onChange={(e) => setManualCode(e.target.value.toUpperCase())}
                     onKeyDown={(e) => e.key === "Enter" && handleExternalInputSubmit()}
                     className="flex-1 px-4 py-3.5 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl text-center text-lg font-bold tracking-[0.2em] text-foreground uppercase outline-none focus:border-amber-500/30 transition-colors"
-                    placeholder="A1B2C3D4"
-                    maxLength={8}
+                    placeholder="A1B2C3D4..."
+                    maxLength={32}
                   />
                   <button
                     onClick={handleExternalInputSubmit}
