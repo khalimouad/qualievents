@@ -26,7 +26,7 @@ export default function AdminLoginPage() {
       const data = await res.json().catch(() => ({})) as { user?: { role?: string; name?: string; email?: string }; error?: string };
       if (!res.ok) throw new Error(data.error || t.admin.login.invalid);
 
-      if (data.user.role === "staff") {
+      if (data.user?.role === "staff") {
         window.location.href = "/scan";
       } else {
         window.location.href = "/admin";
