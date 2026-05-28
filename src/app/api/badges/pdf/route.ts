@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
           venue: true,
           city: true,
           themeColor: true,
-          heroImage: true,
+          logoUrl: true,
         },
       },
     },
@@ -29,8 +29,8 @@ export async function GET(req: NextRequest) {
     day: "numeric", month: "long", year: "numeric",
   });
 
-  const logoBlock = badge.event.heroImage
-    ? `<img src="${badge.event.heroImage}" alt="${badge.event.title}" class="event-logo" />`
+  const logoBlock = badge.event.logoUrl
+    ? `<img src="${badge.event.logoUrl}" alt="${badge.event.title}" class="event-logo" />`
     : `<div class="event-logo-fallback" style="background:${themeColor}22;border:2px solid ${themeColor}55;">
          <span style="color:${themeColor};font-size:22px;font-weight:900;">${badge.event.title.slice(0, 2).toUpperCase()}</span>
        </div>`;
