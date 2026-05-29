@@ -2,17 +2,21 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Search, ArrowLeft, Download, Shield, Ticket } from "lucide-react";
+import { Search, ArrowLeft, Download, Ticket, CheckCircle2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 interface BadgeInfo {
   code: string;
+  badgeNumber: number;
   qrData: string;
   subscriberName: string;
   subscriberEmail: string;
   subscriberCompany: string | null;
+  subscriberJobTitle: string | null;
   eventTitle: string;
   eventDate: string;
+  eventLogoUrl: string | null;
+  eventThemeColor: string | null;
   isScanned: boolean;
 }
 
@@ -26,7 +30,7 @@ export default function BadgePage() {
 
   const searchBadge = async () => {
     setLoading(true); setError(""); setBadge(null);
-    const params = searchBy === "code" ? `code=${code}` : `email=${email}`;
+    const params = searchBy === "code" ? `code=${encodeURIComponent(code)}` : `email=${encodeURIComponent(email)}`;
     try {
       const res = await fetch(`/api/badges?${params}`);
       const data = await res.json();
@@ -36,138 +40,208 @@ export default function BadgePage() {
     finally { setLoading(false); }
   };
 
+  const accent = badge?.eventThemeColor || "#E8C547";
+  const formattedDate = badge
+    ? new Date(badge.eventDate).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })
+    : "";
+
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-background pt-24 pb-16">
-        <div className="max-w-lg mx-auto px-4">
-          <Link href="/" className="inline-flex items-center gap-2 text-muted hover:text-secondary mb-8 transition-colors text-sm font-medium">
-            <ArrowLeft className="w-4 h-4" /> Back to Home
+      <div className="min-h-screen pt-20 pb-16" style={{ background: "var(--background)" }}>
+        <div className="max-w-sm mx-auto px-4 py-10">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 mb-8 text-sm font-medium transition-colors hover:opacity-80"
+            style={{ color: "var(--muted)" }}
+          >
+            <ArrowLeft className="w-4 h-4" /> Back to home
           </Link>
 
-          {/* Header */}
-          <div className="text-center mb-10">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center mx-auto mb-5 shadow-lg shadow-primary/20">
-              <Ticket className="w-7 h-7 text-foreground" />
-            </div>
-            <h1 className="text-3xl font-bold text-secondary mb-2">Get Your Badge</h1>
-            <p className="text-muted">Retrieve your event badge using your code or email</p>
-          </div>
-
-          {!badge && (
-            <div className="bg-white rounded-[24px] shadow-lg p-7 sm:p-8 border border-gray-100 animate-fade-in">
-              {/* Tab switcher */}
-              <div className="flex gap-1.5 p-1.5 bg-gray-100 rounded-xl mb-6">
-                {(["code", "email"] as const).map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setSearchBy(tab)}
-                    className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      searchBy === tab
-                        ? "bg-white text-secondary shadow-sm"
-                        : "text-muted hover:text-secondary"
-                    }`}
-                  >
-                    {tab === "code" ? "Badge Code" : "Email Address"}
-                  </button>
-                ))}
+          {!badge ? (
+            <>
+              <div className="text-center mb-8">
+                <div
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                  style={{ background: "linear-gradient(135deg, var(--primary), var(--primary-dark))", boxShadow: "0 8px 24px rgba(255,122,0,0.3)" }}
+                >
+                  <Ticket className="w-6 h-6 text-white" />
+                </div>
+                <h1 className="text-2xl font-black mb-1" style={{ color: "var(--foreground)" }}>Get Your Badge</h1>
+                <p className="text-sm" style={{ color: "var(--muted)" }}>
+                  Retrieve your event badge using your code or email
+                </p>
               </div>
 
-              {error && (
-                <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl mb-5 text-sm font-medium flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" /> {error}
+              <div className="rounded-2xl p-6 border" style={{ background: "var(--secondary)", borderColor: "var(--border)" }}>
+                <div className="flex gap-1 p-1 rounded-xl mb-5" style={{ background: "var(--border)" }}>
+                  {(["code", "email"] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setSearchBy(tab)}
+                      className="flex-1 py-2 px-3 rounded-lg text-sm font-bold transition-all"
+                      style={searchBy === tab
+                        ? { background: "var(--gold)", color: "#0C0B09" }
+                        : { color: "var(--muted)" }
+                      }
+                    >
+                      {tab === "code" ? "Badge Code" : "Email Address"}
+                    </button>
+                  ))}
                 </div>
-              )}
 
-              {searchBy === "code" ? (
-                <div>
-                  <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Badge Code</label>
+                {error && (
+                  <div
+                    className="flex items-center gap-2 px-4 py-3 rounded-xl mb-4 text-sm font-medium"
+                    style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171" }}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" /> {error}
+                  </div>
+                )}
+
+                {searchBy === "code" ? (
                   <input
-                    type="text" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())}
-                    className="w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-center text-2xl font-bold tracking-[0.3em] uppercase"
-                    placeholder="A1B2C3D4..." maxLength={32}
+                    type="text"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.toUpperCase())}
+                    className="w-full px-4 py-4 rounded-xl outline-none text-center text-xl font-black tracking-[0.25em] uppercase transition-all"
+                    style={{ background: "var(--background)", border: "1.5px solid var(--border)", color: "var(--foreground)" }}
+                    placeholder="XXXXXXXX"
+                    maxLength={32}
                   />
-                </div>
-              ) : (
-                <div>
-                  <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Email Address</label>
+                ) : (
                   <input
-                    type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-4 py-3.5 rounded-xl outline-none text-sm transition-all"
+                    style={{ background: "var(--background)", border: "1.5px solid var(--border)", color: "var(--foreground)" }}
                     placeholder="john@example.com"
                   />
-                </div>
-              )}
-
-              <button
-                onClick={searchBadge} disabled={loading || (searchBy === "code" ? !code : !email)}
-                className="btn-primary w-full mt-5 py-3.5 text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
-              >
-                {loading ? (
-                  <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Searching...</>
-                ) : (
-                  <><Search className="w-4 h-4" /> Find My Badge</>
                 )}
-              </button>
-            </div>
-          )}
 
-          {badge && (
-            <div className="animate-scale-in">
-              {/* Badge Card */}
-              <div className="bg-white rounded-[24px] shadow-xl overflow-hidden border border-gray-100">
-                {/* Header */}
-                <div className="relative bg-gradient-to-br from-secondary via-secondary-light to-accent p-8 text-center noise-overlay grid-pattern">
-                  <div className="relative z-10">
-                    <div className="inline-flex items-center gap-1.5 bg-white/10 rounded-full px-3 py-1 mb-3">
-                      <Shield className="w-3 h-3 text-success" />
-                      <span className="text-foreground/80 text-xs font-medium">Verified Badge</span>
-                    </div>
-                    <h3 className="text-foreground text-xl font-bold">{badge.eventTitle}</h3>
-                    <p className="text-muted text-sm mt-1">
-                      {new Date(badge.eventDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
-                    </p>
-                  </div>
+                <button
+                  onClick={searchBadge}
+                  disabled={loading || (searchBy === "code" ? !code : !email)}
+                  className="w-full mt-4 py-3.5 rounded-xl text-sm font-black flex items-center justify-center gap-2 transition-all disabled:opacity-40"
+                  style={{ background: "var(--gold)", color: "#0C0B09" }}
+                >
+                  {loading
+                    ? <><span className="w-4 h-4 border-2 border-black/20 border-t-black/60 rounded-full animate-spin" /> Searching...</>
+                    : <><Search className="w-4 h-4" /> Find My Badge</>
+                  }
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="animate-fade-in">
+              {/* ── Badge Card ─────────────────────── */}
+              <div className="rounded-[22px] overflow-hidden shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
+
+                {/* Lanyard hole */}
+                <div className="flex justify-center items-center gap-5 h-8" style={{ background: "#e8edf2" }}>
+                  <div className="h-px flex-1 max-w-[40px]" style={{ background: "#c8d0da" }} />
+                  <div className="w-5 h-5 rounded-full border-2 shadow-inner" style={{ borderColor: "#b0bbc8", background: "#f8fafc" }} />
+                  <div className="h-px flex-1 max-w-[40px]" style={{ background: "#c8d0da" }} />
                 </div>
 
-                {/* QR Code section */}
-                <div className="p-8 text-center">
-                  <div className="inline-block p-4 bg-white rounded-2xl shadow-md border border-gray-100 mb-5">
-                    <img src={badge.qrData} alt="Badge QR Code" className="w-44 h-44" />
+                {/* Header */}
+                <div
+                  className="px-7 pt-6 pb-14 text-center relative"
+                  style={{ background: "linear-gradient(160deg, #0d1827 0%, #162236 50%, #0d1827 100%)" }}
+                >
+                  <div className="absolute bottom-0 left-0 right-0 h-[3px]" style={{ background: accent }} />
+                  <p className="text-[9px] font-black uppercase tracking-[0.35em] mb-3" style={{ color: "rgba(255,255,255,0.3)" }}>
+                    QualiEvents
+                  </p>
+                  <h3 className="text-white font-black text-lg leading-snug">{badge.eventTitle}</h3>
+                  <p className="text-xs mt-1.5" style={{ color: "rgba(255,255,255,0.45)" }}>{formattedDate}</p>
+                </div>
+
+                {/* Logo (overlaps header/body boundary) */}
+                <div className="bg-white flex flex-col items-center pt-0 pb-1">
+                  <div className="relative z-10 -mt-9 mb-2.5">
+                    <div
+                      className="w-[72px] h-[72px] rounded-2xl overflow-hidden"
+                      style={{ border: "3px solid white", boxShadow: "0 4px 20px rgba(0,0,0,0.2)" }}
+                    >
+                      {badge.eventLogoUrl ? (
+                        <img src={badge.eventLogoUrl} alt={badge.eventTitle} className="w-full h-full object-cover" />
+                      ) : (
+                        <div
+                          className="w-full h-full flex items-center justify-center font-black text-xl text-white"
+                          style={{ background: "linear-gradient(135deg, #0d1827, #1e3a5f)" }}
+                        >
+                          {badge.eventTitle.slice(0, 2).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
                   </div>
+                  <p className="text-[10px] font-black tracking-[0.3em] uppercase" style={{ color: accent }}>
+                    #{String(badge.badgeNumber).padStart(3, "0")}
+                  </p>
+                </div>
 
-                  <div className="bg-gray-50 rounded-2xl p-5 mb-6 border border-gray-100">
-                    <p className="text-[10px] text-muted uppercase tracking-[0.2em] font-semibold mb-1">Badge Code</p>
-                    <p className="text-3xl font-bold text-gradient tracking-[0.2em]">{badge.code}</p>
+                {/* QR Code */}
+                <div className="bg-white flex flex-col items-center px-8 pb-6 pt-3">
+                  <div
+                    className="p-4 rounded-2xl mb-3"
+                    style={{ background: "#f8fafc", border: "1px solid #e2e8f0", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}
+                  >
+                    <img src={badge.qrData} alt="QR Code" className="w-44 h-44 block" />
                   </div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.25em]" style={{ color: "#94a3b8" }}>
+                    Scan at entry
+                  </p>
+                </div>
 
-                  <h3 className="text-xl font-bold text-secondary">{badge.subscriberName}</h3>
-                  <p className="text-muted text-sm">{badge.subscriberEmail}</p>
-                  {badge.subscriberCompany && <p className="text-muted text-xs mt-0.5">{badge.subscriberCompany}</p>}
+                {/* Divider */}
+                <div style={{ height: 1, background: "#f1f5f9" }} />
 
+                {/* Attendee info */}
+                <div className="bg-white px-7 py-5 text-center">
+                  <h2 className="text-xl font-black" style={{ color: "#0f172a" }}>{badge.subscriberName}</h2>
+                  {badge.subscriberJobTitle && (
+                    <p className="text-sm font-bold mt-1" style={{ color: accent }}>{badge.subscriberJobTitle}</p>
+                  )}
+                  {badge.subscriberCompany && (
+                    <p className="text-sm mt-0.5" style={{ color: "#94a3b8" }}>{badge.subscriberCompany}</p>
+                  )}
                   {badge.isScanned && (
-                    <div className="mt-4 bg-success/5 text-success border border-success/20 px-4 py-2.5 rounded-xl text-sm font-medium inline-flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-success" /> Badge has been scanned
+                    <div
+                      className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
+                      style={{ background: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0" }}
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Badge scanned
                     </div>
                   )}
                 </div>
 
-                {/* Actions */}
-                <div className="px-8 pb-8 space-y-3">
-                  <a
-                    href={`/api/badges/pdf?code=${badge.code}`}
-                    download={`badge-${badge.code}.pdf`}
-                    className="btn-primary w-full py-3.5 text-sm flex items-center justify-center gap-2"
-                  >
-                    <Download className="w-4 h-4" /> Download Badge PDF
-                  </a>
-                  <button
-                    onClick={() => { setBadge(null); setCode(""); setEmail(""); }}
-                    className="w-full bg-gray-50 hover:bg-gray-100 text-muted hover:text-secondary py-3.5 rounded-[10px] text-sm font-medium transition-colors"
-                  >
-                    Search Another Badge
-                  </button>
+                {/* Footer strip */}
+                <div className="px-7 py-3 text-center" style={{ background: "#0d1827" }}>
+                  <p className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.28)" }}>
+                    QualiEvents · Present this badge at entry
+                  </p>
                 </div>
+              </div>
+
+              {/* Actions */}
+              <div className="mt-4 space-y-3">
+                <a
+                  href={`/api/badges/pdf?code=${badge.code}`}
+                  download={`badge-${badge.code}.pdf`}
+                  className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl text-sm font-black transition-all hover:opacity-90"
+                  style={{ background: "var(--gold)", color: "#0C0B09" }}
+                >
+                  <Download className="w-4 h-4" /> Download Badge PDF
+                </a>
+                <button
+                  onClick={() => { setBadge(null); setCode(""); setEmail(""); }}
+                  className="w-full py-3.5 rounded-xl text-sm font-semibold transition-colors border hover:opacity-80"
+                  style={{ borderColor: "var(--border)", color: "var(--muted)" }}
+                >
+                  Search Another Badge
+                </button>
               </div>
             </div>
           )}

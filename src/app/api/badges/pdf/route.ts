@@ -2,21 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import PDFDocument from "pdfkit";
 
-// 4 in × 6 in at 72 dpi
+// 4 in × 6 in @ 72 dpi
 const W = 288;
 const H = 432;
-const HEADER_H = 96;
-const FOOTER_H = 40;
+const STRIPE = 8;   // left accent stripe
+const CX = STRIPE;  // content area x start
+const CW = W - STRIPE; // content area width
+const CENTER_X = CX + CW / 2;
 
-function blendWithWhite(hex: string, alpha: number): string {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  const ro = Math.round(r * alpha + 255 * (1 - alpha));
-  const go = Math.round(g * alpha + 255 * (1 - alpha));
-  const bo = Math.round(b * alpha + 255 * (1 - alpha));
-  return `#${ro.toString(16).padStart(2, "0")}${go.toString(16).padStart(2, "0")}${bo.toString(16).padStart(2, "0")}`;
-}
+const HDR_H = 100;
+const FTR_H = 38;
+const FTR_Y = H - FTR_H;
+
+// Logo circle at header/body boundary
+const LOGO_R = 30;
+const LOGO_RING_R = 35;
+const LOGO_CY = HDR_H; // center Y at the seam
+const LOGO_CX = CENTER_X;
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
@@ -34,12 +36,11 @@ export async function GET(req: NextRequest) {
 
   if (!badge) return NextResponse.json({ error: "Badge introuvable" }, { status: 404 });
 
-  const themeColor = badge.event.themeColor || "#E8C547";
+  const accent = badge.event.themeColor || "#E8C547";
   const eventDate = new Date(badge.event.date).toLocaleDateString("fr-FR", {
     day: "numeric", month: "long", year: "numeric",
   });
 
-  // badge.qrData is already a PNG data URL generated at registration time
   const qrBuffer = Buffer.from(badge.qrData.split(",")[1], "base64");
 
   let logoBuffer: Buffer | null = null;
@@ -50,93 +51,109 @@ export async function GET(req: NextRequest) {
     } catch { /* fall back to initials */ }
   }
 
+  const fullName = `${badge.subscriber.firstName} ${badge.subscriber.lastName}`;
+  const initials = badge.event.title.slice(0, 2).toUpperCase();
+
   const pdf = await new Promise<Buffer>((resolve, reject) => {
     const doc = new PDFDocument({
       size: [W, H],
       margin: 0,
-      info: { Title: `Badge — ${badge.subscriber.firstName} ${badge.subscriber.lastName}` },
+      info: { Title: `Badge — ${fullName}` },
     });
     const chunks: Buffer[] = [];
     doc.on("data", (c) => chunks.push(c as Buffer));
     doc.on("end", () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
 
-    const bodyY = HEADER_H;
-    const footerY = H - FOOTER_H;
+    // ── Left accent stripe ────────────────────────────
+    doc.rect(0, 0, STRIPE, H).fill(accent);
 
-    // ── Header (dark navy) ─────────────────────────────
-    doc.rect(0, 0, W, HEADER_H).fill("#0f172a");
-    doc.rect(0, HEADER_H - 3, W, 3).fill(themeColor);
+    // ── Header (dark navy) ────────────────────────────
+    doc.rect(CX, 0, CW, HDR_H).fill("#0d1827");
 
-    doc.fillColor("white", 0.45).font("Helvetica").fontSize(7)
-      .text("QUALIEVENTS", 0, 16, { width: W, align: "center", characterSpacing: 2 });
+    // Accent line at bottom of header
+    doc.rect(CX, HDR_H - 3, CW, 3).fill(accent);
 
+    // QUALIEVENTS label
+    doc.fillColor("rgba(255,255,255,0.3)", 1).font("Helvetica").fontSize(7)
+      .text("QUALIEVENTS", CX, 14, { width: CW, align: "center", characterSpacing: 3 });
+
+    // Event title
     doc.fillColor("white", 1).font("Helvetica-Bold").fontSize(12)
-      .text(badge.event.title, 20, 32, { width: W - 40, align: "center" });
+      .text(badge.event.title, CX + 12, 30, { width: CW - 24, align: "center" });
 
-    doc.fillColor("white", 0.55).font("Helvetica").fontSize(8)
-      .text(`${eventDate} · ${badge.event.city}`, 20, 58, { width: W - 40, align: "center" });
+    // Date · City
+    doc.fillColor("rgba(255,255,255,0.45)", 1).font("Helvetica").fontSize(8)
+      .text(`${eventDate}  ·  ${badge.event.city}`, CX + 12, 60, { width: CW - 24, align: "center" });
 
-    // ── Body (white) ───────────────────────────────────
-    doc.fillColor("#ffffff", 1);
-    doc.rect(0, bodyY, W, footerY - bodyY).fill("#ffffff");
+    // ── Body (white) ──────────────────────────────────
+    doc.rect(CX, HDR_H, CW, FTR_Y - HDR_H).fill("#ffffff");
 
-    // Logo / initials (52×52 rounded, centered)
-    const logoSize = 52;
-    const logoX = (W - logoSize) / 2;
-    const logoY = bodyY + 16;
+    // Logo white ring
+    doc.circle(LOGO_CX, LOGO_CY, LOGO_RING_R).fill("#ffffff");
 
     if (logoBuffer) {
       doc.save();
-      doc.roundedRect(logoX, logoY, logoSize, logoSize, 10).clip();
-      doc.image(logoBuffer, logoX, logoY, { width: logoSize, height: logoSize });
+      doc.circle(LOGO_CX, LOGO_CY, LOGO_R).clip();
+      doc.image(logoBuffer, LOGO_CX - LOGO_R, LOGO_CY - LOGO_R, { width: LOGO_R * 2, height: LOGO_R * 2 });
       doc.restore();
     } else {
-      const bgColor = blendWithWhite(themeColor, 0.15);
-      doc.roundedRect(logoX, logoY, logoSize, logoSize, 10).fill(bgColor);
-      doc.fillColor(themeColor, 1).font("Helvetica-Bold").fontSize(20)
-        .text(badge.event.title.slice(0, 2).toUpperCase(), logoX, logoY + (logoSize - 24) / 2, {
-          width: logoSize, align: "center",
-        });
+      doc.circle(LOGO_CX, LOGO_CY, LOGO_R).fill("#0d1827");
+      doc.fillColor(accent, 1).font("Helvetica-Bold").fontSize(17)
+        .text(initials, LOGO_CX - LOGO_R, LOGO_CY - 10, { width: LOGO_R * 2, align: "center" });
     }
 
-    // Badge number in theme color
-    doc.fillColor(themeColor, 1).font("Helvetica-Bold").fontSize(11)
-      .text(`#${String(badge.badgeNumber).padStart(3, "0")}`, 0, logoY + logoSize + 8, {
-        width: W, align: "center", characterSpacing: 2,
+    // Badge number
+    const badgeNumY = LOGO_CY + LOGO_RING_R + 8;
+    doc.fillColor(accent, 1).font("Helvetica-Bold").fontSize(10)
+      .text(`#${String(badge.badgeNumber).padStart(3, "0")}`, CX, badgeNumY, {
+        width: CW, align: "center", characterSpacing: 2,
       });
 
-    // QR code with light card background
-    const qrSize = 116;
-    const qrX = (W - qrSize) / 2;
-    const qrY = logoY + logoSize + 28;
-    doc.roundedRect(qrX - 8, qrY - 8, qrSize + 16, qrSize + 16, 8).fill("#f8fafc");
+    // QR code card
+    const qrSize = 118;
+    const qrX = CX + (CW - qrSize) / 2;
+    const qrY = badgeNumY + 18;
+    const cardPad = 9;
+    doc.roundedRect(qrX - cardPad, qrY - cardPad, qrSize + cardPad * 2, qrSize + cardPad * 2, 8).fill("#f8fafc");
     doc.image(qrBuffer, qrX, qrY, { width: qrSize, height: qrSize });
 
+    // "Scan at entry" micro-label
+    const scanLabelY = qrY + qrSize + cardPad + 5;
+    doc.fillColor("#94a3b8", 1).font("Helvetica").fontSize(6.5)
+      .text("SCANNEZ À L'ENTRÉE", CX, scanLabelY, { width: CW, align: "center", characterSpacing: 1.5 });
+
+    // Thin divider
+    const dividerY = scanLabelY + 13;
+    doc.moveTo(CX + 20, dividerY).lineTo(CX + CW - 20, dividerY).lineWidth(0.5).strokeColor("#e2e8f0").stroke();
+
     // Name
-    const nameY = qrY + qrSize + 18;
+    const nameY = dividerY + 11;
     doc.fillColor("#0f172a", 1).font("Helvetica-Bold").fontSize(16)
-      .text(`${badge.subscriber.firstName} ${badge.subscriber.lastName}`, 20, nameY, {
-        width: W - 40, align: "center",
-      });
+      .text(fullName, CX + 8, nameY, { width: CW - 16, align: "center" });
 
     let textY = nameY + 22;
-    if (badge.subscriber.company) {
-      doc.fillColor("#64748b", 1).font("Helvetica").fontSize(10)
-        .text(badge.subscriber.company, 20, textY, { width: W - 40, align: "center" });
-      textY += 15;
-    }
+
     if (badge.subscriber.jobTitle) {
-      doc.fillColor(themeColor, 1).font("Helvetica-Bold").fontSize(9)
-        .text(badge.subscriber.jobTitle, 20, textY, { width: W - 40, align: "center" });
+      doc.fillColor(accent, 1).font("Helvetica-Bold").fontSize(9)
+        .text(badge.subscriber.jobTitle, CX + 8, textY, { width: CW - 16, align: "center", characterSpacing: 0.3 });
+      textY += 13;
     }
 
-    // ── Footer (dark) ──────────────────────────────────
-    doc.rect(0, footerY, W, FOOTER_H).fill("#0f172a");
-    doc.fillColor("white", 0.4).font("Helvetica").fontSize(8)
-      .text("QualiEvents · Présentez ce badge à l'entrée", 0, footerY + 14, {
-        width: W, align: "center",
-      });
+    if (badge.subscriber.company) {
+      doc.fillColor("#64748b", 1).font("Helvetica").fontSize(9)
+        .text(badge.subscriber.company, CX + 8, textY, { width: CW - 16, align: "center" });
+    }
+
+    // ── Footer (dark) ─────────────────────────────────
+    doc.rect(CX, FTR_Y, CW, FTR_H).fill("#0d1827");
+
+    // Badge code left, brand right
+    doc.fillColor("rgba(255,255,255,0.25)", 1).font("Helvetica").fontSize(7)
+      .text(badge.code.slice(0, 16), CX + 10, FTR_Y + 14, { width: CW / 2 - 10, align: "left", characterSpacing: 0.5 });
+
+    doc.fillColor("rgba(255,255,255,0.3)", 1).font("Helvetica-Bold").fontSize(7)
+      .text("QualiEvents", CX + CW / 2, FTR_Y + 14, { width: CW / 2 - 10, align: "right" });
 
     doc.end();
   });

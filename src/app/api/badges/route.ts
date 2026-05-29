@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
       where: { code: code.toUpperCase() },
       include: {
         subscriber: { select: { firstName: true, lastName: true, email: true, company: true, jobTitle: true } },
-        event: { select: { title: true, date: true, logoUrl: true } },
+        event: { select: { title: true, date: true, logoUrl: true, themeColor: true } },
       },
     });
   } else if (email) {
@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
         where: { id: subscriber.badge.id },
         include: {
           subscriber: { select: { firstName: true, lastName: true, email: true, company: true, jobTitle: true } },
-          event: { select: { title: true, date: true, logoUrl: true } },
+          event: { select: { title: true, date: true, logoUrl: true, themeColor: true } },
         },
       });
     }
@@ -69,6 +69,7 @@ export async function GET(req: NextRequest) {
     eventTitle: badge.event.title,
     eventDate: badge.event.date,
     eventLogoUrl: badge.event.logoUrl,
+    eventThemeColor: badge.event.themeColor,
     isScanned: badge.isScanned,
   });
 }
