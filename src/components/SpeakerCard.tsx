@@ -1,5 +1,22 @@
 import { ExternalLink, Globe } from "lucide-react";
 
+const SPEAKER_PHOTOS = [
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160&q=80&auto=format&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1494790108755-2616b612b77c?w=160&q=80&auto=format&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=160&q=80&auto=format&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=160&q=80&auto=format&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=160&q=80&auto=format&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&q=80&auto=format&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=160&q=80&auto=format&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=160&q=80&auto=format&fit=crop&crop=face",
+];
+
+function speakerPhoto(name: string): string {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) { h = (h << 5) - h + name.charCodeAt(i); h |= 0; }
+  return SPEAKER_PHOTOS[Math.abs(h) % SPEAKER_PHOTOS.length];
+}
+
 interface SpeakerCardProps {
   firstName: string;
   lastName: string;
@@ -23,7 +40,7 @@ export default function SpeakerCard({
   linkedin,
   twitter,
 }: SpeakerCardProps) {
-  const initials = `${firstName[0]}${lastName[0]}`;
+  const photoSrc = photo || speakerPhoto(`${firstName} ${lastName}`);
 
   return (
     <div className="group relative">
@@ -36,17 +53,11 @@ export default function SpeakerCard({
 
         {/* Avatar */}
         <div className="relative w-20 h-20 mx-auto mb-5">
-          {photo ? (
-            <img
-              src={photo}
-              alt={`${firstName} ${lastName}`}
-              className="w-20 h-20 rounded-2xl object-cover ring-2 ring-white/10 group-hover:ring-primary/40 transition-all duration-500"
-            />
-          ) : (
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary via-accent to-secondary-light flex items-center justify-center ring-2 ring-white/10 group-hover:ring-primary/40 transition-all duration-500 group-hover:scale-105">
-              <span className="text-white text-xl font-bold">{initials}</span>
-            </div>
-          )}
+          <img
+            src={photoSrc}
+            alt={`${firstName} ${lastName}`}
+            className="w-20 h-20 rounded-2xl object-cover ring-2 ring-white/10 group-hover:ring-primary/40 transition-all duration-500 group-hover:scale-105"
+          />
           {/* Status dot */}
           <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-success border-2 border-secondary flex items-center justify-center">
             <div className="w-2 h-2 rounded-full bg-white" />
