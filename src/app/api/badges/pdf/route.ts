@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import PDFDocument from "pdfkit";
-import QRCode from "qrcode";
 
 // 4 in × 6 in at 72 dpi
 const W = 288;
@@ -40,11 +39,8 @@ export async function GET(req: NextRequest) {
     day: "numeric", month: "long", year: "numeric",
   });
 
-  const qrDataUrl = await QRCode.toDataURL(badge.qrData, {
-    width: 200, margin: 1, errorCorrectionLevel: "M",
-    color: { dark: "#0f172a", light: "#ffffff" },
-  });
-  const qrBuffer = Buffer.from(qrDataUrl.split(",")[1], "base64");
+  // badge.qrData is already a PNG data URL generated at registration time
+  const qrBuffer = Buffer.from(badge.qrData.split(",")[1], "base64");
 
   let logoBuffer: Buffer | null = null;
   if (badge.event.logoUrl) {

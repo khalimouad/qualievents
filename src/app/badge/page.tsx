@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { QrCode, Search, ArrowLeft, Download, Shield, Ticket } from "lucide-react";
+import { Search, ArrowLeft, Download, Shield, Ticket } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 interface BadgeInfo {
@@ -154,12 +154,13 @@ export default function BadgePage() {
 
                 {/* Actions */}
                 <div className="px-8 pb-8 space-y-3">
-                  <button
-                    onClick={() => { const link = document.createElement("a"); link.href = badge.qrData; link.download = `badge-${badge.code}.png`; link.click(); }}
+                  <a
+                    href={`/api/badges/pdf?code=${badge.code}`}
+                    download={`badge-${badge.code}.pdf`}
                     className="btn-primary w-full py-3.5 text-sm flex items-center justify-center gap-2"
                   >
-                    <Download className="w-4 h-4" /> Download Badge
-                  </button>
+                    <Download className="w-4 h-4" /> Download Badge PDF
+                  </a>
                   <button
                     onClick={() => { setBadge(null); setCode(""); setEmail(""); }}
                     className="w-full bg-gray-50 hover:bg-gray-100 text-muted hover:text-secondary py-3.5 rounded-[10px] text-sm font-medium transition-colors"
