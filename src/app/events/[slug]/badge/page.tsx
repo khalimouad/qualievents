@@ -3,12 +3,22 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Search, ArrowLeft, Download, Shield, Ticket } from "lucide-react";
+import { Search, ArrowLeft, Ticket } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { t } from "@/lib/i18n";
 
 interface BadgeInfo {
-  code: string; qrData: string; subscriberName: string; subscriberEmail: string; subscriberCompany: string | null; eventTitle: string; eventDate: string; isScanned: boolean;
+  code: string;
+  badgeNumber: number;
+  qrData: string;
+  subscriberName: string;
+  subscriberEmail: string;
+  subscriberCompany: string | null;
+  subscriberJobTitle: string | null;
+  eventTitle: string;
+  eventDate: string;
+  eventLogoUrl: string | null;
+  isScanned: boolean;
 }
 
 export default function EventBadgePage() {
@@ -79,34 +89,90 @@ export default function EventBadgePage() {
 
           {badge && (
             <div className="animate-scale-in">
-              <div className="bg-black/5 dark:bg-white/5 backdrop-blur-sm rounded-[24px] shadow-2xl overflow-hidden border border-black/5 dark:border-white/10">
-                <div className="relative bg-gradient-to-br from-secondary via-secondary-light to-accent p-8 text-center noise-overlay grid-pattern">
-                  <div className="relative z-10">
-                    <div className="inline-flex items-center gap-1.5 bg-white/10 rounded-full px-3 py-1 mb-3">
-                      <Shield className="w-3 h-3 text-success" /><span className="text-foreground/80 text-xs font-medium">{t.badge.verifiedBadge}</span>
+              <div className="rounded-[24px] shadow-2xl overflow-hidden border border-black/5 dark:border-white/10">
+                {/* Header — dark gradient */}
+                <div
+                  className="p-6 text-center"
+                  style={{ background: "linear-gradient(135deg, #0f172a 0%, #3b1f6e 100%)" }}
+                >
+                  <p className="text-white/50 text-[10px] font-bold uppercase tracking-[0.2em] mb-1">QualiEvents</p>
+                  <h3 className="text-white text-lg font-bold leading-tight">{badge.eventTitle}</h3>
+                  <p className="text-white/60 text-xs mt-1">
+                    {new Date(badge.eventDate).toLocaleDateString("fr-FR", { year: "numeric", month: "long", day: "numeric" })}
+                  </p>
+                </div>
+
+                {/* Body */}
+                <div className="bg-white p-8 text-center">
+                  {/* Event logo or initials */}
+                  <div className="flex justify-center mb-4">
+                    {badge.eventLogoUrl ? (
+                      <img
+                        src={badge.eventLogoUrl}
+                        alt={badge.eventTitle}
+                        className="w-14 h-14 rounded-xl object-cover"
+                      />
+                    ) : (
+                      <div
+                        className="w-14 h-14 rounded-xl flex items-center justify-center text-white font-bold text-lg"
+                        style={{ background: "linear-gradient(135deg, #3b1f6e, #6d28d9)" }}
+                      >
+                        {badge.eventTitle.slice(0, 2).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Badge number */}
+                  <p
+                    className="text-sm font-bold tracking-widest mb-4"
+                    style={{ color: "#E8C547" }}
+                  >
+                    #{String(badge.badgeNumber).padStart(3, "0")}
+                  </p>
+
+                  {/* QR Code */}
+                  <div className="inline-block p-3 bg-white rounded-2xl shadow-md mb-5 border border-gray-100">
+                    <img src={badge.qrData} alt="QR Code" className="w-40 h-40" />
+                  </div>
+
+                  {/* Attendee info */}
+                  <h3 className="text-xl font-bold text-gray-900">{badge.subscriberName}</h3>
+                  {badge.subscriberCompany && (
+                    <p className="text-gray-500 text-sm mt-0.5">{badge.subscriberCompany}</p>
+                  )}
+                  {badge.subscriberJobTitle && (
+                    <p className="text-gray-400 text-xs mt-0.5">{badge.subscriberJobTitle}</p>
+                  )}
+
+                  {badge.isScanned && (
+                    <div className="mt-4 bg-green-50 text-green-600 border border-green-200 px-4 py-2.5 rounded-xl text-sm font-medium inline-flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-green-500" /> {t.badge.scanned}
                     </div>
-                    <h3 className="text-foreground text-xl font-bold">{badge.eventTitle}</h3>
-                    <p className="text-muted text-sm mt-1">{new Date(badge.eventDate).toLocaleDateString("fr-FR", { year: "numeric", month: "long", day: "numeric" })}</p>
-                  </div>
+                  )}
                 </div>
-                <div className="p-8 text-center">
-                  <div className="inline-block p-4 bg-white rounded-2xl shadow-md mb-5">
-                    <img src={badge.qrData} alt="QR Code" className="w-44 h-44" />
-                  </div>
-                  <div className="bg-black/5 dark:bg-white/5 rounded-2xl p-5 mb-6 border border-black/5 dark:border-white/10">
-                    <p className="text-[10px] text-muted uppercase tracking-[0.2em] font-semibold mb-1">{t.badge.badgeCode}</p>
-                    <p className="text-3xl font-bold text-gradient tracking-[0.2em]">{badge.code}</p>
-                  </div>
-                  <h3 className="text-xl font-bold text-foreground">{badge.subscriberName}</h3>
-                  <p className="text-muted text-sm">{badge.subscriberEmail}</p>
-                  {badge.subscriberCompany && <p className="text-muted text-xs mt-0.5">{badge.subscriberCompany}</p>}
-                  {badge.isScanned && <div className="mt-4 bg-success/10 text-success border border-success/30 px-4 py-2.5 rounded-xl text-sm font-medium inline-flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-success" /> {t.badge.scanned}</div>}
+
+                {/* Footer */}
+                <div
+                  className="px-6 py-3 text-center text-[11px] font-medium"
+                  style={{ background: "#0f172a", color: "rgba(255,255,255,0.45)" }}
+                >
+                  QualiEvents · Présentez ce badge à l&apos;entrée
                 </div>
-                <div className="px-8 pb-8 space-y-3">
-                  <button onClick={() => { const link = document.createElement("a"); link.href = badge.qrData; link.download = `badge-${badge.code}.png`; link.click(); }} className="btn-primary w-full py-3.5 text-sm flex items-center justify-center gap-2">
-                    <Download className="w-4 h-4" /> {t.badge.downloadBadge}
+
+                {/* Actions */}
+                <div className="bg-white px-8 pb-8 pt-4 space-y-3">
+                  <button
+                    onClick={() => window.open(`/api/badges/pdf?code=${badge.code}`, "_blank")}
+                    className="btn-primary w-full py-3.5 text-sm flex items-center justify-center gap-2"
+                  >
+                    Télécharger PDF
                   </button>
-                  <button onClick={() => { setBadge(null); setCode(""); setEmail(""); }} className="w-full bg-black/5 dark:bg-white/5 hover:bg-white/10 text-muted hover:text-foreground border border-black/5 dark:border-white/10 py-3.5 rounded-[10px] text-sm font-medium transition-colors">{t.badge.searchAnother}</button>
+                  <button
+                    onClick={() => { setBadge(null); setCode(""); setEmail(""); }}
+                    className="w-full bg-black/5 dark:bg-white/5 hover:bg-white/10 text-muted hover:text-foreground border border-black/5 dark:border-white/10 py-3.5 rounded-[10px] text-sm font-medium transition-colors"
+                  >
+                    {t.badge.searchAnother}
+                  </button>
                 </div>
               </div>
             </div>
