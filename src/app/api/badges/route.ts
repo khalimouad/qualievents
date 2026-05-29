@@ -28,8 +28,8 @@ export async function GET(req: NextRequest) {
     badge = await prisma.badge.findUnique({
       where: { code: code.toUpperCase() },
       include: {
-        subscriber: true,
-        event: { select: { title: true, date: true } },
+        subscriber: { select: { firstName: true, lastName: true, email: true, company: true, jobTitle: true } },
+        event: { select: { title: true, date: true, logoUrl: true } },
       },
     });
   } else if (email) {
@@ -47,8 +47,8 @@ export async function GET(req: NextRequest) {
       badge = await prisma.badge.findUnique({
         where: { id: subscriber.badge.id },
         include: {
-          subscriber: true,
-          event: { select: { title: true, date: true } },
+          subscriber: { select: { firstName: true, lastName: true, email: true, company: true, jobTitle: true } },
+          event: { select: { title: true, date: true, logoUrl: true } },
         },
       });
     }
@@ -60,12 +60,15 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     code: badge.code,
+    badgeNumber: badge.badgeNumber,
     qrData: badge.qrData,
     subscriberName: `${badge.subscriber.firstName} ${badge.subscriber.lastName}`,
     subscriberEmail: badge.subscriber.email,
     subscriberCompany: badge.subscriber.company,
+    subscriberJobTitle: badge.subscriber.jobTitle,
     eventTitle: badge.event.title,
     eventDate: badge.event.date,
+    eventLogoUrl: badge.event.logoUrl,
     isScanned: badge.isScanned,
   });
 }

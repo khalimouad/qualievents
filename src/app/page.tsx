@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { MapPin, Users, ArrowRight, Sparkles, Calendar, QrCode, UserCheck, Mail, Send, CheckCircle2, Mic } from "lucide-react";
+import { Users, ArrowRight, Sparkles, Calendar, QrCode, UserCheck, Mail, Send, CheckCircle2, Mic } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import EventsSection from "@/components/EventsSection";
 import { prisma } from "@/lib/prisma";
 import { t } from "@/lib/i18n";
 
@@ -40,15 +41,6 @@ export default async function HomePage() {
     return start < todayStart;
   });
 
-  const activeTab = ongoingEvents.length > 0 ? "ongoing" : "upcoming";
-
-  const tabs = [
-    ...(ongoingEvents.length > 0
-      ? [{ key: "ongoing", label: t.home.ongoingEvents, count: ongoingEvents.length }]
-      : []),
-    { key: "upcoming", label: t.home.upcomingEvents, count: upcomingEvents.length },
-    { key: "past", label: t.home.pastEvents, count: pastEvents.length },
-  ];
 
   return (
     <>
@@ -292,227 +284,11 @@ export default async function HomePage() {
       </section>
 
       {/* ── EVENTS ── */}
-      <section id="events" className="py-20 relative border-b border-border">
-        <div className="max-w-6xl mx-auto px-6">
-
-          {/* Tab bar */}
-          <div
-            className="flex items-center justify-between mb-12 border-b"
-            style={{ borderColor: "rgba(232,197,71,0.12)" }}
-          >
-            <div className="tab-bar">
-              {tabs.map(({ key, label, count }) => (
-                <a
-                  key={key}
-                  href={`#${key}`}
-                  className={`tab-item ${key === activeTab ? "active" : ""}`}
-                >
-                  {label}
-                  <span
-                    className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full font-bold"
-                    style={{ background: "var(--gold-dim)", color: "var(--gold)" }}
-                  >
-                    {count}
-                  </span>
-                  {key === activeTab && <span className="tab-line" />}
-                </a>
-              ))}
-            </div>
-            <Link
-              href="/admin/events/new"
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold border transition-all hover:border-yellow-500/40 hover:text-foreground"
-              style={{ border: "1px solid var(--border)", color: "var(--muted)" }}
-            >
-              + {t.home.createEvent}
-            </Link>
-          </div>
-
-          {/* ── Ongoing ── */}
-          {ongoingEvents.length > 0 && (
-            <div id="ongoing" className="mb-20">
-              <div
-                className="flex items-center gap-3 mb-8 pb-4 border-b"
-                style={{ borderColor: "rgba(232,197,71,0.12)" }}
-              >
-                <span
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold"
-                  style={{ background: "rgba(16,185,129,0.12)", color: "var(--success)", border: "1px solid rgba(16,185,129,0.25)" }}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-                  Live
-                </span>
-                <h2 className="font-serif font-black text-2xl">{t.home.ongoingEvents}</h2>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {ongoingEvents.map((event) => {
-                  const color = event.themeColor || "#E8C547";
-                  return (
-                    <Link key={event.id} href={`/events/${event.slug}`} className="ev-card">
-                      <div className="ev-card-img">
-                        {event.heroImage ? (
-                          <img src={event.heroImage} alt={event.title} />
-                        ) : (
-                          <div
-                            className="w-full h-full"
-                            style={{ background: `linear-gradient(135deg, ${color}28, ${color}10)` }}
-                          />
-                        )}
-                        {event.format && (
-                          <span className="ev-card-badge" style={{ background: color }}>
-                            {event.format === "ONLINE" ? "En ligne" : event.format === "HYBRID" ? "Hybride" : "Présentiel"}
-                          </span>
-                        )}
-                        <span
-                          className="ev-card-countdown"
-                          style={{ background: "var(--success)" }}
-                        >
-                          🔴 En cours
-                        </span>
-                      </div>
-                      <div className="ev-card-body">
-                        <p className="ev-card-date">
-                          {new Date(event.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
-                        </p>
-                        <h3 className="ev-card-title">{event.title}</h3>
-                        {(event.tagline || event.description) && (
-                          <p className="ev-card-tagline">{event.tagline || event.description}</p>
-                        )}
-                        <div className="ev-card-meta">
-                          <span className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3" /> {event.city}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Users className="w-3 h-3" /> {event._count.subscribers}/{event.maxAttendees}
-                          </span>
-                        </div>
-                        <div className="ev-card-footer">
-                          <span className="ev-card-attendees">{event._count.panelists} intervenants</span>
-                          <span className="ev-card-btn" style={{ borderColor: color, color }}>
-                            Voir →
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* ── Upcoming ── */}
-          <div id="upcoming">
-            {upcomingEvents.length === 0 ? (
-              <div className="text-center py-20 rounded-2xl border" style={{ borderColor: "var(--border)", color: "var(--muted)" }}>
-                <p className="text-sm uppercase tracking-wider font-bold">{t.home.noUpcoming}</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {upcomingEvents.map((event) => {
-                  const daysUntil = Math.ceil((new Date(event.date).getTime() - Date.now()) / 86400000);
-                  const color = event.themeColor || "#E8C547";
-                  return (
-                    <Link key={event.id} href={`/events/${event.slug}`} className="ev-card">
-                      <div className="ev-card-img">
-                        {event.heroImage ? (
-                          <img src={event.heroImage} alt={event.title} />
-                        ) : (
-                          <div
-                            className="w-full h-full"
-                            style={{ background: `linear-gradient(135deg, ${color}28, ${color}10)` }}
-                          />
-                        )}
-                        {event.format && (
-                          <span className="ev-card-badge" style={{ background: color }}>
-                            {event.format === "ONLINE" ? "En ligne" : event.format === "HYBRID" ? "Hybride" : "Présentiel"}
-                          </span>
-                        )}
-                        {daysUntil > 0 && (
-                          <span className="ev-card-countdown" style={{ background: color }}>
-                            dans {daysUntil}j
-                          </span>
-                        )}
-                      </div>
-                      <div className="ev-card-body">
-                        <p className="ev-card-date">
-                          {new Date(event.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
-                        </p>
-                        <h3 className="ev-card-title">{event.title}</h3>
-                        {(event.tagline || event.description) && (
-                          <p className="ev-card-tagline">{event.tagline || event.description}</p>
-                        )}
-                        <div className="ev-card-meta">
-                          <span className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3" /> {event.city}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Users className="w-3 h-3" /> {event._count.subscribers}/{event.maxAttendees}
-                          </span>
-                        </div>
-                        <div className="ev-card-footer">
-                          <span className="ev-card-attendees">{event._count.panelists} intervenants</span>
-                          <span className="ev-card-btn" style={{ borderColor: color, color }}>
-                            Voir →
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* ── Past ── */}
-          {pastEvents.length > 0 && (
-            <div id="past" className="mt-20">
-              <div
-                className="flex items-center gap-4 mb-8 pb-4 border-b"
-                style={{ borderColor: "rgba(232,197,71,0.12)" }}
-              >
-                <h2 className="font-serif font-black text-2xl" style={{ color: "var(--muted)" }}>
-                  {t.home.pastEvents}
-                </h2>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {pastEvents.map((event, idx) => {
-                  const color = event.themeColor || "#E8C547";
-                  const n = idx + 1;
-                  return (
-                    <Link key={event.id} href={`/events/${event.slug}`} className="ev-card ev-card-past">
-                      <div className="ev-card-img">
-                        {event.heroImage ? (
-                          <img src={event.heroImage} alt={event.title} />
-                        ) : (
-                          <div
-                            className="w-full h-full"
-                            style={{ background: `linear-gradient(135deg, ${color}28, ${color}10)` }}
-                          />
-                        )}
-                        <span className="ev-card-badge" style={{ background: color }}>
-                          {n === 1 ? "1ère" : `${n}e`} édition
-                        </span>
-                      </div>
-                      <div className="ev-card-body">
-                        <p className="ev-card-date">
-                          {new Date(event.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
-                        </p>
-                        <h3 className="ev-card-title">{event.title}</h3>
-                        {event.tagline && <p className="ev-card-tagline">{event.tagline}</p>}
-                        <div className="ev-card-footer" style={{ marginTop: "auto" }}>
-                          <span className="ev-card-attendees">{event._count.subscribers} participants · {event.city}</span>
-                          <span className="ev-card-btn" style={{ borderColor: color, color }}>
-                            Voir →
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
+      <EventsSection
+        ongoingEvents={ongoingEvents.map(e => ({ id: e.id, slug: e.slug, title: e.title, tagline: e.tagline, description: e.description, date: e.date.toISOString(), themeColor: e.themeColor, heroImage: e.heroImage, city: e.city, format: e.format, maxAttendees: e.maxAttendees, subscribersCount: e._count.subscribers, panelistsCount: e._count.panelists }))}
+        upcomingEvents={upcomingEvents.map(e => ({ id: e.id, slug: e.slug, title: e.title, tagline: e.tagline, description: e.description, date: e.date.toISOString(), themeColor: e.themeColor, heroImage: e.heroImage, city: e.city, format: e.format, maxAttendees: e.maxAttendees, subscribersCount: e._count.subscribers, panelistsCount: e._count.panelists }))}
+        pastEvents={pastEvents.map(e => ({ id: e.id, slug: e.slug, title: e.title, tagline: e.tagline, description: e.description, date: e.date.toISOString(), themeColor: e.themeColor, heroImage: e.heroImage, city: e.city, format: e.format, maxAttendees: e.maxAttendees, subscribersCount: e._count.subscribers, panelistsCount: e._count.panelists }))}
+      />
 
       {/* ── FEATURES ── */}
       <section className="py-20 border-b border-border" style={{ background: "var(--bg-subtle)" }}>

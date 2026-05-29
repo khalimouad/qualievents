@@ -16,7 +16,7 @@ interface FormState {
   objectives: string; targetAudience: string; context: string;
   platform: string; streamUrl: string; streamPassword: string; streamInstructions: string; recordingUrl: string;
   venue: string; address: string; city: string; country: string; latitude: string; longitude: string;
-  themeColor: string; maxAttendees: string; isPublished: boolean; isPaid: boolean; ticketPrice: string; heroImage: string;
+  themeColor: string; maxAttendees: string; isPublished: boolean; isPaid: boolean; ticketPrice: string; heroImage: string; logoUrl: string;
   seriesId: string; brochureUrl: string;
 }
 
@@ -38,7 +38,7 @@ export default function EditEventPage() {
     venue: "", address: "", city: "", country: "",
     latitude: "", longitude: "",
     themeColor: "#ff7a00", maxAttendees: "500", isPublished: false, isPaid: false, ticketPrice: "",
-    heroImage: "", seriesId: "", brochureUrl: "",
+    heroImage: "", logoUrl: "", seriesId: "", brochureUrl: "",
   });
   const [seriesList, setSeriesList] = useState<SeriesOption[]>([]);
 
@@ -82,6 +82,7 @@ export default function EditEventPage() {
           isPaid: data.isPaid || false,
           ticketPrice: data.ticketPrice?.toString() || "",
           heroImage: data.heroImage || "",
+          logoUrl: data.logoUrl || "",
           seriesId: data.seriesId || "",
           brochureUrl: data.brochureUrl || "",
         });
@@ -235,6 +236,7 @@ export default function EditEventPage() {
             <div><label className={labelClass}>{t.admin.endDate}</label><input type="datetime-local" value={form.endDate} onChange={(e) => update("endDate", e.target.value)} className={inputClass} /></div>
           </div>
           <ImageUpload value={form.heroImage} onChange={(url) => update("heroImage", url)} type="events" label={t.admin.heroImage} />
+          <ImageUpload value={form.logoUrl} onChange={(url) => update("logoUrl", url)} type="events" label="Logo de l'événement (badge PDF)" />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>

@@ -93,6 +93,7 @@ model Event {
   longitude    Float?
 
   heroImage    String?
+  logoUrl      String?
   gallery      String[] @default([])
   themeColor   String?
   maxAttendees Int      @default(500)
