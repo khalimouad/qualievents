@@ -4,6 +4,21 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
 
+const EVENT_PHOTOS = [
+  "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=75&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&q=75&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1521737604082-7d6dba67a04e?w=800&q=75&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1591115765373-5207764f18e6?w=800&q=75&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&q=75&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=75&auto=format&fit=crop",
+];
+
+function eventPhoto(id: string, idx: number): string {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) { h = (h << 5) - h + id.charCodeAt(i); h |= 0; }
+  return EVENT_PHOTOS[Math.abs(h + idx) % EVENT_PHOTOS.length];
+}
+
 export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 12;
@@ -183,6 +198,7 @@ export default async function EventsPage({
                     const color = event.themeColor || "#E8C547";
                     const daysUntil = Math.ceil((new Date(event.date).getTime() - Date.now()) / 86400000);
                     const n = idx + 1;
+                    const photo = event.heroImage || eventPhoto(event.id, idx);
 
                     return (
                       <Link
@@ -191,14 +207,7 @@ export default async function EventsPage({
                         className={`ev-card${activeTab === "past" ? " ev-card-past" : ""}`}
                       >
                         <div className="ev-card-img">
-                          {event.heroImage ? (
-                            <img src={event.heroImage} alt={event.title} />
-                          ) : (
-                            <div
-                              className="w-full h-full"
-                              style={{ background: `linear-gradient(135deg, ${color}28, ${color}10)` }}
-                            />
-                          )}
+                          <img src={photo} alt={event.title} />
                           {event.format && activeTab !== "past" && (
                             <span className="ev-card-badge" style={{ background: color }}>
                               {event.format === "ONLINE" ? "En ligne" : event.format === "HYBRID" ? "Hybride" : "Présentiel"}

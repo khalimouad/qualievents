@@ -463,10 +463,9 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
                               <a
                                 href={`/api/badges/pdf?code=${sub.badge.code}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                                download={`badge-${sub.badge.code}.pdf`}
                                 className="text-muted hover:text-primary transition-colors"
-                                title="Imprimer le badge"
+                                title="Télécharger le badge PDF"
                               >
                                 <Printer className="w-3 h-3" />
                               </a>

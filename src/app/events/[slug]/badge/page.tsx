@@ -161,12 +161,13 @@ export default function EventBadgePage() {
 
                 {/* Actions */}
                 <div className="bg-white px-8 pb-8 pt-4 space-y-3">
-                  <button
-                    onClick={() => window.open(`/api/badges/pdf?code=${badge.code}`, "_blank")}
+                  <a
+                    href={`/api/badges/pdf?code=${badge.code}`}
+                    download={`badge-${badge.code}.pdf`}
                     className="btn-primary w-full py-3.5 text-sm flex items-center justify-center gap-2"
                   >
                     Télécharger PDF
-                  </button>
+                  </a>
                   <button
                     onClick={() => { setBadge(null); setCode(""); setEmail(""); }}
                     className="w-full bg-black/5 dark:bg-white/5 hover:bg-white/10 text-muted hover:text-foreground border border-black/5 dark:border-white/10 py-3.5 rounded-[10px] text-sm font-medium transition-colors"
