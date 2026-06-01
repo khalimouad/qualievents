@@ -58,22 +58,31 @@ export default function Navbar() {
 
   const navLinks = isEventPage ? eventNavLinks : publicNavLinks;
 
+  // Event pages: transparent navbar over dark hero → white text
+  // Homepage: always opaque white navbar → dark text (photo bleeds into nav zone)
+  // Scrolled: always opaque white
   const isLight = !scrolled && isEventPage;
-  // Mobile hero has dark overlay on both event pages AND the homepage
-  const mobileHasDarkBg = !scrolled && (isEventPage || isHomePage);
+  const navOpaque = scrolled || !isEventPage;
 
   const linkClass = isLight
     ? "text-white/85 hover:text-white"
     : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white";
 
+  // Mobile hamburger/search: white text only on event pages (dark hero)
+  const mobileIconClass = isLight
+    ? "text-white hover:bg-white/10"
+    : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-slate-800";
+
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b py-3 shadow-sm"
-          : "bg-transparent py-5"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
+        navOpaque
+          ? scrolled
+            ? "bg-white/95 dark:bg-slate-900/95 backdrop-blur-md py-3 shadow-sm"
+            : "bg-white dark:bg-slate-900 py-4"
+          : "bg-transparent border-transparent py-5"
       }`}
-      style={scrolled ? { borderColor: "var(--border)" } : undefined}
+      style={{ borderColor: navOpaque ? "var(--border)" : "transparent" }}
     >
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center gap-8">
@@ -82,11 +91,7 @@ export default function Navbar() {
             <span className="logo-dot" />
             <span
               className={`font-serif font-black text-[1.15rem] leading-none tracking-tight transition-colors ${
-                isLight
-                  ? "text-white"
-                  : isHomePage && !scrolled
-                    ? "text-white lg:text-foreground"
-                    : "text-foreground"
+                isLight ? "text-white" : "text-foreground"
               }`}
             >
               QualiEvents
@@ -172,22 +177,20 @@ export default function Navbar() {
           {/* Mobile: search + hamburger */}
           <div className="md:hidden flex items-center gap-1 ml-auto">
             <button
-              className={`p-2 rounded-lg transition-colors ${mobileHasDarkBg ? "text-white/70" : "text-gray-500"}`}
+              className={`p-2 rounded-lg transition-colors ${isLight ? "text-white/70 hover:bg-white/10" : "text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-800"}`}
               aria-label="Rechercher"
             >
               <Search className="w-4 h-4" />
             </button>
             <button
-              className={`relative w-9 h-9 flex items-center justify-center transition-colors ${
-                mobileHasDarkBg ? "text-white hover:bg-white/10" : "text-foreground hover:bg-gray-100 dark:hover:bg-slate-800"
-              } rounded-lg`}
+              className={`relative w-9 h-9 flex items-center justify-center transition-colors rounded-lg ${mobileIconClass}`}
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Menu"
             >
               <div className="relative w-5 h-5">
-                <span className={`absolute left-0 w-5 h-px transition-all duration-300 ${mobileHasDarkBg ? "bg-white" : "bg-foreground"} ${isOpen ? "top-2.5 rotate-45" : "top-1"}`} />
-                <span className={`absolute left-0 top-2.5 w-5 h-px transition-all duration-300 ${mobileHasDarkBg ? "bg-white" : "bg-foreground"} ${isOpen ? "opacity-0 scale-0" : "opacity-100"}`} />
-                <span className={`absolute left-0 w-5 h-px transition-all duration-300 ${mobileHasDarkBg ? "bg-white" : "bg-foreground"} ${isOpen ? "top-2.5 -rotate-45" : "top-4"}`} />
+                <span className={`absolute left-0 w-5 h-px transition-all duration-300 ${isLight ? "bg-white" : "bg-foreground"} ${isOpen ? "top-2.5 rotate-45" : "top-1"}`} />
+                <span className={`absolute left-0 top-2.5 w-5 h-px transition-all duration-300 ${isLight ? "bg-white" : "bg-foreground"} ${isOpen ? "opacity-0 scale-0" : "opacity-100"}`} />
+                <span className={`absolute left-0 w-5 h-px transition-all duration-300 ${isLight ? "bg-white" : "bg-foreground"} ${isOpen ? "top-2.5 -rotate-45" : "top-4"}`} />
               </div>
             </button>
           </div>

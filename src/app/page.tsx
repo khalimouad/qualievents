@@ -118,12 +118,7 @@ export default async function HomePage() {
             aria-hidden="true"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0" style={{ background: "rgba(10,15,30,0.78)" }} />
-          {/* Top gradient so navbar text is readable on mobile */}
-          <div
-            className="absolute top-0 left-0 right-0 h-28 pointer-events-none"
-            style={{ background: "linear-gradient(to bottom, rgba(10,15,30,0.55) 0%, transparent 100%)" }}
-          />
+          <div className="absolute inset-0" style={{ background: "rgba(10,15,30,0.75)" }} />
         </div>
 
         {/* Hero content */}
