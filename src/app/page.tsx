@@ -278,18 +278,34 @@ export default async function HomePage() {
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4 text-[11px] font-bold uppercase tracking-wider"
               style={{ background: "var(--gold-dim)", color: "var(--primary)" }}
             >
-              Plateforme
+              Pourquoi QualiEvents ?
             </div>
             <h2 className="font-black text-4xl sm:text-5xl leading-tight" style={{ color: "var(--foreground)" }}>
-              Tout ce qu&apos;il vous faut
+              Votre expérience,<br />sans friction
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
             {[
-              { Icon: Users,    title: "Inscription",  desc: "Formulaires multi-étapes avec validation en temps réel et gestion de la capacité." },
-              { Icon: MapPin,   title: "Badges QR",    desc: "Codes QR générés automatiquement pour un check-in fluide à l'événement." },
-              { Icon: Sparkles, title: "Invitations",  desc: "Invitations par email et SMS avec suivi en masse." },
-              { Icon: ArrowRight, title: "Newsletters", desc: "Composez et envoyez des mises à jour à tous vos abonnés." },
+              {
+                Icon: Users,
+                title: "Inscription en 2 min",
+                desc: "Réservez votre place en quelques clics et recevez votre confirmation instantanément par email.",
+              },
+              {
+                Icon: MapPin,
+                title: "Votre badge digital",
+                desc: "Accédez à l'événement avec votre QR code personnel — aucune file d'attente, aucun papier.",
+              },
+              {
+                Icon: Sparkles,
+                title: "Invitations exclusives",
+                desc: "Recevez des invitations personnalisées aux événements qui correspondent à votre profil professionnel.",
+              },
+              {
+                Icon: ArrowRight,
+                title: "Toujours informé",
+                desc: "Soyez le premier à connaître les prochains événements, programmes et intervenants.",
+              },
             ].map(({ Icon, title, desc }) => (
               <div key={title} className="group">
                 <div
