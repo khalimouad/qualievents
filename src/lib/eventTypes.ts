@@ -9,6 +9,9 @@ export type EventType =
   | "FORUM"
   | "WORKSHOP"
   | "NETWORKING"
+  | "INDUSTRIEL"
+  | "MANAGEMENT"
+  | "RELATION_CLIENTS"
   | "OTHER";
 
 export type EventFormat = "IN_PERSON" | "ONLINE" | "HYBRID";
@@ -110,6 +113,48 @@ export const EVENT_TYPES: EventTypePreset[] = [
       showProgramme: false,
       showObjectives: false,
       showTargetAudience: false,
+      showContext: false,
+    },
+  },
+  {
+    id: "INDUSTRIEL",
+    label: "Industriel",
+    emoji: "🏭",
+    description: "Événements dédiés aux secteurs industriels : énergie, mines, BTP, manufacturing.",
+    defaults: {
+      format: "IN_PERSON",
+      isPaid: true,
+      showProgramme: true,
+      showObjectives: true,
+      showTargetAudience: true,
+      showContext: true,
+    },
+  },
+  {
+    id: "MANAGEMENT",
+    label: "Management",
+    emoji: "💼",
+    description: "Leadership, gestion d'équipe, stratégie d'entreprise et développement organisationnel.",
+    defaults: {
+      format: "IN_PERSON",
+      isPaid: true,
+      showProgramme: true,
+      showObjectives: true,
+      showTargetAudience: true,
+      showContext: false,
+    },
+  },
+  {
+    id: "RELATION_CLIENTS",
+    label: "Relation clients",
+    emoji: "🤝",
+    description: "Expérience client, CRM, service après-vente et fidélisation.",
+    defaults: {
+      format: "IN_PERSON",
+      isPaid: true,
+      showProgramme: true,
+      showObjectives: true,
+      showTargetAudience: true,
       showContext: false,
     },
   },

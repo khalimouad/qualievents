@@ -273,6 +273,21 @@ model InfoRequest {
   createdAt DateTime @default(now())
 }
 
+model HostRequest {
+  id           String   @id @default(uuid())
+  firstName    String
+  lastName     String
+  email        String
+  phone        String?
+  organization String
+  eventType    String?
+  message      String?
+  status       String   @default("PENDING") // PENDING | REVIEWED | APPROVED | REJECTED
+  createdAt    DateTime @default(now())
+
+  @@map("host_requests")
+}
+
 model Subscriber {
   id          String   @id @default(uuid())
   firstName   String

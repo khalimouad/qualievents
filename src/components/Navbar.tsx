@@ -40,6 +40,7 @@ export default function Navbar() {
   const eventSlugMatch = pathname.match(/^\/events\/([^/]+)/);
   const isEventPage = !!eventSlugMatch && !pathname.includes("/register") && !pathname.includes("/badge");
   const eventSlug = eventSlugMatch?.[1];
+  const isHomePage = pathname === "/";
 
   const publicNavLinks = [
     { href: "/#events", label: "Événements" },
@@ -58,6 +59,8 @@ export default function Navbar() {
   const navLinks = isEventPage ? eventNavLinks : publicNavLinks;
 
   const isLight = !scrolled && isEventPage;
+  // Mobile hero has dark overlay on both event pages AND the homepage
+  const mobileHasDarkBg = !scrolled && (isEventPage || isHomePage);
 
   const linkClass = isLight
     ? "text-white/85 hover:text-white"
@@ -79,7 +82,11 @@ export default function Navbar() {
             <span className="logo-dot" />
             <span
               className={`font-serif font-black text-[1.15rem] leading-none tracking-tight transition-colors ${
-                isLight ? "text-white" : "text-foreground"
+                isLight
+                  ? "text-white"
+                  : isHomePage && !scrolled
+                    ? "text-white lg:text-foreground"
+                    : "text-foreground"
               }`}
             >
               QualiEvents
@@ -165,22 +172,22 @@ export default function Navbar() {
           {/* Mobile: search + hamburger */}
           <div className="md:hidden flex items-center gap-1 ml-auto">
             <button
-              className={`p-2 rounded-lg transition-colors ${isLight ? "text-white/70" : "text-gray-500"}`}
+              className={`p-2 rounded-lg transition-colors ${mobileHasDarkBg ? "text-white/70" : "text-gray-500"}`}
               aria-label="Rechercher"
             >
               <Search className="w-4 h-4" />
             </button>
             <button
               className={`relative w-9 h-9 flex items-center justify-center transition-colors ${
-                isLight ? "text-white hover:bg-white/10" : "text-foreground hover:bg-gray-100 dark:hover:bg-slate-800"
+                mobileHasDarkBg ? "text-white hover:bg-white/10" : "text-foreground hover:bg-gray-100 dark:hover:bg-slate-800"
               } rounded-lg`}
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Menu"
             >
               <div className="relative w-5 h-5">
-                <span className={`absolute left-0 w-5 h-px transition-all duration-300 ${isLight ? "bg-white" : "bg-foreground"} ${isOpen ? "top-2.5 rotate-45" : "top-1"}`} />
-                <span className={`absolute left-0 top-2.5 w-5 h-px transition-all duration-300 ${isLight ? "bg-white" : "bg-foreground"} ${isOpen ? "opacity-0 scale-0" : "opacity-100"}`} />
-                <span className={`absolute left-0 w-5 h-px transition-all duration-300 ${isLight ? "bg-white" : "bg-foreground"} ${isOpen ? "top-2.5 -rotate-45" : "top-4"}`} />
+                <span className={`absolute left-0 w-5 h-px transition-all duration-300 ${mobileHasDarkBg ? "bg-white" : "bg-foreground"} ${isOpen ? "top-2.5 rotate-45" : "top-1"}`} />
+                <span className={`absolute left-0 top-2.5 w-5 h-px transition-all duration-300 ${mobileHasDarkBg ? "bg-white" : "bg-foreground"} ${isOpen ? "opacity-0 scale-0" : "opacity-100"}`} />
+                <span className={`absolute left-0 w-5 h-px transition-all duration-300 ${mobileHasDarkBg ? "bg-white" : "bg-foreground"} ${isOpen ? "top-2.5 -rotate-45" : "top-4"}`} />
               </div>
             </button>
           </div>
