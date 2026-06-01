@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, X } from "lucide-react";
+import { ArrowRight, X, Search } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { t } from "@/lib/i18n";
 
@@ -25,14 +25,11 @@ export default function Navbar() {
 
   useEffect(() => { setIsOpen(false); }, [pathname]);
 
-  // Lock body scroll + close on Escape while the drawer is open.
   useEffect(() => {
     if (!isOpen) return;
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setIsOpen(false);
-    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setIsOpen(false); };
     window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = prevOverflow;
@@ -40,125 +37,168 @@ export default function Navbar() {
     };
   }, [isOpen]);
 
-  // Determine context
   const eventSlugMatch = pathname.match(/^\/events\/([^/]+)/);
   const isEventPage = !!eventSlugMatch && !pathname.includes("/register") && !pathname.includes("/badge");
   const eventSlug = eventSlugMatch?.[1];
 
-  const navLinks = isEventPage
-    ? [
-        { href: "#about", label: t.nav.about },
-        { href: "#speakers", label: t.nav.speakers },
-        { href: "#location", label: t.nav.location },
-        { href: "#sponsors", label: t.nav.sponsors },
-      ]
-    : [
-        { href: "/#events", label: t.nav.events },
-        { href: "/admin", label: t.nav.dashboard },
-      ];
+  const publicNavLinks = [
+    { href: "/#events", label: "Événements" },
+    { href: "/#categories", label: "Catégories" },
+    { href: "/#host", label: "Organiser" },
+    { href: "/#about", label: "À propos" },
+  ];
 
-  const ctaHref = isEventPage ? `/events/${eventSlug}/register` : "/#events";
-  const ctaLabel = isEventPage ? t.nav.registerNow : t.nav.exploreEvents;
+  const eventNavLinks = [
+    { href: "#about", label: t.nav.about },
+    { href: "#speakers", label: t.nav.speakers },
+    { href: "#location", label: t.nav.location },
+    { href: "#sponsors", label: t.nav.sponsors },
+  ];
+
+  const navLinks = isEventPage ? eventNavLinks : publicNavLinks;
+
+  const isLight = !scrolled && isEventPage;
+
+  const linkClass = isLight
+    ? "text-white/85 hover:text-white"
+    : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white";
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "card-glass border-b border-border py-3 shadow-lg"
+          ? "bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b py-3 shadow-sm"
           : "bg-transparent py-5"
       }`}
+      style={scrolled ? { borderColor: "var(--border)" } : undefined}
     >
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-8">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
+          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
             <span className="logo-dot" />
             <span
               className={`font-serif font-black text-[1.15rem] leading-none tracking-tight transition-colors ${
-                isEventPage && !scrolled ? "text-white" : "text-foreground"
+                isLight ? "text-white" : "text-foreground"
               }`}
             >
               QualiEvents
             </span>
+            <span
+              className="text-[10px] font-black px-2 py-0.5 rounded-full text-white"
+              style={{ background: "var(--primary)" }}
+            >
+              2026
+            </span>
           </Link>
 
-          {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-6 flex-1 justify-end">
+          {/* Desktop nav links */}
+          <div className="hidden md:flex items-center gap-6 flex-1">
             {navLinks.map((link) =>
-              link.href.startsWith("/") ? (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`link-spell text-[11px] font-semibold uppercase tracking-[0.1em] transition-colors ${
-                    isEventPage && !scrolled
-                      ? "text-white/85 hover:text-white"
-                      : "text-text-secondary hover:text-foreground"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ) : (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className={`link-spell text-[11px] font-semibold uppercase tracking-[0.1em] transition-colors ${
-                    isEventPage && !scrolled
-                      ? "text-white/85 hover:text-white"
-                      : "text-text-secondary hover:text-foreground"
-                  }`}
-                >
-                  {link.label}
-                </a>
-              )
+              link.href.startsWith("/") || link.href.startsWith("#") ? (
+                link.href.startsWith("/") ? (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`text-sm font-medium transition-colors ${linkClass}`}
+                  >
+                    {link.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    className={`text-sm font-medium transition-colors ${linkClass}`}
+                  >
+                    {link.label}
+                  </a>
+                )
+              ) : null
             )}
-
-            <div className={`w-px h-4 mx-2 ${isEventPage && !scrolled ? "bg-white/30" : "bg-border"}`} />
-
-            <ThemeToggle />
-
-            <Link
-              href={ctaHref}
-              className="btn-primary hover-spell ml-2 px-5 py-2.5 text-[10px] uppercase tracking-wider inline-flex items-center gap-2"
-            >
-              {ctaLabel} <ArrowRight className="w-3 h-3" />
-            </Link>
           </div>
 
-          {/* Mobile actions */}
-          <div className="md:hidden flex items-center gap-2">
-            <ThemeToggle />
+          {/* Desktop actions */}
+          <div className="hidden md:flex items-center gap-2 flex-shrink-0">
             <button
-              className={`relative w-9 h-9 flex items-center justify-center transition-colors ${isEventPage && !scrolled ? "text-white hover:bg-white/10" : "text-foreground hover:bg-hover"}`}
+              className={`p-2 rounded-lg transition-colors ${
+                isLight
+                  ? "text-white/70 hover:text-white hover:bg-white/10"
+                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-slate-800"
+              }`}
+              aria-label="Rechercher"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+
+            <ThemeToggle />
+
+            {isEventPage ? (
+              <>
+                <div className={`w-px h-4 mx-1 ${isLight ? "bg-white/30" : "bg-gray-200 dark:bg-slate-700"}`} />
+                <Link
+                  href={`/events/${eventSlug}/register`}
+                  className="btn-primary px-5 py-2.5 text-xs uppercase tracking-wider inline-flex items-center gap-2 font-bold"
+                >
+                  {t.nav.registerNow} <ArrowRight className="w-3 h-3" />
+                </Link>
+              </>
+            ) : (
+              <>
+                <div className="w-px h-4 mx-1 bg-gray-200 dark:bg-slate-700" />
+                <Link
+                  href="/admin"
+                  className="text-sm font-semibold px-4 py-2 rounded-lg transition-colors text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                >
+                  Connexion
+                </Link>
+                <a
+                  href="/#host"
+                  className="px-5 py-2.5 rounded-xl text-sm font-bold text-white inline-flex items-center gap-1.5 transition-all hover:opacity-90 active:scale-95"
+                  style={{ background: "var(--primary)" }}
+                >
+                  Organiser <ArrowRight className="w-3.5 h-3.5" />
+                </a>
+              </>
+            )}
+          </div>
+
+          {/* Mobile: search + hamburger */}
+          <div className="md:hidden flex items-center gap-1 ml-auto">
+            <button
+              className={`p-2 rounded-lg transition-colors ${isLight ? "text-white/70" : "text-gray-500"}`}
+              aria-label="Rechercher"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+            <button
+              className={`relative w-9 h-9 flex items-center justify-center transition-colors ${
+                isLight ? "text-white hover:bg-white/10" : "text-foreground hover:bg-gray-100 dark:hover:bg-slate-800"
+              } rounded-lg`}
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Menu"
             >
               <div className="relative w-5 h-5">
-                <span className={`absolute left-0 w-5 h-px transition-all duration-300 ${isEventPage && !scrolled ? "bg-white" : "bg-foreground"} ${isOpen ? "top-2.5 rotate-45" : "top-1"}`} />
-                <span className={`absolute left-0 top-2.5 w-5 h-px transition-all duration-300 ${isEventPage && !scrolled ? "bg-white" : "bg-foreground"} ${isOpen ? "opacity-0 scale-0" : "opacity-100"}`} />
-                <span className={`absolute left-0 w-5 h-px transition-all duration-300 ${isEventPage && !scrolled ? "bg-white" : "bg-foreground"} ${isOpen ? "top-2.5 -rotate-45" : "top-4"}`} />
+                <span className={`absolute left-0 w-5 h-px transition-all duration-300 ${isLight ? "bg-white" : "bg-foreground"} ${isOpen ? "top-2.5 rotate-45" : "top-1"}`} />
+                <span className={`absolute left-0 top-2.5 w-5 h-px transition-all duration-300 ${isLight ? "bg-white" : "bg-foreground"} ${isOpen ? "opacity-0 scale-0" : "opacity-100"}`} />
+                <span className={`absolute left-0 w-5 h-px transition-all duration-300 ${isLight ? "bg-white" : "bg-foreground"} ${isOpen ? "top-2.5 -rotate-45" : "top-4"}`} />
               </div>
             </button>
           </div>
         </div>
-
       </div>
 
-      {/* Mobile drawer — portaled to body so it sits above everything,
-          slides in from the right, with a backdrop. */}
+      {/* Mobile drawer */}
       {mounted && createPortal(
         <div
           className={`fixed inset-0 z-[100] md:hidden ${isOpen ? "pointer-events-auto" : "pointer-events-none"}`}
           aria-hidden={!isOpen}
         >
-          {/* Backdrop */}
           <div
             onClick={() => setIsOpen(false)}
             className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
               isOpen ? "opacity-100" : "opacity-0"
             }`}
           />
-
-          {/* Drawer panel */}
           <aside
             role="dialog"
             aria-modal="true"
@@ -167,13 +207,8 @@ export default function Navbar() {
               isOpen ? "translate-x-0" : "translate-x-full"
             }`}
           >
-            {/* Drawer header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-              <Link
-                href="/"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-2.5"
-              >
+              <Link href="/" onClick={() => setIsOpen(false)} className="flex items-center gap-2.5">
                 <span className="logo-dot" />
                 <span className="font-serif font-black text-[1.1rem] leading-none tracking-tight text-foreground">
                   QualiEvents
@@ -182,13 +217,12 @@ export default function Navbar() {
               <button
                 onClick={() => setIsOpen(false)}
                 aria-label="Fermer le menu"
-                className="w-9 h-9 flex items-center justify-center text-text-secondary hover:text-foreground hover:bg-hover rounded-lg transition-colors"
+                className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-foreground hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Drawer links */}
             <nav className="flex-1 overflow-y-auto px-5 py-6">
               <div className="flex flex-col gap-1">
                 {navLinks.map((link) =>
@@ -197,7 +231,7 @@ export default function Navbar() {
                       key={link.href}
                       href={link.href}
                       onClick={() => setIsOpen(false)}
-                      className="px-3 py-3 text-foreground hover:text-primary hover:bg-hover rounded-lg transition-colors text-sm font-semibold uppercase tracking-[0.1em]"
+                      className="px-3 py-3 text-foreground hover:text-primary hover:bg-gray-50 dark:hover:bg-slate-800 rounded-lg transition-colors text-sm font-semibold"
                     >
                       {link.label}
                     </Link>
@@ -206,7 +240,7 @@ export default function Navbar() {
                       key={link.href}
                       href={link.href}
                       onClick={() => setIsOpen(false)}
-                      className="px-3 py-3 text-foreground hover:text-primary hover:bg-hover rounded-lg transition-colors text-sm font-semibold uppercase tracking-[0.1em]"
+                      className="px-3 py-3 text-foreground hover:text-primary hover:bg-gray-50 dark:hover:bg-slate-800 rounded-lg transition-colors text-sm font-semibold"
                     >
                       {link.label}
                     </a>
@@ -215,15 +249,26 @@ export default function Navbar() {
               </div>
             </nav>
 
-            {/* Drawer footer with CTA */}
-            <div className="px-5 py-5 border-t border-border">
+            <div className="px-5 py-5 border-t border-border space-y-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-muted font-medium">Thème</span>
+                <ThemeToggle />
+              </div>
               <Link
-                href={ctaHref}
+                href="/admin"
                 onClick={() => setIsOpen(false)}
-                className="btn-primary w-full py-3 text-xs uppercase tracking-wider text-center inline-flex items-center justify-center gap-2"
+                className="w-full py-3 text-sm font-semibold text-center border border-border rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors block text-foreground"
               >
-                {ctaLabel} <ArrowRight className="w-3 h-3" />
+                Connexion
               </Link>
+              <a
+                href="/#host"
+                onClick={() => setIsOpen(false)}
+                className="w-full py-3 text-sm font-bold text-white text-center rounded-xl transition-all hover:opacity-90 block"
+                style={{ background: "var(--primary)" }}
+              >
+                Organiser un événement
+              </a>
             </div>
           </aside>
         </div>,

@@ -89,13 +89,13 @@ export default function EventsSection({ ongoingEvents, upcomingEvents, pastEvent
               </button>
             ))}
           </div>
-          <Link
-            href="/admin/events/new"
-            className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold border transition-all hover:border-yellow-500/40 hover:text-foreground"
+          <a
+            href="#events"
+            className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold border transition-all hover:text-foreground"
             style={{ border: "1px solid var(--border)", color: "var(--muted)" }}
           >
-            + Créer un événement
-          </Link>
+            Voir tout →
+          </a>
         </div>
 
         {/* Events grid */}

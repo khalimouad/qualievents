@@ -1,21 +1,27 @@
 import Link from "next/link";
-import { Users, ArrowRight, Sparkles, Calendar, QrCode, UserCheck, Mail, Send, CheckCircle2, Mic } from "lucide-react";
+import { Users, ArrowRight, Sparkles, MapPin, Cpu, Briefcase, Music, Network, Gamepad2, GraduationCap } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EventsSection from "@/components/EventsSection";
 import { prisma } from "@/lib/prisma";
-import { t } from "@/lib/i18n";
-
-const featureIcons = [UserCheck, QrCode, Mail, Send];
 
 export const dynamic = "force-dynamic";
+
+const CATEGORIES = [
+  { Icon: Cpu, label: "Tech & Innovation", color: "#3b82f6", bg: "rgba(59,130,246,0.08)" },
+  { Icon: Briefcase, label: "Business", color: "#10b981", bg: "rgba(16,185,129,0.08)" },
+  { Icon: Music, label: "Musique & Arts", color: "#8b5cf6", bg: "rgba(139,92,246,0.08)" },
+  { Icon: Network, label: "Networking", color: "#f97316", bg: "rgba(249,115,22,0.08)" },
+  { Icon: Gamepad2, label: "Gaming", color: "#ef4444", bg: "rgba(239,68,68,0.08)" },
+  { Icon: GraduationCap, label: "Éducation", color: "#f59e0b", bg: "rgba(245,158,11,0.08)" },
+];
+
+const AVATAR_COLORS = ["#ff7a00", "#3b82f6", "#10b981", "#8b5cf6"];
 
 export default async function HomePage() {
   const events = await prisma.event.findMany({
     where: { isPublished: true },
-    include: {
-      _count: { select: { subscribers: true, panelists: true } },
-    },
+    include: { _count: { select: { subscribers: true, panelists: true } } },
     orderBy: { date: "asc" },
   });
 
@@ -23,7 +29,6 @@ export default async function HomePage() {
   const todayStart = new Date(now);
   todayStart.setHours(0, 0, 0, 0);
 
-  // Ongoing: started AND (endDate in future OR no endDate but started today)
   const ongoingEvents = events.filter((e) => {
     const start = new Date(e.date);
     if (start > now) return false;
@@ -33,7 +38,6 @@ export default async function HomePage() {
 
   const upcomingEvents = events.filter((e) => new Date(e.date) > now);
 
-  // Past: endDate passed OR (no endDate AND started before today)
   const pastEvents = events.filter((e) => {
     const start = new Date(e.date);
     if (start > now) return false;
@@ -41,312 +45,283 @@ export default async function HomePage() {
     return start < todayStart;
   });
 
+  const totalSubscribers = events.reduce((s, e) => s + e._count.subscribers, 0);
+  const citiesCount = new Set(events.map((e) => e.city).filter(Boolean)).size;
+
+  const eventCards = (list: typeof events) =>
+    list.map((e) => ({
+      id: e.id,
+      slug: e.slug,
+      title: e.title,
+      tagline: e.tagline,
+      description: e.description,
+      date: e.date.toISOString(),
+      themeColor: e.themeColor,
+      heroImage: e.heroImage,
+      city: e.city,
+      format: e.format,
+      maxAttendees: e.maxAttendees,
+      subscribersCount: e._count.subscribers,
+      panelistsCount: e._count.panelists,
+    }));
 
   return (
     <>
       <Navbar />
 
       {/* ── HERO ── */}
-      <section className="relative min-h-[80vh] flex items-center overflow-hidden">
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(ellipse 65% 55% at 85% 50%, rgba(232,197,71,0.07) 0%, transparent 70%)," +
-              "radial-gradient(ellipse 40% 40% at 15% 80%, rgba(255,122,0,0.05) 0%, transparent 60%)," +
-              "radial-gradient(ellipse 50% 40% at 50% 0%, rgba(245,240,232,0.03) 0%, transparent 50%)",
-          }}
-        />
-
-        {/* Animated glow orbs */}
-        <div className="hero-orb hero-orb-gold" />
-        <div className="hero-orb hero-orb-orange" />
-        <div className="hero-orb hero-orb-green" />
-
-        {/* Decorative vector — concentric compass rings */}
-        <div className="absolute right-0 top-0 bottom-0 w-1/2 pointer-events-none overflow-hidden">
-          <svg
-            viewBox="0 0 700 700"
-            fill="none"
-            className="absolute top-1/2 right-[-10%] -translate-y-1/2 w-[680px] h-[680px]"
-            style={{ opacity: 0.055 }}
-          >
-            <circle cx="350" cy="350" r="320" stroke="#E8C547" strokeWidth="1" />
-            <circle cx="350" cy="350" r="240" stroke="#E8C547" strokeWidth="1" />
-            <circle cx="350" cy="350" r="160" stroke="#E8C547" strokeWidth="1" />
-            <circle cx="350" cy="350" r="80" stroke="#E8C547" strokeWidth="1" />
-            <line x1="30" y1="350" x2="670" y2="350" stroke="#E8C547" strokeWidth="1" />
-            <line x1="350" y1="30" x2="350" y2="670" stroke="#E8C547" strokeWidth="1" />
-            <line x1="124" y1="124" x2="576" y2="576" stroke="#E8C547" strokeWidth="0.75" />
-            <line x1="576" y1="124" x2="124" y2="576" stroke="#E8C547" strokeWidth="0.75" />
-            <circle cx="350" cy="30" r="4" fill="#E8C547" />
-            <circle cx="350" cy="670" r="4" fill="#E8C547" />
-            <circle cx="30" cy="350" r="4" fill="#E8C547" />
-            <circle cx="670" cy="350" r="4" fill="#E8C547" />
-            <circle cx="124" cy="124" r="3" fill="#E8C547" opacity="0.6" />
-            <circle cx="576" cy="576" r="3" fill="#E8C547" opacity="0.6" />
-            <circle cx="576" cy="124" r="3" fill="#E8C547" opacity="0.6" />
-            <circle cx="124" cy="576" r="3" fill="#E8C547" opacity="0.6" />
-          </svg>
+      <section className="relative min-h-[100svh] flex flex-col overflow-hidden" style={{ background: "var(--background)" }}>
+        {/* Right-side photo — hidden on mobile */}
+        <div className="hidden lg:block absolute top-0 right-0 bottom-0 w-[52%] overflow-hidden">
+          <img
+            src="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=1400&q=80&auto=format&fit=crop"
+            alt="Concert event hall"
+            className="w-full h-full object-cover"
+            loading="eager"
+          />
+          {/* Left-side fade so text stays readable */}
+          <div
+            className="absolute inset-0"
+            style={{ background: "linear-gradient(to right, var(--background) 0%, transparent 35%)" }}
+          />
+          {/* Subtle dark vignette bottom */}
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/30 to-transparent" />
         </div>
 
-        <div className="relative z-10 max-w-6xl mx-auto px-6 py-20 w-full grid lg:grid-cols-[1fr_auto] gap-14 items-center">
-          {/* Left: text */}
-          <div className="max-w-[560px]">
-            <div
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8 text-xs font-bold uppercase tracking-[0.15em] animate-bounce-in"
-              style={{
-                background: "var(--gold-dim)",
-                border: "1px solid var(--gold-border)",
-                color: "var(--gold)",
-              }}
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              {t.home.badge}
-            </div>
+        {/* Mobile background photo */}
+        <div className="lg:hidden absolute inset-0 overflow-hidden">
+          <img
+            src="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=800&q=70&auto=format&fit=crop"
+            alt=""
+            aria-hidden="true"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.65)" }} />
+        </div>
 
-            <h1
-              className="font-serif font-black leading-[1.02] tracking-tight mb-6 animate-fade-in-up"
-              style={{ fontSize: "clamp(2.8rem, 6vw, 5.2rem)" }}
-            >
-              {t.home.heroTitle}
-              <span
-                className="block"
+        {/* Hero content */}
+        <div className="relative z-10 flex-1 flex items-center">
+          <div className="max-w-7xl mx-auto px-6 w-full py-28 lg:py-24">
+            <div className="max-w-[580px]">
+              {/* Pill badge */}
+              <div
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8 text-xs font-bold"
                 style={{
-                  background: "linear-gradient(135deg, var(--gold) 0%, var(--foreground) 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
+                  background: "rgba(255,122,0,0.12)",
+                  border: "1px solid rgba(255,122,0,0.25)",
+                  color: "var(--primary)",
                 }}
               >
-                {t.home.heroTitleAccent}
-              </span>
-            </h1>
+                <Sparkles className="w-3.5 h-3.5" />
+                L&apos;avenir des événements est là ✨
+              </div>
 
-            <p
-              className="text-lg leading-relaxed mb-10 font-light max-w-[420px] animate-fade-in-up"
-              style={{ color: "var(--muted)", opacity: 0, animationFillMode: "forwards", animationDelay: "0.15s" }}
-            >
-              {t.home.heroSub}
-            </p>
-
-            <div
-              className="flex flex-col sm:flex-row gap-3 animate-fade-in-up"
-              style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.28s" }}
-            >
-              <a
-                href="#events"
-                className="hero-gold-btn inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-serif font-black text-sm uppercase tracking-wider"
-                style={{ background: "var(--gold)", color: "#0C0B09" }}
+              {/* Heading */}
+              <h1
+                className="font-black leading-[1.05] tracking-tight mb-6 lg:text-gray-900 lg:dark:text-white text-white"
+                style={{ fontSize: "clamp(2.8rem, 5.5vw, 4.8rem)" }}
               >
-                {t.home.explore} <ArrowRight className="w-4 h-4" />
-              </a>
-              <Link
-                href="/admin"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-serif font-bold text-sm uppercase tracking-wider border transition-all hover:border-foreground/30"
-                style={{ border: "1px solid var(--border)", color: "var(--muted)" }}
-              >
-                {t.admin.dashboard}
-              </Link>
-            </div>
+                Là où les idées
+                <br />
+                <span style={{ color: "var(--primary)" }}>deviennent</span> de vrais
+                <br />
+                événements.
+              </h1>
 
-            {/* Stats */}
-            <div
-              className="mt-14 grid grid-cols-3 gap-6 max-w-xs border-t pt-10 animate-fade-in-up"
-              style={{ borderColor: "rgba(232,197,71,0.15)", opacity: 0, animationFillMode: "forwards", animationDelay: "0.45s" }}
-            >
-              {[
-                { value: events.length, label: t.home.stats.events, Icon: Calendar },
-                { value: events.reduce((s, e) => s + e._count.subscribers, 0), label: t.home.stats.attendees, Icon: Users },
-                { value: events.reduce((s, e) => s + e._count.panelists, 0), label: t.home.stats.speakers, Icon: Mic },
-              ].map(({ value, label, Icon }) => (
-                <div key={label}>
-                  <Icon className="w-3.5 h-3.5 mb-2" style={{ color: "var(--gold)", opacity: 0.65 }} />
-                  <div className="font-serif font-black text-3xl" style={{ color: "var(--gold)" }}>
-                    {value}
-                  </div>
-                  <div className="text-[9px] uppercase tracking-[0.15em] font-bold mt-1" style={{ color: "var(--muted)" }}>
-                    {label}
-                  </div>
+              <p
+                className="text-lg leading-relaxed mb-10 font-light max-w-[440px] lg:text-gray-600 lg:dark:text-gray-300 text-white/85"
+              >
+                Découvrez, rejoignez et organisez des événements extraordinaires. Votre prochaine grande expérience commence ici.
+              </p>
+
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <a
+                  href="#events"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90 active:scale-95"
+                  style={{ background: "var(--primary)" }}
+                >
+                  Explorer les événements <ArrowRight className="w-4 h-4" />
+                </a>
+                <a
+                  href="#host"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold text-sm border-2 transition-all hover:bg-white/10 lg:hover:bg-gray-50 lg:dark:hover:bg-slate-800 lg:border-gray-300 lg:dark:border-slate-600 lg:text-gray-800 lg:dark:text-white border-white/50 text-white"
+                >
+                  <Sparkles className="w-4 h-4" /> Organiser un événement
+                </a>
+              </div>
+
+              {/* Social proof */}
+              <div className="mt-10 flex items-center gap-4">
+                <div className="flex -space-x-2">
+                  {AVATAR_COLORS.map((color, i) => (
+                    <div
+                      key={i}
+                      className="w-9 h-9 rounded-full border-2 flex items-center justify-center text-xs font-bold text-white"
+                      style={{ background: color, borderColor: "var(--background)" }}
+                    >
+                      {["A", "B", "C", "D"][i]}
+                    </div>
+                  ))}
                 </div>
-              ))}
+                <p className="text-sm lg:text-gray-600 lg:dark:text-gray-400 text-white/80">
+                  <span className="font-bold lg:text-gray-900 lg:dark:text-white text-white">
+                    {totalSubscribers > 0 ? `${totalSubscribers.toLocaleString("fr-FR")}+` : "Des milliers de"}
+                  </span>{" "}
+                  participants nous font confiance
+                </p>
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* Right: hero illustration + event pills */}
-          <div className="hidden lg:flex flex-col gap-3 flex-shrink-0 w-[285px] relative">
-            {/* Soft glow behind the whole panel */}
-            <div
-              className="absolute -inset-8 rounded-[32px] pointer-events-none"
-              style={{
-                background: "radial-gradient(ellipse at center, rgba(232,197,71,0.05) 0%, transparent 70%)",
-                border: "1px solid rgba(232,197,71,0.05)",
-              }}
-            />
-
-            {/* Badge card illustration */}
-            <div className="hero-badge-card animate-float-slow">
-              <div className="hero-badge-card-top">
-                {/* QR code pattern */}
-                <svg viewBox="0 0 72 72" fill="none" className="w-[52px] h-[52px] flex-shrink-0">
-                  {/* TL finder */}
-                  <rect x="1" y="1" width="27" height="27" rx="4" stroke="white" strokeWidth="1.8" strokeOpacity="0.9"/>
-                  <rect x="6" y="6" width="17" height="17" rx="2" fill="white" fillOpacity="0.2"/>
-                  <rect x="11" y="11" width="7" height="7" rx="1" fill="white" fillOpacity="0.85"/>
-                  {/* TR finder */}
-                  <rect x="44" y="1" width="27" height="27" rx="4" stroke="white" strokeWidth="1.8" strokeOpacity="0.9"/>
-                  <rect x="49" y="6" width="17" height="17" rx="2" fill="white" fillOpacity="0.2"/>
-                  <rect x="54" y="11" width="7" height="7" rx="1" fill="white" fillOpacity="0.85"/>
-                  {/* BL finder */}
-                  <rect x="1" y="44" width="27" height="27" rx="4" stroke="white" strokeWidth="1.8" strokeOpacity="0.9"/>
-                  <rect x="6" y="49" width="17" height="17" rx="2" fill="white" fillOpacity="0.2"/>
-                  <rect x="11" y="54" width="7" height="7" rx="1" fill="white" fillOpacity="0.85"/>
-                  {/* Data module dots */}
-                  <rect x="44" y="44" width="5" height="5" rx="1" fill="white" fillOpacity="0.7"/>
-                  <rect x="52" y="44" width="5" height="5" rx="1" fill="white" fillOpacity="0.7"/>
-                  <rect x="60" y="44" width="5" height="5" rx="1" fill="white" fillOpacity="0.7"/>
-                  <rect x="44" y="52" width="5" height="5" rx="1" fill="white" fillOpacity="0.7"/>
-                  <rect x="60" y="52" width="5" height="5" rx="1" fill="white" fillOpacity="0.7"/>
-                  <rect x="52" y="60" width="5" height="5" rx="1" fill="white" fillOpacity="0.7"/>
-                  <rect x="60" y="60" width="5" height="5" rx="1" fill="white" fillOpacity="0.7"/>
-                  <rect x="44" y="60" width="5" height="5" rx="1" fill="white" fillOpacity="0.4"/>
-                </svg>
-                <div className="flex flex-col items-end">
-                  <span className="text-white/55 text-[9px] font-bold uppercase tracking-widest">Badge</span>
-                  <span className="text-white font-serif font-black text-[2rem] leading-none">#001</span>
-                </div>
+        {/* Stats bar */}
+        <div
+          className="relative z-20 border-t"
+          style={{ background: "var(--background)", borderColor: "var(--border)" }}
+        >
+          <div className="max-w-7xl mx-auto px-6 py-5 grid grid-cols-2 sm:grid-cols-4 gap-6">
+            {[
+              { value: `${Math.max(events.length, 12)}+`, label: "Événements" },
+              { value: totalSubscribers > 0 ? `${totalSubscribers.toLocaleString("fr-FR")}+` : "1 000+", label: "Participants" },
+              { value: `${Math.max(citiesCount, 8)}+`, label: "Villes" },
+              { value: "98%", label: "Satisfaction" },
+            ].map(({ value, label }) => (
+              <div key={label} className="text-center">
+                <div className="text-2xl font-black" style={{ color: "var(--primary)" }}>{value}</div>
+                <div className="text-xs font-medium mt-0.5" style={{ color: "var(--muted)" }}>{label}</div>
               </div>
-              <div className="hero-badge-card-body">
-                <div className="font-serif font-black text-base text-foreground leading-tight">Marie Dubois</div>
-                <div className="text-xs font-semibold mt-1" style={{ color: "var(--primary)" }}>Intervenant principal</div>
-                <div
-                  className="text-[10px] font-semibold mt-3 uppercase tracking-wider truncate"
-                  style={{ color: "var(--muted)" }}
-                >
-                  Forum Tech Abidjan 2025
-                </div>
-              </div>
-            </div>
-
-            {/* Floating check-in confirmation */}
-            <div
-              className="hero-checkin-badge animate-fade-in-up"
-              style={{ opacity: 0, animationFillMode: "forwards", animationDelay: "0.55s" }}
-            >
-              <CheckCircle2 className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
-              <span>Check-in validé</span>
-            </div>
-
-            {/* Event pills */}
-            {upcomingEvents.length > 0 && (
-              <>
-                <div className="hero-event-label mt-1">
-                  <Calendar className="w-3.5 h-3.5" />
-                  Prochains événements
-                </div>
-
-                {upcomingEvents.slice(0, 3).map((ev, i) => (
-                  <Link
-                    key={ev.id}
-                    href={`/events/${ev.slug}`}
-                    className="hero-pill animate-fade-in-up group"
-                    style={{
-                      animationDelay: `${600 + i * 80}ms`,
-                      opacity: 0,
-                      animationFillMode: "forwards",
-                    }}
-                  >
-                    <span
-                      className="hero-pill-dot"
-                      style={{ background: ev.themeColor || "var(--gold)" }}
-                    />
-                    <span className="group-hover:text-primary transition-colors truncate">{ev.title}</span>
-                  </Link>
-                ))}
-
-                <div
-                  className="hero-stat-badge animate-fade-in-up"
-                  style={{
-                    opacity: 0,
-                    animationFillMode: "forwards",
-                    animationDelay: `${600 + Math.min(upcomingEvents.length, 3) * 80 + 80}ms`,
-                  }}
-                >
-                  <CheckCircle2 className="w-3 h-3" style={{ color: "var(--accent)" }} />
-                  <span>
-                    {events.reduce((s, e) => s + e._count.subscribers, 0).toLocaleString("fr-FR")} participants inscrits
-                  </span>
-                </div>
-              </>
-            )}
+            ))}
           </div>
         </div>
       </section>
 
       {/* ── EVENTS ── */}
       <EventsSection
-        ongoingEvents={ongoingEvents.map(e => ({ id: e.id, slug: e.slug, title: e.title, tagline: e.tagline, description: e.description, date: e.date.toISOString(), themeColor: e.themeColor, heroImage: e.heroImage, city: e.city, format: e.format, maxAttendees: e.maxAttendees, subscribersCount: e._count.subscribers, panelistsCount: e._count.panelists }))}
-        upcomingEvents={upcomingEvents.map(e => ({ id: e.id, slug: e.slug, title: e.title, tagline: e.tagline, description: e.description, date: e.date.toISOString(), themeColor: e.themeColor, heroImage: e.heroImage, city: e.city, format: e.format, maxAttendees: e.maxAttendees, subscribersCount: e._count.subscribers, panelistsCount: e._count.panelists }))}
-        pastEvents={pastEvents.map(e => ({ id: e.id, slug: e.slug, title: e.title, tagline: e.tagline, description: e.description, date: e.date.toISOString(), themeColor: e.themeColor, heroImage: e.heroImage, city: e.city, format: e.format, maxAttendees: e.maxAttendees, subscribersCount: e._count.subscribers, panelistsCount: e._count.panelists }))}
+        ongoingEvents={eventCards(ongoingEvents)}
+        upcomingEvents={eventCards(upcomingEvents)}
+        pastEvents={eventCards(pastEvents)}
       />
 
-      {/* ── FEATURES ── */}
-      <section className="py-20 border-b border-border" style={{ background: "var(--bg-subtle)" }}>
+      {/* ── CATEGORIES ── */}
+      <section id="categories" className="py-20 border-b" style={{ background: "var(--bg-subtle)", borderColor: "var(--border)" }}>
         <div className="max-w-6xl mx-auto px-6">
-          <div className="mb-16">
-            <div
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 text-xs font-bold uppercase tracking-[0.14em]"
-              style={{ background: "var(--gold-dim)", border: "1px solid var(--gold-border)", color: "var(--gold)" }}
-            >
-              {t.home.platform}
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <div
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-3 text-[11px] font-bold uppercase tracking-wider"
+                style={{ background: "var(--gold-dim)", color: "var(--primary)" }}
+              >
+                Catégories
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-black" style={{ color: "var(--foreground)" }}>
+                Parcourir par thème
+              </h2>
             </div>
-            <h2 className="font-serif font-black text-4xl sm:text-5xl max-w-lg leading-tight">
-              {t.home.featuresTitle}
-            </h2>
+            <a href="#events" className="hidden sm:flex items-center gap-1.5 text-sm font-semibold transition-colors hover:opacity-80" style={{ color: "var(--primary)" }}>
+              Voir tout <ArrowRight className="w-4 h-4" />
+            </a>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-            {[
-              t.home.features.registration,
-              t.home.features.badges,
-              t.home.features.invitations,
-              t.home.features.newsletters,
-            ].map((f, i) => {
-              const FeatureIcon = featureIcons[i];
-              return (
-                <div key={f.title} className="group">
-                  <div className="feature-icon mb-6">
-                    <FeatureIcon className="w-5 h-5" style={{ color: "var(--gold)" }} />
-                  </div>
-                  <h3 className="font-serif font-black text-lg mb-3 group-hover:text-primary transition-colors">{f.title}</h3>
-                  <p className="text-sm font-light leading-relaxed" style={{ color: "var(--muted)" }}>{f.desc}</p>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {CATEGORIES.map(({ Icon, label, color, bg }) => (
+              <a
+                key={label}
+                href="#events"
+                className="flex flex-col items-center gap-3 p-5 rounded-2xl text-center transition-all hover:-translate-y-1 hover:shadow-md cursor-pointer border"
+                style={{ background: bg, borderColor: `${color}20` }}
+              >
+                <div
+                  className="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style={{ background: `${color}15` }}
+                >
+                  <Icon className="w-6 h-6" style={{ color }} />
                 </div>
-              );
-            })}
+                <span className="text-sm font-bold" style={{ color: "var(--foreground)" }}>{label}</span>
+              </a>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── CTA ── */}
-      <section className="relative py-28 overflow-hidden">
-        <div
-          className="absolute inset-0"
-          style={{ background: "radial-gradient(ellipse at center, rgba(232,197,71,0.06) 0%, transparent 65%)" }}
-        />
-        <div className="relative z-10 max-w-2xl mx-auto px-6 text-center">
-          <h2 className="font-serif font-black text-5xl sm:text-6xl leading-tight mb-6">
-            {t.home.readyStart.replace("?", "")}
-            <span className="block" style={{ color: "var(--gold)" }}>?</span>
-          </h2>
-          <p className="text-lg mb-12 font-light leading-relaxed" style={{ color: "var(--muted)" }}>
-            {t.home.readyStartSub}
-          </p>
-          <Link
-            href="/admin/events/new"
-            className="inline-flex items-center gap-2 px-10 py-5 rounded-full font-serif font-black text-sm uppercase tracking-wider transition-all hover:-translate-y-0.5"
-            style={{ background: "var(--gold)", color: "#0C0B09", boxShadow: "0 8px 32px rgba(232,197,71,0.28)" }}
+      {/* ── FEATURES ── */}
+      <section className="py-20 border-b" style={{ background: "var(--background)", borderColor: "var(--border)" }}>
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="mb-14 max-w-lg">
+            <div
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4 text-[11px] font-bold uppercase tracking-wider"
+              style={{ background: "var(--gold-dim)", color: "var(--primary)" }}
+            >
+              Plateforme
+            </div>
+            <h2 className="font-black text-4xl sm:text-5xl leading-tight" style={{ color: "var(--foreground)" }}>
+              Tout ce qu&apos;il vous faut
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+            {[
+              { Icon: Users, title: "Inscription", desc: "Formulaires multi-étapes avec validation en temps réel et gestion de la capacité." },
+              { Icon: MapPin, title: "Badges QR", desc: "Codes QR générés automatiquement pour un check-in fluide à l'événement." },
+              { Icon: Sparkles, title: "Invitations", desc: "Invitations par email et SMS avec suivi en masse." },
+              { Icon: ArrowRight, title: "Newsletters", desc: "Composez et envoyez des mises à jour à tous vos abonnés." },
+            ].map(({ Icon, title, desc }) => (
+              <div key={title} className="group">
+                <div
+                  className="w-12 h-12 rounded-xl flex items-center justify-center mb-5 transition-all group-hover:scale-110"
+                  style={{ background: "var(--gold-dim)" }}
+                >
+                  <Icon className="w-5 h-5" style={{ color: "var(--primary)" }} />
+                </div>
+                <h3 className="font-black text-lg mb-2 group-hover:text-primary transition-colors" style={{ color: "var(--foreground)" }}>{title}</h3>
+                <p className="text-sm font-light leading-relaxed" style={{ color: "var(--muted)" }}>{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── HOST CTA ── */}
+      <section id="host" className="py-20 border-b" style={{ background: "var(--bg-subtle)", borderColor: "var(--border)" }}>
+        <div className="max-w-5xl mx-auto px-6">
+          <div
+            className="rounded-3xl overflow-hidden relative"
+            style={{ background: "linear-gradient(135deg, #ff7a00 0%, #e54400 100%)" }}
           >
-            <Sparkles className="w-4 h-4" /> {t.home.createEvent} <ArrowRight className="w-4 h-4" />
-          </Link>
+            {/* Decorative circles */}
+            <div
+              className="absolute top-0 right-0 w-80 h-80 rounded-full pointer-events-none"
+              style={{
+                background: "radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)",
+                transform: "translate(25%, -35%)",
+              }}
+            />
+            <div
+              className="absolute bottom-0 left-12 w-48 h-48 rounded-full pointer-events-none"
+              style={{
+                background: "radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)",
+                transform: "translateY(40%)",
+              }}
+            />
+
+            <div className="relative z-10 px-8 py-12 sm:px-14 sm:py-14 flex flex-col sm:flex-row items-start sm:items-center gap-8 justify-between">
+              <div>
+                <p className="text-sm font-bold uppercase tracking-wider text-white/70 mb-2">Pour les organisateurs</p>
+                <h2 className="text-3xl sm:text-4xl font-black text-white mb-3 leading-tight">
+                  Organisez votre<br />propre événement
+                </h2>
+                <p className="text-white/80 max-w-md">
+                  Inscription, badges QR, invitations, newsletters — tous les outils en une seule plateforme.
+                </p>
+              </div>
+              <Link
+                href="/admin"
+                className="flex-shrink-0 inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-sm bg-white transition-all hover:bg-gray-50 hover:scale-105 active:scale-100 shadow-lg"
+                style={{ color: "var(--primary)" }}
+              >
+                Commencer maintenant <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 

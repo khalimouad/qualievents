@@ -52,10 +52,11 @@ export default function Footer() {
           </div>
 
           <div className="md:col-span-2">
-            <h4 className="text-xs uppercase tracking-[0.15em] text-text-secondary font-semibold mb-4">Gestion</h4>
+            <h4 className="text-xs uppercase tracking-[0.15em] text-text-secondary font-semibold mb-4">Légal</h4>
             <ul className="space-y-2.5">
-              <li><Link href="/admin" className="text-text-secondary hover:text-foreground text-sm transition-colors inline-flex items-center gap-1 group">Tableau de bord <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /></Link></li>
-              <li><Link href="/scan" className="text-text-secondary hover:text-foreground text-sm transition-colors">Scanner</Link></li>
+              <li><a href="#" className="text-text-secondary hover:text-foreground text-sm transition-colors">Confidentialité</a></li>
+              <li><a href="#" className="text-text-secondary hover:text-foreground text-sm transition-colors">Conditions d&apos;utilisation</a></li>
+              <li><a href="#" className="text-text-secondary hover:text-foreground text-sm transition-colors">Mentions légales</a></li>
             </ul>
           </div>
 
