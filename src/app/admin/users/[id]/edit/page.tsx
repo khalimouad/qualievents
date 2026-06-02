@@ -9,7 +9,7 @@ interface AdminUser {
   id: string;
   email: string;
   name: string;
-  role: "admin" | "staff";
+  role: "admin" | "staff" | "scanner";
   active: boolean;
   lastLoginAt: string | null;
 }
@@ -18,7 +18,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
   const { id } = use(params);
   const router = useRouter();
   const [user, setUser] = useState<AdminUser | null>(null);
-  const [form, setForm] = useState({ name: "", role: "staff" as "admin" | "staff", active: true });
+  const [form, setForm] = useState({ name: "", role: "scanner" as "admin" | "staff" | "scanner", active: true });
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -29,7 +29,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
       .then((u) => {
         if (u.error) { setError(u.error); return; }
         setUser(u);
-        setForm({ name: u.name, role: u.role, active: u.active });
+        setForm({ name: u.name, role: u.role as "admin" | "staff" | "scanner", active: u.active });
         setLoading(false);
       });
   }, [id]);
@@ -92,9 +92,10 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
 
         <div>
           <label className={labelClass}>Rôle</label>
-          <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value as "admin" | "staff" })} className={inputClass}>
-            <option value="staff">Staff</option>
-            <option value="admin">Admin</option>
+          <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value as "admin" | "staff" | "scanner" })} className={inputClass}>
+            <option value="scanner">Scanner — scan uniquement</option>
+            <option value="staff">Staff — lecture/édition + scanner</option>
+            <option value="admin">Admin — accès complet</option>
           </select>
         </div>
 

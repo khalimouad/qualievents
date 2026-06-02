@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
-  if (role !== "admin" && role !== "staff") {
+  if (!["admin", "staff", "scanner"].includes(role)) {
     return NextResponse.json({ error: "Rôle invalide" }, { status: 400 });
   }
 

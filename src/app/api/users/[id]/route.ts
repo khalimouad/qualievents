@@ -77,7 +77,7 @@ export async function PUT(
     }
   }
 
-  if (role !== undefined && role !== "admin" && role !== "staff") {
+  if (role !== undefined && !["admin", "staff", "scanner"].includes(role)) {
     return NextResponse.json({ error: "Rôle invalide" }, { status: 400 });
   }
 
@@ -85,7 +85,7 @@ export async function PUT(
     where: { id },
     data: {
       name: typeof name === "string" ? name : existing.name,
-      role: role === "admin" || role === "staff" ? role : existing.role,
+      role: ["admin", "staff", "scanner"].includes(role) ? role : existing.role,
       active: typeof active === "boolean" ? active : existing.active,
     },
     select: safeFields,

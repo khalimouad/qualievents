@@ -13,7 +13,7 @@ function generatePassword(): string {
 
 export default function NewUserPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ name: "", email: "", role: "staff", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", role: "scanner", password: "" });
   const [showPwd, setShowPwd] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -77,6 +77,7 @@ export default function NewUserPage() {
         <div>
           <label className={labelClass}>Rôle *</label>
           <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} className={inputClass}>
+            <option value="scanner">Scanner — Accès scan uniquement</option>
             <option value="staff">Staff — Accès lecture/édition + scanner</option>
             <option value="admin">Admin — Accès complet (suppressions, paramètres, utilisateurs)</option>
           </select>

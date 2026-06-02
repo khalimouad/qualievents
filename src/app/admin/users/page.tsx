@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Plus, Pencil, KeyRound, ToggleLeft, ToggleRight, Trash2, Shield, User as UserIcon } from "lucide-react";
+import { Plus, Pencil, KeyRound, ToggleLeft, ToggleRight, Trash2, Shield, User as UserIcon, QrCode } from "lucide-react";
 
 interface AdminUser {
   id: string;
   email: string;
   name: string;
-  role: "admin" | "staff";
+  role: "admin" | "staff" | "scanner";
   active: boolean;
   lastLoginAt: string | null;
   createdAt: string;
@@ -156,7 +156,7 @@ export default function UsersAdminPage() {
                 <tr key={u.id} className="group hover:bg-subtle/30 transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold ${u.role === "admin" ? "bg-primary/10 text-primary" : "bg-subtle text-text-secondary"}`}>
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold ${u.role === "admin" ? "bg-primary/10 text-primary" : u.role === "scanner" ? "bg-emerald-500/10 text-emerald-600" : "bg-subtle text-text-secondary"}`}>
                         {u.name?.[0]?.toUpperCase() || "?"}
                       </div>
                       <span className="text-sm font-medium text-foreground">{u.name}</span>
@@ -164,8 +164,8 @@ export default function UsersAdminPage() {
                   </td>
                   <td className="px-4 py-3 text-xs text-text-secondary hidden md:table-cell">{u.email}</td>
                   <td className="px-4 py-3">
-                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${u.role === "admin" ? "bg-primary/10 text-primary" : "bg-subtle text-text-secondary"}`}>
-                      {u.role === "admin" ? <Shield className="w-3 h-3" /> : <UserIcon className="w-3 h-3" />}
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${u.role === "admin" ? "bg-primary/10 text-primary" : u.role === "scanner" ? "bg-emerald-500/10 text-emerald-600" : "bg-subtle text-text-secondary"}`}>
+                      {u.role === "admin" ? <Shield className="w-3 h-3" /> : u.role === "scanner" ? <QrCode className="w-3 h-3" /> : <UserIcon className="w-3 h-3" />}
                       {u.role}
                     </span>
                   </td>
