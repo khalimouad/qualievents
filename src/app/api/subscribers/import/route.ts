@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
     const badgeNumber = await prisma.badge.count({ where: { eventId } }) + 1;
 
     await prisma.badge.create({
-      data: { code: badgeCode, badgeNumber, qrData, subscriberId: subscriber.id, eventId },
+      data: { code: badgeCode, badgeNumber, qrData, subscriberId: subscriber.id, eventId, type: "STANDARD" },
     });
 
     imported++;

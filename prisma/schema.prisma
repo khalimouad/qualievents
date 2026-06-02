@@ -299,6 +299,7 @@ model Subscriber {
   dietaryReqs String?
   status      String   @default("pending")
   unsubscribed Boolean  @default(false)
+  isVip       Boolean  @default(false)
   paymentId   String?
   tierId      String?
   groupBookingId String?
@@ -368,6 +369,7 @@ model Badge {
   event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   isScanned    Boolean  @default(false)
   scannedAt    DateTime?
+  type         String   @default("STANDARD") // STANDARD | VIP
   createdAt    DateTime @default(now())
 }
 

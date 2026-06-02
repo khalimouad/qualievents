@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     where: eventId ? { eventId } : undefined,
     include: {
       event: { select: { title: true } },
-      badge: { select: { code: true, badgeNumber: true, isScanned: true } },
+      badge: { select: { code: true, badgeNumber: true, isScanned: true, type: true } },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -98,6 +98,7 @@ export async function POST(req: NextRequest) {
       jobTitle: body.jobTitle || null,
       dietaryReqs: body.dietaryReqs || null,
       status,
+      isVip: body.isVip === true,
       eventId: body.eventId,
       tierId,
     },
@@ -124,6 +125,7 @@ export async function POST(req: NextRequest) {
       qrData,
       subscriberId: subscriber.id,
       eventId: body.eventId,
+      type: body.isVip === true ? "VIP" : "STANDARD",
     },
   });
 

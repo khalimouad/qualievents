@@ -5,19 +5,18 @@ import PDFDocument from "pdfkit";
 // 4 in × 6 in @ 72 dpi
 const W = 288;
 const H = 432;
-const STRIPE = 8;   // left accent stripe
-const CX = STRIPE;  // content area x start
-const CW = W - STRIPE; // content area width
+const STRIPE = 8;
+const CX = STRIPE;
+const CW = W - STRIPE;
 const CENTER_X = CX + CW / 2;
 
-const HDR_H = 100;
+const HDR_H = 110;
 const FTR_H = 38;
 const FTR_Y = H - FTR_H;
 
-// Logo circle at header/body boundary
 const LOGO_R = 30;
 const LOGO_RING_R = 35;
-const LOGO_CY = HDR_H; // center Y at the seam
+const LOGO_CY = HDR_H;
 const LOGO_CX = CENTER_X;
 
 export async function GET(req: NextRequest) {
@@ -36,7 +35,7 @@ export async function GET(req: NextRequest) {
 
   if (!badge) return NextResponse.json({ error: "Badge introuvable" }, { status: 404 });
 
-  const accent = badge.event.themeColor || "#E8C547";
+  const isVip = badge.type === "VIP";
   const eventDate = new Date(badge.event.date).toLocaleDateString("fr-FR", {
     day: "numeric", month: "long", year: "numeric",
   });
@@ -54,6 +53,13 @@ export async function GET(req: NextRequest) {
   const fullName = `${badge.subscriber.firstName} ${badge.subscriber.lastName}`;
   const initials = badge.event.title.slice(0, 2).toUpperCase();
 
+  // Standard: navy header, event themeColor accent
+  // VIP: deep black header, gold accent
+  const accent = isVip ? "#FFD700" : (badge.event.themeColor || "#E8C547");
+  const headerBg = isVip ? "#0a0a0a" : "#0d1827";
+  const bodyBg = isVip ? "#fffdf0" : "#ffffff";
+  const stripeBg = isVip ? "#FFD700" : accent;
+
   const pdf = await new Promise<Buffer>((resolve, reject) => {
     const doc = new PDFDocument({
       size: [W, H],
@@ -65,32 +71,56 @@ export async function GET(req: NextRequest) {
     doc.on("end", () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
 
-    // ── Left accent stripe ────────────────────────────
-    doc.rect(0, 0, STRIPE, H).fill(accent);
+    // ── Left accent stripe ─────────────────────────────
+    doc.rect(0, 0, STRIPE, H).fill(stripeBg);
 
-    // ── Header (dark navy) ────────────────────────────
-    doc.rect(CX, 0, CW, HDR_H).fill("#0d1827");
+    // ── Header ────────────────────────────────────────
+    doc.rect(CX, 0, CW, HDR_H).fill(headerBg);
 
     // Accent line at bottom of header
     doc.rect(CX, HDR_H - 3, CW, 3).fill(accent);
 
-    // QUALIEVENTS label
-    doc.fillColor("rgba(255,255,255,0.3)", 1).font("Helvetica").fontSize(7)
-      .text("QUALIEVENTS", CX, 14, { width: CW, align: "center", characterSpacing: 3 });
+    if (isVip) {
+      // VIP pill in header top-right
+      doc.roundedRect(CX + CW - 48, 10, 38, 14, 7).fill("#FFD700");
+      doc.fillColor("#000000", 1).font("Helvetica-Bold").fontSize(7)
+        .text("V I P", CX + CW - 48, 14, { width: 38, align: "center", characterSpacing: 1.5 });
+
+      // QUALIEVENTS label (left-aligned to not overlap VIP pill)
+      doc.fillColor("rgba(255,215,0,0.4)", 1).font("Helvetica").fontSize(7)
+        .text("QUALIEVENTS", CX + 10, 14, { width: CW - 60, align: "left", characterSpacing: 3 });
+    } else {
+      // QUALIEVENTS label centred
+      doc.fillColor("rgba(255,255,255,0.3)", 1).font("Helvetica").fontSize(7)
+        .text("QUALIEVENTS", CX, 14, { width: CW, align: "center", characterSpacing: 3 });
+    }
 
     // Event title
-    doc.fillColor("white", 1).font("Helvetica-Bold").fontSize(12)
-      .text(badge.event.title, CX + 12, 30, { width: CW - 24, align: "center" });
+    doc.fillColor("white", 1).font("Helvetica-Bold").fontSize(11)
+      .text(badge.event.title, CX + 12, 32, { width: CW - 24, align: "center" });
 
     // Date · City
-    doc.fillColor("rgba(255,255,255,0.45)", 1).font("Helvetica").fontSize(8)
-      .text(`${eventDate}  ·  ${badge.event.city}`, CX + 12, 60, { width: CW - 24, align: "center" });
+    const dateColor = isVip ? "rgba(255,215,0,0.55)" : "rgba(255,255,255,0.45)";
+    doc.fillColor(dateColor, 1).font("Helvetica").fontSize(8)
+      .text(`${eventDate}  ·  ${badge.event.city}`, CX + 12, 62, { width: CW - 24, align: "center" });
 
-    // ── Body (white) ──────────────────────────────────
-    doc.rect(CX, HDR_H, CW, FTR_Y - HDR_H).fill("#ffffff");
+    // ── Body ──────────────────────────────────────────
+    doc.rect(CX, HDR_H, CW, FTR_Y - HDR_H).fill(bodyBg);
 
-    // Logo white ring
-    doc.circle(LOGO_CX, LOGO_CY, LOGO_RING_R).fill("#ffffff");
+    // VIP: subtle gold diagonal watermark lines
+    if (isVip) {
+      doc.save();
+      doc.rect(CX, HDR_H, CW, FTR_Y - HDR_H).clip();
+      doc.lineWidth(0.4).strokeColor("rgba(255,215,0,0.08)");
+      for (let i = -H; i < W + H; i += 22) {
+        doc.moveTo(CX + i, HDR_H).lineTo(CX + i + H, FTR_Y).stroke();
+      }
+      doc.restore();
+    }
+
+    // Logo ring
+    const ringColor = isVip ? "#FFD700" : "#ffffff";
+    doc.circle(LOGO_CX, LOGO_CY, LOGO_RING_R).fill(ringColor);
 
     if (logoBuffer) {
       doc.save();
@@ -98,7 +128,7 @@ export async function GET(req: NextRequest) {
       doc.image(logoBuffer, LOGO_CX - LOGO_R, LOGO_CY - LOGO_R, { width: LOGO_R * 2, height: LOGO_R * 2 });
       doc.restore();
     } else {
-      doc.circle(LOGO_CX, LOGO_CY, LOGO_R).fill("#0d1827");
+      doc.circle(LOGO_CX, LOGO_CY, LOGO_R).fill(headerBg);
       doc.fillColor(accent, 1).font("Helvetica-Bold").fontSize(17)
         .text(initials, LOGO_CX - LOGO_R, LOGO_CY - 10, { width: LOGO_R * 2, align: "center" });
     }
@@ -111,25 +141,35 @@ export async function GET(req: NextRequest) {
       });
 
     // QR code card
-    const qrSize = 118;
+    const qrSize = 114;
     const qrX = CX + (CW - qrSize) / 2;
-    const qrY = badgeNumY + 18;
+    const qrY = badgeNumY + 16;
     const cardPad = 9;
-    doc.roundedRect(qrX - cardPad, qrY - cardPad, qrSize + cardPad * 2, qrSize + cardPad * 2, 8).fill("#f8fafc");
+    const cardBg = isVip ? "#fffae6" : "#f8fafc";
+    const cardBorder = isVip ? "#FFD700" : undefined;
+    if (cardBorder) {
+      doc.roundedRect(qrX - cardPad, qrY - cardPad, qrSize + cardPad * 2, qrSize + cardPad * 2, 8)
+        .lineWidth(1).fillAndStroke(cardBg, cardBorder);
+    } else {
+      doc.roundedRect(qrX - cardPad, qrY - cardPad, qrSize + cardPad * 2, qrSize + cardPad * 2, 8).fill(cardBg);
+    }
     doc.image(qrBuffer, qrX, qrY, { width: qrSize, height: qrSize });
 
-    // "Scan at entry" micro-label
+    // Scan label
     const scanLabelY = qrY + qrSize + cardPad + 5;
-    doc.fillColor("#94a3b8", 1).font("Helvetica").fontSize(6.5)
+    const scanColor = isVip ? "#b8860b" : "#94a3b8";
+    doc.fillColor(scanColor, 1).font("Helvetica").fontSize(6.5)
       .text("SCANNEZ À L'ENTRÉE", CX, scanLabelY, { width: CW, align: "center", characterSpacing: 1.5 });
 
-    // Thin divider
+    // Divider
     const dividerY = scanLabelY + 13;
-    doc.moveTo(CX + 20, dividerY).lineTo(CX + CW - 20, dividerY).lineWidth(0.5).strokeColor("#e2e8f0").stroke();
+    const dividerColor = isVip ? "#f0d060" : "#e2e8f0";
+    doc.moveTo(CX + 20, dividerY).lineTo(CX + CW - 20, dividerY).lineWidth(0.5).strokeColor(dividerColor).stroke();
 
     // Name
     const nameY = dividerY + 11;
-    doc.fillColor("#0f172a", 1).font("Helvetica-Bold").fontSize(16)
+    const nameColor = isVip ? "#1a1200" : "#0f172a";
+    doc.fillColor(nameColor, 1).font("Helvetica-Bold").fontSize(16)
       .text(fullName, CX + 8, nameY, { width: CW - 16, align: "center" });
 
     let textY = nameY + 22;
@@ -141,18 +181,26 @@ export async function GET(req: NextRequest) {
     }
 
     if (badge.subscriber.company) {
-      doc.fillColor("#64748b", 1).font("Helvetica").fontSize(9)
+      const companyColor = isVip ? "#8a6b00" : "#64748b";
+      doc.fillColor(companyColor, 1).font("Helvetica").fontSize(9)
         .text(badge.subscriber.company, CX + 8, textY, { width: CW - 16, align: "center" });
     }
 
-    // ── Footer (dark) ─────────────────────────────────
-    doc.rect(CX, FTR_Y, CW, FTR_H).fill("#0d1827");
+    // ── Footer ────────────────────────────────────────
+    doc.rect(CX, FTR_Y, CW, FTR_H).fill(headerBg);
 
-    // Badge code left, brand right
-    doc.fillColor("rgba(255,255,255,0.25)", 1).font("Helvetica").fontSize(7)
+    // Gold top line on VIP footer
+    if (isVip) {
+      doc.rect(CX, FTR_Y, CW, 1.5).fill("#FFD700");
+    }
+
+    const codeColor = isVip ? "rgba(255,215,0,0.35)" : "rgba(255,255,255,0.25)";
+    const brandColor = isVip ? "rgba(255,215,0,0.55)" : "rgba(255,255,255,0.3)";
+
+    doc.fillColor(codeColor, 1).font("Helvetica").fontSize(7)
       .text(badge.code.slice(0, 16), CX + 10, FTR_Y + 14, { width: CW / 2 - 10, align: "left", characterSpacing: 0.5 });
 
-    doc.fillColor("rgba(255,255,255,0.3)", 1).font("Helvetica-Bold").fontSize(7)
+    doc.fillColor(brandColor, 1).font("Helvetica-Bold").fontSize(7)
       .text("QualiEvents", CX + CW / 2, FTR_Y + 14, { width: CW / 2 - 10, align: "right" });
 
     doc.end();

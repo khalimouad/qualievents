@@ -14,11 +14,12 @@ interface Subscriber {
   company: string | null;
   jobTitle: string | null;
   status: string;
+  isVip: boolean;
   createdAt: string;
-  badge: { code: string; badgeNumber: number; isScanned: boolean } | null;
+  badge: { code: string; badgeNumber: number; isScanned: boolean; type: string } | null;
 }
 
-const EMPTY_FORM = { firstName: "", lastName: "", email: "", phone: "", company: "", jobTitle: "" };
+const EMPTY_FORM = { firstName: "", lastName: "", email: "", phone: "", company: "", jobTitle: "", isVip: false };
 
 export default function EventSubscribersPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -80,21 +81,26 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
     if (!addForm.firstName.trim() || !addForm.lastName.trim() || !addForm.email.trim() || !_eventId) return;
     setAdding(true);
     setAddError("");
-    const q = (v: string) => `"${v.replace(/"/g, '""')}"`;
-    const row = [addForm.firstName, addForm.lastName, addForm.email, addForm.phone, addForm.company, addForm.jobTitle]
-      .map(q).join(",");
-    const res = await fetch("/api/subscribers/import", {
+    const res = await fetch("/api/subscribers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ eventId: _eventId, csv: row }),
+      body: JSON.stringify({
+        firstName: addForm.firstName.trim(),
+        lastName: addForm.lastName.trim(),
+        email: addForm.email.trim(),
+        phone: addForm.phone.trim() || null,
+        company: addForm.company.trim() || null,
+        jobTitle: addForm.jobTitle.trim() || null,
+        isVip: addForm.isVip,
+        eventId: _eventId,
+      }),
     });
     const data = await res.json();
     setAdding(false);
     if (!res.ok) { setAddError(data.error || "Échec de l'ajout"); return; }
-    if (data.skipped > 0) { setAddError("Cet email est déjà inscrit pour cet événement"); return; }
     setShowAddModal(false);
     setAddForm(EMPTY_FORM);
-    setBulkMessage(`${addForm.firstName} ${addForm.lastName} ajouté(e) avec succès`);
+    setBulkMessage(`${addForm.firstName} ${addForm.lastName} ajouté(e) avec succès${addForm.isVip ? " — badge VIP" : ""}`);
     load();
   };
 
@@ -270,6 +276,23 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
               />
             </div>
 
+            {/* VIP checkbox */}
+            <label className="flex items-center gap-3 px-3 py-3 rounded-xl border border-border bg-subtle cursor-pointer hover:border-yellow-400 transition-colors mb-4 group">
+              <input
+                type="checkbox"
+                checked={addForm.isVip}
+                onChange={e => setAddForm(f => ({ ...f, isVip: e.target.checked }))}
+                className="w-4 h-4 accent-yellow-500 cursor-pointer"
+              />
+              <div>
+                <span className="text-xs font-bold text-foreground group-hover:text-yellow-600 transition-colors">
+                  Badge VIP
+                </span>
+                <span className="block text-[10px] text-muted">Le badge sera stylisé avec le traitement VIP doré</span>
+              </div>
+              <span className="ml-auto text-sm">👑</span>
+            </label>
+
             <p className="text-[10px] text-muted mb-4">
               Le participant sera directement <strong>confirmé</strong> avec un badge généré. Envoyez-lui le badge par email depuis la liste.
             </p>
@@ -436,11 +459,14 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
                       </td>
                       <td className="px-4 py-2.5">
                         <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-md bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0">
+                          <div className={`w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 ${sub.isVip ? "bg-gradient-to-br from-yellow-400 to-yellow-600" : "bg-gradient-to-br from-secondary to-accent"}`}>
                             <span className="text-foreground text-[10px] font-bold">{sub.firstName[0]}{sub.lastName[0]}</span>
                           </div>
                           <div>
-                            <div className="font-medium text-secondary text-xs">{sub.firstName} {sub.lastName}</div>
+                            <div className="font-medium text-secondary text-xs flex items-center gap-1">
+                              {sub.firstName} {sub.lastName}
+                              {sub.isVip && <span className="text-yellow-500 text-[10px]" title="VIP">👑</span>}
+                            </div>
                             {sub.jobTitle && <div className="text-[10px] text-muted">{sub.jobTitle}</div>}
                           </div>
                         </div>
