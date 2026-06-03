@@ -24,19 +24,24 @@ export default function Footer() {
               </div>
             </div>
             <p className="text-text-secondary text-sm leading-relaxed max-w-sm">
-              Plateforme premium de gestion d&apos;événements. Créez des expériences inoubliables avec des outils puissants pour l&apos;inscription, les badges, les invitations, et plus encore.
+              La plateforme de référence pour les événements professionnels en Afrique. Formations, conférences, forums et ateliers — de Abidjan à travers le continent.
             </p>
           </div>
 
           <div className="md:col-span-2">
-            <h4 className="text-xs uppercase tracking-[0.15em] text-text-secondary font-semibold mb-4">Événement</h4>
+            <h4 className="text-xs uppercase tracking-[0.15em] text-text-secondary font-semibold mb-4">Plateforme</h4>
             <ul className="space-y-2.5">
-              <li><a href="#about" className="text-text-secondary hover:text-foreground text-sm transition-colors">À propos</a></li>
-              <li><a href="#speakers" className="text-text-secondary hover:text-foreground text-sm transition-colors">Intervenants</a></li>
-              <li><a href="#location" className="text-text-secondary hover:text-foreground text-sm transition-colors">Lieu</a></li>
+              <li><a href="/#events" className="text-text-secondary hover:text-foreground text-sm transition-colors">Événements</a></li>
+              <li><a href="/#categories" className="text-text-secondary hover:text-foreground text-sm transition-colors">Catégories</a></li>
               <li>
-                <Link href="/register" className="text-text-secondary hover:text-foreground text-sm transition-colors inline-flex items-center gap-1 group">
-                  S&apos;inscrire
+                <Link href="/about" className="text-text-secondary hover:text-foreground text-sm transition-colors inline-flex items-center gap-1 group">
+                  À propos
+                  <ArrowUpRight className="w-3 h-3 opacity-0 -translate-y-0.5 group-hover:opacity-100 group-hover:translate-y-0 transition-all" />
+                </Link>
+              </li>
+              <li>
+                <Link href="/host" className="text-text-secondary hover:text-foreground text-sm transition-colors inline-flex items-center gap-1 group">
+                  Organiser
                   <ArrowUpRight className="w-3 h-3 opacity-0 -translate-y-0.5 group-hover:opacity-100 group-hover:translate-y-0 transition-all" />
                 </Link>
               </li>
@@ -54,18 +59,17 @@ export default function Footer() {
           <div className="md:col-span-2">
             <h4 className="text-xs uppercase tracking-[0.15em] text-text-secondary font-semibold mb-4">Légal</h4>
             <ul className="space-y-2.5">
-              <li><a href="#" className="text-text-secondary hover:text-foreground text-sm transition-colors">Confidentialité</a></li>
-              <li><a href="#" className="text-text-secondary hover:text-foreground text-sm transition-colors">Conditions d&apos;utilisation</a></li>
-              <li><a href="#" className="text-text-secondary hover:text-foreground text-sm transition-colors">Mentions légales</a></li>
+              <li><Link href="/legal/privacy" className="text-text-secondary hover:text-foreground text-sm transition-colors">Confidentialité</Link></li>
+              <li><Link href="/legal/terms" className="text-text-secondary hover:text-foreground text-sm transition-colors">Conditions d&apos;utilisation</Link></li>
+              <li><Link href="/legal/mentions" className="text-text-secondary hover:text-foreground text-sm transition-colors">Mentions légales</Link></li>
             </ul>
           </div>
 
           <div className="md:col-span-2">
             <h4 className="text-xs uppercase tracking-[0.15em] text-text-secondary font-semibold mb-4">Contact</h4>
             <ul className="space-y-2.5">
-              <li><a href="#" className="text-text-secondary hover:text-foreground text-sm transition-colors">Contact</a></li>
-              <li><a href="#" className="text-text-secondary hover:text-foreground text-sm transition-colors">Support</a></li>
-              <li><a href="#" className="text-text-secondary hover:text-foreground text-sm transition-colors">Confidentialité</a></li>
+              <li><Link href="/contact" className="text-text-secondary hover:text-foreground text-sm transition-colors">Contact</Link></li>
+              <li><Link href="/contact" className="text-text-secondary hover:text-foreground text-sm transition-colors">Support</Link></li>
             </ul>
           </div>
         </div>
@@ -73,7 +77,7 @@ export default function Footer() {
         <div className="mt-14 pt-8 border-t border-white/5">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-text-secondary text-xs">
-              &copy; {currentYear} QualiEvents. Conçu avec soin.
+              &copy; {currentYear} QualiEvents by Qualivoire. Abidjan, Côte d&apos;Ivoire.
             </p>
             <div className="flex items-center gap-2">
               <span className="inline-block w-2 h-2 rounded-full bg-success animate-pulse" />
