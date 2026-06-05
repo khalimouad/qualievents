@@ -1,8 +1,21 @@
 import Link from "next/link";
-import { MapPin, Users, Search, ArrowLeft } from "lucide-react";
+import { MapPin, Users, Search, ArrowLeft, Mic, GraduationCap, Monitor, Building2, Wrench, Network, Factory, Briefcase, Handshake, Calendar } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
+
+const TYPE_META: Record<string, { Icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>, color: string, bg: string, label: string }> = {
+  CONFERENCE:        { Icon: Mic,          color: "#3b82f6", bg: "rgba(59,130,246,0.08)",   label: "Conférence" },
+  TRAINING_SEMINAR:  { Icon: GraduationCap,color: "#f59e0b", bg: "rgba(245,158,11,0.08)",   label: "Séminaire / Formation" },
+  WEBINAR:           { Icon: Monitor,      color: "#8b5cf6", bg: "rgba(139,92,246,0.08)",   label: "Webinaire" },
+  FORUM:             { Icon: Building2,    color: "#14b8a6", bg: "rgba(20,184,166,0.08)",   label: "Forum / Salon" },
+  WORKSHOP:          { Icon: Wrench,       color: "#f97316", bg: "rgba(249,115,22,0.08)",   label: "Atelier" },
+  NETWORKING:        { Icon: Network,      color: "#10b981", bg: "rgba(16,185,129,0.08)",   label: "Networking" },
+  INDUSTRIEL:        { Icon: Factory,      color: "#64748b", bg: "rgba(100,116,139,0.08)",  label: "Industriel" },
+  MANAGEMENT:        { Icon: Briefcase,    color: "#0ea5e9", bg: "rgba(14,165,233,0.08)",   label: "Management" },
+  RELATION_CLIENTS:  { Icon: Handshake,    color: "#ef4444", bg: "rgba(239,68,68,0.08)",    label: "Relation clients" },
+  OTHER:             { Icon: Calendar,     color: "#94a3b8", bg: "rgba(148,163,184,0.08)",  label: "Autre" },
+};
 
 const EVENT_PHOTOS = [
   "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=75&auto=format&fit=crop",
@@ -34,6 +47,7 @@ export default async function EventsPage({
     | "upcoming"
     | "past";
   const q = typeof params.q === "string" ? params.q.trim() : "";
+  const category = typeof params.category === "string" ? params.category : "";
   const currentPage = typeof params.page === "string" ? Math.max(1, parseInt(params.page) || 1) : 1;
 
   const allEvents = await prisma.event.findMany({
@@ -43,6 +57,15 @@ export default async function EventsPage({
     },
     orderBy: { date: "asc" },
   });
+
+  // Distinct event types present in DB
+  const rawTypes = await prisma.event.groupBy({
+    by: ["eventType"],
+    where: { isPublished: true },
+    _count: { id: true },
+    orderBy: { _count: { id: "desc" } },
+  });
+  const availableCategories = rawTypes.map((r) => r.eventType as string).filter(Boolean);
 
   const now = new Date();
   const todayStart = new Date(now);
@@ -75,6 +98,11 @@ export default async function EventsPage({
     tab === "ongoing" && ongoingEvents.length === 0 ? "upcoming" : tab;
 
   let tabEvents = eventsMap[activeTab];
+
+  // Filter by category
+  if (category) {
+    tabEvents = tabEvents.filter((e) => e.eventType === category);
+  }
 
   // Filter by search query
   if (q) {
@@ -127,7 +155,7 @@ export default async function EventsPage({
               {tabs.map(({ key, label, count }) => (
                 <Link
                   key={key}
-                  href={`/events?tab=${key}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
+                  href={`/events?tab=${key}${category ? `&category=${category}` : ""}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
                   className={`tab-item ${key === activeTab ? "active" : ""}`}
                 >
                   {label}
@@ -145,6 +173,7 @@ export default async function EventsPage({
             {/* Search form — native GET form, no JS required */}
             <form action="/events" method="GET" className="flex items-center gap-2">
               <input type="hidden" name="tab" value={activeTab} />
+              {category && <input type="hidden" name="category" value={category} />}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "var(--muted)" }} />
                 <input
@@ -166,6 +195,53 @@ export default async function EventsPage({
             </form>
           </div>
 
+          {/* Category filter bar */}
+          {availableCategories.length > 0 && (
+            <div className="flex items-center gap-2 py-5 overflow-x-auto no-scrollbar border-b" style={{ borderColor: "rgba(232,197,71,0.12)" }}>
+              {/* "Tous" pill */}
+              <Link
+                href={`/events?tab=${activeTab}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
+                className="flex items-center gap-1.5 flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all border"
+                style={!category ? {
+                  background: "var(--primary)",
+                  borderColor: "var(--primary)",
+                  color: "#fff",
+                } : {
+                  background: "transparent",
+                  borderColor: "var(--border)",
+                  color: "var(--muted)",
+                }}
+              >
+                Tous
+              </Link>
+
+              {availableCategories.map((typeKey) => {
+                const meta = TYPE_META[typeKey] ?? TYPE_META["OTHER"];
+                const { Icon, color, bg, label } = meta;
+                const isActive = category === typeKey;
+                return (
+                  <Link
+                    key={typeKey}
+                    href={`/events?tab=${activeTab}&category=${typeKey}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
+                    className="flex items-center gap-1.5 flex-shrink-0 px-3.5 py-2 rounded-full text-xs font-bold transition-all border"
+                    style={isActive ? {
+                      background: color,
+                      borderColor: color,
+                      color: "#fff",
+                    } : {
+                      background: bg,
+                      borderColor: `${color}30`,
+                      color,
+                    }}
+                  >
+                    <Icon className="w-3.5 h-3.5 flex-shrink-0" />
+                    {label}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+
           {/* Events grid */}
           <div className="py-10">
             {tabEvents.length === 0 ? (
@@ -179,7 +255,7 @@ export default async function EventsPage({
                 </p>
                 {q && (
                   <Link
-                    href={`/events?tab=${activeTab}`}
+                    href={`/events?tab=${activeTab}${category ? `&category=${category}` : ""}`}
                     className="inline-block mt-4 text-xs underline"
                     style={{ color: "var(--gold)" }}
                   >
@@ -191,6 +267,7 @@ export default async function EventsPage({
               <>
                 <p className="text-xs font-bold uppercase tracking-wider mb-6" style={{ color: "var(--muted)" }}>
                   {totalFiltered} événement{totalFiltered !== 1 ? "s" : ""}
+                  {category && ` · ${TYPE_META[category]?.label ?? category}`}
                   {q && ` pour « ${q} »`}
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -263,7 +340,7 @@ export default async function EventsPage({
                 {hasMore && (
                   <div className="mt-10 text-center">
                     <Link
-                      href={`/events?tab=${activeTab}${q ? `&q=${encodeURIComponent(q)}` : ""}&page=${currentPage + 1}`}
+                      href={`/events?tab=${activeTab}${category ? `&category=${category}` : ""}${q ? `&q=${encodeURIComponent(q)}` : ""}&page=${currentPage + 1}`}
                       className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-sm font-bold border transition-all hover:border-yellow-500/40 hover:text-foreground"
                       style={{ border: "1px solid var(--border)", color: "var(--muted)" }}
                     >

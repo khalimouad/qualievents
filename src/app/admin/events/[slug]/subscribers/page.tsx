@@ -199,8 +199,8 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
       {/* Add Subscriber Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md p-6 border border-border">
-            <div className="flex items-center justify-between mb-5">
+          <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md border border-border flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between px-6 pt-6 pb-4 flex-shrink-0">
               <h2 className="text-base font-bold text-foreground">Ajouter un participant</h2>
               <button
                 onClick={() => { setShowAddModal(false); setAddError(""); setAddForm(EMPTY_FORM); }}
@@ -210,9 +210,10 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
               </button>
             </div>
 
-            {addError && (
-              <div className="bg-danger/10 border border-danger/20 text-danger px-3 py-2.5 rounded-lg text-xs mb-4">{addError}</div>
-            )}
+            <div className="overflow-y-auto px-6 flex-1">
+              {addError && (
+                <div className="bg-danger/10 border border-danger/20 text-danger px-3 py-2.5 rounded-lg text-xs mb-4">{addError}</div>
+              )}
 
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div>
@@ -296,8 +297,9 @@ export default function EventSubscribersPage({ params }: { params: Promise<{ slu
             <p className="text-[10px] text-muted mb-4">
               Le participant sera directement <strong>confirmé</strong> avec un badge généré. Envoyez-lui le badge par email depuis la liste.
             </p>
+            </div>{/* end scroll area */}
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 px-6 py-4 border-t border-border flex-shrink-0">
               <button
                 onClick={() => { setShowAddModal(false); setAddError(""); setAddForm(EMPTY_FORM); }}
                 className="flex-1 px-4 py-2 bg-subtle text-muted hover:text-foreground rounded-lg text-xs font-medium transition-colors"
