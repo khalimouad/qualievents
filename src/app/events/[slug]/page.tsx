@@ -96,10 +96,13 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   const dayCount = event.endDate ? Math.ceil((new Date(event.endDate).getTime() - eventDate.getTime()) / (1000 * 60 * 60 * 24)) : 1;
   const isPastEvent = eventDate.getTime() <= Date.now();
 
-  const platinumSponsors = event.sponsors.filter((s) => s.tier === "platinum");
-  const goldSponsors = event.sponsors.filter((s) => s.tier === "gold");
-  const silverSponsors = event.sponsors.filter((s) => s.tier === "silver");
-  const bronzeSponsors = event.sponsors.filter((s) => s.tier === "bronze");
+  const institutionnelSponsors = event.sponsors.filter((s) => s.tier.toLowerCase() === "institutionnel");
+  const platinumSponsors = event.sponsors.filter((s) => s.tier.toLowerCase() === "platinum");
+  const goldSponsors = event.sponsors.filter((s) => s.tier.toLowerCase() === "gold");
+  const silverSponsors = event.sponsors.filter((s) => s.tier.toLowerCase() === "silver");
+  const bronzeSponsors = event.sponsors.filter((s) => s.tier.toLowerCase() === "bronze");
+  const partenaireSponsors = event.sponsors.filter((s) => s.tier.toLowerCase() === "partenaire");
+  const mediaSponsors = event.sponsors.filter((s) => s.tier.toLowerCase() === "media");
 
   const registerUrl = `/events/${slug}/register`;
   const badgeUrl = `/events/${slug}/badge`;
@@ -643,10 +646,13 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
               <h2 className="text-2xl sm:text-4xl font-bold text-foreground mt-3 mb-5">{t.event.sponsorsTitle}</h2>
             </div>
             <div className="space-y-10">
-              {[{ label: "Platinum", items: platinumSponsors, size: "w-[220px] sm:w-[260px]" },
+              {[{ label: "Institutionnel", items: institutionnelSponsors, size: "w-[220px] sm:w-[260px]" },
+                { label: "Platinum", items: platinumSponsors, size: "w-[220px] sm:w-[260px]" },
                 { label: "Gold", items: goldSponsors, size: "w-[180px] sm:w-[200px]" },
                 { label: "Silver", items: silverSponsors, size: "w-[150px] sm:w-[170px]" },
                 { label: "Bronze", items: bronzeSponsors, size: "w-[130px] sm:w-[140px]" },
+                { label: "Partenaire", items: partenaireSponsors, size: "w-[150px] sm:w-[170px]" },
+                { label: "Média", items: mediaSponsors, size: "w-[150px] sm:w-[170px]" },
               ].filter((t) => t.items.length > 0).map((tier) => (
                 <div key={tier.label}>
                   <div className="flex items-center gap-3 justify-center mb-5">

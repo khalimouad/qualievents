@@ -10,6 +10,14 @@ interface SponsorBadgeProps {
 }
 
 const tierConfig: Record<string, { bg: string; border: string; text: string; size: string; glow: string; logoH: string }> = {
+  institutionnel: {
+    bg: "bg-blue-500/10 backdrop-blur-sm",
+    border: "border-blue-500/30 hover:border-blue-500/50",
+    text: "text-blue-200 text-base font-bold",
+    size: "p-6 sm:p-7",
+    glow: "from-blue-500/30 to-transparent",
+    logoH: "max-h-14 sm:max-h-16",
+  },
   platinum: {
     bg: "bg-white/10 backdrop-blur-sm",
     border: "border-white/20 hover:border-white/30",
@@ -42,10 +50,26 @@ const tierConfig: Record<string, { bg: string; border: string; text: string; siz
     glow: "from-orange-500/30 to-transparent",
     logoH: "max-h-8",
   },
+  partenaire: {
+    bg: "bg-teal-500/10 backdrop-blur-sm",
+    border: "border-teal-500/25 hover:border-teal-500/45",
+    text: "text-teal-200 text-sm font-semibold",
+    size: "p-4 sm:p-5",
+    glow: "from-teal-500/20 to-transparent",
+    logoH: "max-h-10",
+  },
+  media: {
+    bg: "bg-purple-500/10 backdrop-blur-sm",
+    border: "border-purple-500/25 hover:border-purple-500/45",
+    text: "text-purple-200 text-sm font-semibold",
+    size: "p-4 sm:p-5",
+    glow: "from-purple-500/20 to-transparent",
+    logoH: "max-h-10",
+  },
 };
 
 export default function SponsorBadge({ name, logo, website, tier }: SponsorBadgeProps) {
-  const config = tierConfig[tier] || tierConfig.gold;
+  const config = tierConfig[tier.toLowerCase()] || tierConfig.gold;
   const [imgFailed, setImgFailed] = useState(false);
 
   const content = (
