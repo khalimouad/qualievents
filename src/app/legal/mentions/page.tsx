@@ -2,8 +2,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "Mentions légales — QualiEvents",
-  description: "Mentions légales de la plateforme QualiEvents by Qualivoire.",
+  title: "Mentions légales — Qualivoire Connect",
+  description: "Mentions légales de la plateforme Qualivoire Connect by Qualivoire.",
 };
 
 export default function MentionsPage() {
@@ -52,8 +52,8 @@ export default function MentionsPage() {
                   <div className="flex gap-2">
                     <dt className="font-bold w-48 flex-shrink-0" style={{ color: "var(--foreground)" }}>Email</dt>
                     <dd style={{ color: "var(--muted)" }}>
-                      <a href="mailto:contact@qualievents.ci" style={{ color: "var(--primary)" }}>
-                        contact@qualievents.ci
+                      <a href="mailto:contact@qualivoire.com" style={{ color: "var(--primary)" }}>
+                        contact@qualivoire.com
                       </a>
                     </dd>
                   </div>
@@ -72,7 +72,7 @@ export default function MentionsPage() {
             <div>
               <h2 className="text-xl font-black mb-4" style={{ color: "var(--foreground)" }}>2. Directeur de publication</h2>
               <p className="leading-relaxed" style={{ color: "var(--muted)" }}>
-                Le directeur de publication de la plateforme QualiEvents est le représentant légal
+                Le directeur de publication de la plateforme Qualivoire Connect est le représentant légal
                 de Qualivoire SARL.
               </p>
             </div>
@@ -113,13 +113,13 @@ export default function MentionsPage() {
             <div>
               <h2 className="text-xl font-black mb-4" style={{ color: "var(--foreground)" }}>4. Contact</h2>
               <p className="leading-relaxed" style={{ color: "var(--muted)" }}>
-                Pour toute question relative au site QualiEvents, vous pouvez nous contacter par :
+                Pour toute question relative au site Qualivoire Connect, vous pouvez nous contacter par :
               </p>
               <ul className="space-y-2 pl-5 mt-3" style={{ color: "var(--muted)" }}>
                 <li className="list-disc">
                   Email :{" "}
-                  <a href="mailto:contact@qualievents.ci" style={{ color: "var(--primary)" }}>
-                    contact@qualievents.ci
+                  <a href="mailto:contact@qualivoire.com" style={{ color: "var(--primary)" }}>
+                    contact@qualivoire.com
                   </a>
                 </li>
                 <li className="list-disc">
@@ -137,7 +137,7 @@ export default function MentionsPage() {
             <div>
               <h2 className="text-xl font-black mb-4" style={{ color: "var(--foreground)" }}>5. Propriété intellectuelle</h2>
               <p className="leading-relaxed" style={{ color: "var(--muted)" }}>
-                L&apos;ensemble du contenu de la plateforme QualiEvents — textes, images, logos, icônes,
+                L&apos;ensemble du contenu de la plateforme Qualivoire Connect — textes, images, logos, icônes,
                 éléments graphiques, code informatique — est la propriété exclusive de Qualivoire SARL
                 ou de ses partenaires et est protégé par les lois en vigueur relatives à la propriété
                 intellectuelle en Côte d&apos;Ivoire.
@@ -153,7 +153,7 @@ export default function MentionsPage() {
             <div>
               <h2 className="text-xl font-black mb-4" style={{ color: "var(--foreground)" }}>6. Données personnelles</h2>
               <p className="leading-relaxed" style={{ color: "var(--muted)" }}>
-                Le traitement des données personnelles collectées sur la plateforme QualiEvents est
+                Le traitement des données personnelles collectées sur la plateforme Qualivoire Connect est
                 décrit dans notre{" "}
                 <a href="/legal/privacy" style={{ color: "var(--primary)" }} className="hover:opacity-80 transition-opacity">
                   Politique de confidentialité

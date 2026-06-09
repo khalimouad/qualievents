@@ -77,7 +77,7 @@ export default function Footer() {
         <div className="mt-14 pt-8 border-t border-white/5">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-text-secondary text-xs">
-              &copy; {currentYear} QualiEvents by Qualivoire. Abidjan, Côte d&apos;Ivoire.
+              &copy; {currentYear} Qualivoire Connect. Abidjan, Côte d&apos;Ivoire.
             </p>
             <div className="flex items-center gap-2">
               <span className="inline-block w-2 h-2 rounded-full bg-success animate-pulse" />

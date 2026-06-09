@@ -278,7 +278,7 @@ export default async function HomePage() {
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4 text-[11px] font-bold uppercase tracking-wider"
               style={{ background: "var(--gold-dim)", color: "var(--primary)" }}
             >
-              Pourquoi QualiEvents ?
+              Pourquoi Qualivoire Connect ?
             </div>
             <h2 className="font-black text-4xl sm:text-5xl leading-tight" style={{ color: "var(--foreground)" }}>
               Votre expérience,<br />sans friction

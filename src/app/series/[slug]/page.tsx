@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   });
   if (!series) return { title: "Programme introuvable" };
   return {
-    title: `${series.title} — QualiEvents`,
+    title: `${series.title} — Qualivoire Connect`,
     description: series.description?.slice(0, 160),
     openGraph: {
       title: series.title,

@@ -105,7 +105,7 @@ export default function NewsletterBuilder({ value, onChange, subject, onSubjectC
       firstName: "Aïcha", lastName: "Koné", email: "aicha@exemple.com",
       company: "Acme", jobTitle: "Directrice",
       eventTitle, eventDate: "Vendredi 29 mai 2026", eventVenue: "Radisson Blu",
-      eventCity: "Abidjan", eventSlug: "exemple", baseUrl: "https://qualievents.com", badgeCode: null,
+      eventCity: "Abidjan", eventSlug: "exemple", baseUrl: "https://qualivoire.com", badgeCode: null,
     };
     const previewDoc = applyVariablesToDoc(value, exampleCtx);
     return renderToHtml(previewDoc, { eventTitle, themeColor: themeColor || undefined });
@@ -122,7 +122,7 @@ export default function NewsletterBuilder({ value, onChange, subject, onSubjectC
           onChange={(e) => onSubjectChange(e.target.value)}
           onFocus={() => { focusedFieldRef.current = subjectRef.current; }}
           className="w-full px-3 py-2 bg-subtle border border-border rounded-lg focus:bg-card focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-sm"
-          placeholder="Ex : Bienvenue à QualiEvents Summit 2026"
+          placeholder="Ex : Bienvenue à Qualivoire Connect Summit 2026"
         />
       </div>
 

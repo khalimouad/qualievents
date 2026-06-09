@@ -152,7 +152,7 @@ export default function BadgePage() {
                 >
                   <div className="absolute bottom-0 left-0 right-0 h-[3px]" style={{ background: accent }} />
                   <p className="text-[9px] font-black uppercase tracking-[0.35em] mb-3" style={{ color: "rgba(255,255,255,0.3)" }}>
-                    QualiEvents
+                    Qualivoire Connect
                   </p>
                   <h3 className="text-white font-black text-lg leading-snug">{badge.eventTitle}</h3>
                   <p className="text-xs mt-1.5" style={{ color: "rgba(255,255,255,0.45)" }}>{formattedDate}</p>
@@ -220,7 +220,7 @@ export default function BadgePage() {
                 {/* Footer strip */}
                 <div className="px-7 py-3 text-center" style={{ background: "#0d1827" }}>
                   <p className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.28)" }}>
-                    QualiEvents · Present this badge at entry
+                    Qualivoire Connect · Present this badge at entry
                   </p>
                 </div>
               </div>

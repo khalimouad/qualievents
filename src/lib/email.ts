@@ -25,7 +25,7 @@ async function getSmtpConfig(): Promise<SmtpConfig> {
         user: row.smtpUser ?? undefined,
         pass,
         senderName: row.senderName,
-        senderEmail: row.senderEmail || row.smtpUser || "noreply@qualievents.com",
+        senderEmail: row.senderEmail || row.smtpUser || "noreply@qualivoire.com",
       };
     }
   } catch {
@@ -36,8 +36,8 @@ async function getSmtpConfig(): Promise<SmtpConfig> {
     port: parseInt(process.env.SMTP_PORT || "587"),
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
-    senderName: "QualiEvents",
-    senderEmail: process.env.SMTP_USER || "noreply@qualievents.com",
+    senderName: "Qualivoire Connect",
+    senderEmail: process.env.SMTP_USER || "noreply@qualivoire.com",
   };
 }
 
@@ -87,7 +87,7 @@ export function buildInvitationEmail(name: string, eventTitle: string, eventDate
     <head><meta charset="utf-8"></head>
     <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 40px 30px; border-radius: 12px 12px 0 0; text-align: center;">
-        <h1 style="color: #e94560; margin: 0; font-size: 28px;">QualiEvents</h1>
+        <h1 style="color: #e94560; margin: 0; font-size: 28px;">Qualivoire Connect</h1>
         <p style="color: #ffffff; margin-top: 10px; font-size: 14px;">You're Invited!</p>
       </div>
       <div style="background: #ffffff; padding: 30px; border: 1px solid #eee; border-radius: 0 0 12px 12px;">
@@ -104,7 +104,7 @@ export function buildInvitationEmail(name: string, eventTitle: string, eventDate
           </a>
         </div>
         <p style="color: #999; font-size: 12px; text-align: center;">
-          QualiEvents - Premium Event Management
+          Qualivoire Connect - Premium Event Management
         </p>
       </div>
     </body>
@@ -167,7 +167,7 @@ export function buildBadgeEmail(
     <head><meta charset="utf-8"></head>
     <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background: linear-gradient(135deg, #ff7a00 0%, #e56500 100%); padding: 40px 30px; border-radius: 12px 12px 0 0; text-align: center;">
-        <h1 style="color: #ffffff; margin: 0; font-size: 28px;">QualiEvents</h1>
+        <h1 style="color: #ffffff; margin: 0; font-size: 28px;">Qualivoire Connect</h1>
         <p style="color: #ffffff; margin-top: 10px;">${isOnline ? "Votre place est confirmée !" : "Votre badge est prêt !"}</p>
       </div>
       <div style="background: #ffffff; padding: 30px; border: 1px solid #eee; border-radius: 0 0 12px 12px; text-align: center;">
@@ -188,13 +188,13 @@ export function buildNewsletterEmail(content: string) {
     <head><meta charset="utf-8"></head>
     <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
-        <h1 style="color: #e94560; margin: 0; font-size: 24px;">QualiEvents Newsletter</h1>
+        <h1 style="color: #e94560; margin: 0; font-size: 24px;">Qualivoire Connect Newsletter</h1>
       </div>
       <div style="background: #ffffff; padding: 30px; border: 1px solid #eee; border-radius: 0 0 12px 12px;">
         ${content}
         <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
         <p style="color: #999; font-size: 12px; text-align: center;">
-          QualiEvents - Premium Event Management
+          Qualivoire Connect - Premium Event Management
         </p>
       </div>
     </body>

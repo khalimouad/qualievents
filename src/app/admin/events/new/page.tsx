@@ -205,7 +205,7 @@ export default function NewEventPage() {
           <h2 className={sectionTitle}>{t.admin.basicInfo}</h2>
           <div>
             <label className={labelClass}>{t.admin.title} <span className="text-primary">*</span></label>
-            <input value={form.title} onChange={(e) => update("title", e.target.value)} className={inputClass} placeholder="Ex : QualiEvents Summit 2026" required />
+            <input value={form.title} onChange={(e) => update("title", e.target.value)} className={inputClass} placeholder="Ex : Qualivoire Connect Summit 2026" required />
           </div>
           <div>
             <label className={labelClass}>{t.admin.tagline}</label>

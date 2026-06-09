@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
       smtpPort: parseInt(process.env.SMTP_PORT || "587"),
       smtpUser: process.env.SMTP_USER || "",
       smtpPassMasked: process.env.SMTP_PASS ? "••••••••" : "",
-      senderName: "QualiEvents",
+      senderName: "Qualivoire Connect",
       senderEmail: "",
       updatedAt: null,
       updatedById: null,
@@ -67,7 +67,7 @@ export async function PUT(req: NextRequest) {
     smtpHost: smtpHost || "smtp.gmail.com",
     smtpPort: parseInt(smtpPort) || 587,
     smtpUser: smtpUser || null,
-    senderName: senderName || "QualiEvents",
+    senderName: senderName || "Qualivoire Connect",
     senderEmail: senderEmail || null,
     updatedById,
   };

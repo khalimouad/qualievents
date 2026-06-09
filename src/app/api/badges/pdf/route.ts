@@ -86,13 +86,13 @@ export async function GET(req: NextRequest) {
       doc.fillColor("#000000", 1).font("Helvetica-Bold").fontSize(7)
         .text("V I P", CX + CW - 48, 14, { width: 38, align: "center", characterSpacing: 1.5 });
 
-      // QUALIEVENTS label (left-aligned to not overlap VIP pill)
+      // QUALIVOIRE CONNECT label (left-aligned to not overlap VIP pill)
       doc.fillColor("rgba(255,215,0,0.4)", 1).font("Helvetica").fontSize(7)
-        .text("QUALIEVENTS", CX + 10, 14, { width: CW - 60, align: "left", characterSpacing: 3 });
+        .text("QUALIVOIRE CONNECT", CX + 10, 14, { width: CW - 60, align: "left", characterSpacing: 3 });
     } else {
-      // QUALIEVENTS label centred
+      // QUALIVOIRE CONNECT label centred
       doc.fillColor("rgba(255,255,255,0.3)", 1).font("Helvetica").fontSize(7)
-        .text("QUALIEVENTS", CX, 14, { width: CW, align: "center", characterSpacing: 3 });
+        .text("QUALIVOIRE CONNECT", CX, 14, { width: CW, align: "center", characterSpacing: 3 });
     }
 
     // Event title
@@ -201,7 +201,7 @@ export async function GET(req: NextRequest) {
       .text(badge.code.slice(0, 16), CX + 10, FTR_Y + 14, { width: CW / 2 - 10, align: "left", characterSpacing: 0.5 });
 
     doc.fillColor(brandColor, 1).font("Helvetica-Bold").fontSize(7)
-      .text("QualiEvents", CX + CW / 2, FTR_Y + 14, { width: CW / 2 - 10, align: "right" });
+      .text("Qualivoire Connect", CX + CW / 2, FTR_Y + 14, { width: CW / 2 - 10, align: "right" });
 
     doc.end();
   });

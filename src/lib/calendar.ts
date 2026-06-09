@@ -20,7 +20,7 @@ export function generateICS(event: {
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//QualiEvents//EN",
+    "PRODID:-//Qualivoire Connect//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",

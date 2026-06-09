@@ -51,14 +51,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
   const canonical = baseUrl ? `${baseUrl}/events/${slug}` : `/events/${slug}`;
   return {
-    title: `${event.title} - QualiEvents`,
+    title: `${event.title} - Qualivoire Connect`,
     description,
     alternates: { canonical },
     openGraph: {
       title: event.title,
       description: `${dateStr} — ${event.venue}, ${event.city}. ${description}`,
       type: "website",
-      siteName: "QualiEvents",
+      siteName: "Qualivoire Connect",
       url: canonical,
       images: event.heroImage ? [{ url: event.heroImage, width: 1200, height: 630, alt: event.title }] : undefined,
     },
@@ -142,7 +142,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
     url: eventUrl,
     organizer: {
       "@type": "Organization",
-      name: process.env.ORG_NAME || "QualiEvents",
+      name: process.env.ORG_NAME || "Qualivoire Connect",
       url: baseUrl || undefined,
     },
     location:

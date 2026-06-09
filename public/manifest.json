@@ -1,5 +1,5 @@
 {
-  "name": "QualiEvents Scanner",
+  "name": "Qualivoire Connect Scanner",
   "short_name": "QE Scanner",
   "description": "Scan attendee badges at the event entrance",
   "start_url": "/scan",

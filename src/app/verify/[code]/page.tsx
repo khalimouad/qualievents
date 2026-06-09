@@ -9,13 +9,13 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
   return {
-    title: `Vérification ${code} — QualiEvents`,
-    description: "Authenticité d'un certificat QualiEvents.",
+    title: `Vérification ${code} — Qualivoire Connect`,
+    description: "Authenticité d'un certificat Qualivoire Connect.",
     robots: { index: false, follow: false },
   };
 }
 
-const orgName = process.env.ORG_NAME || "QualiEvents";
+const orgName = process.env.ORG_NAME || "Qualivoire Connect";
 
 export default async function VerifyPage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
@@ -148,7 +148,7 @@ export default async function VerifyPage({ params }: { params: Promise<{ code: s
           </div>
 
           <p className="text-center text-xs text-text-secondary mt-6">
-            Cette page est délivrée par <strong className="text-foreground">{orgName}</strong> via la plateforme QualiEvents.
+            Cette page est délivrée par <strong className="text-foreground">{orgName}</strong> via la plateforme Qualivoire Connect.
             <br />
             Pour toute question, contactez l&apos;organisme émetteur.
           </p>

@@ -4,8 +4,8 @@ import ContactForm from "./ContactForm";
 import { MapPin, Mail, Phone, Clock } from "lucide-react";
 
 export const metadata = {
-  title: "Contact — QualiEvents",
-  description: "Contactez l'équipe QualiEvents pour toute question, demande d'information ou demande d'organisation d'événement.",
+  title: "Contact — Qualivoire Connect",
+  description: "Contactez l'équipe Qualivoire Connect pour toute question, demande d'information ou demande d'organisation d'événement.",
 };
 
 const CONTACT_INFO = [
@@ -17,8 +17,8 @@ const CONTACT_INFO = [
   {
     Icon: Mail,
     label: "Email",
-    value: "contact@qualievents.ci",
-    href: "mailto:contact@qualievents.ci",
+    value: "contact@qualivoire.com",
+    href: "mailto:contact@qualivoire.com",
   },
   {
     Icon: Phone,

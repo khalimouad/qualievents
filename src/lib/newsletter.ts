@@ -122,7 +122,7 @@ export function renderToHtml(doc: NewsletterDoc, opts: { eventTitle: string; the
       ${body}
     </div>
     <div style="padding:18px;background:#fafafa;text-align:center;color:#999;font-size:11px;">
-      QualiEvents — Plateforme de gestion d'événements
+      Qualivoire Connect — Plateforme de gestion d'événements
     </div>
   </div>
 </body></html>`;

@@ -18,7 +18,7 @@ const fontSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "QualiEvents — Gestion d'événements premium",
+  title: "Qualivoire Connect — Gestion d'événements premium",
   description:
     "Gérez vos événements avec style. Pages de présentation, inscription, badges QR, invitations, et plus.",
 };

@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
-  title: "QualiEvents Scanner",
+  title: "Qualivoire Connect Scanner",
   description: "Scan attendee badges at the event entrance",
   appleWebApp: {
     capable: true,

@@ -45,7 +45,7 @@ export default function EmailSettingsPage() {
       smtpPort: String(data.smtpPort || 587),
       smtpUser: data.smtpUser || "",
       smtpPass: "",
-      senderName: data.senderName || "QualiEvents",
+      senderName: data.senderName || "Qualivoire Connect",
       senderEmail: data.senderEmail || "",
     });
     setLoading(false);
@@ -146,7 +146,7 @@ export default function EmailSettingsPage() {
           <div className="card p-5 space-y-4 mb-4">
             <p className="text-[10px] font-semibold text-muted uppercase tracking-wider">Expéditeur</p>
             {field("Nom de l'expéditeur", "senderName", {
-              placeholder: "QualiEvents",
+              placeholder: "Qualivoire Connect",
               hint: "Affiché comme nom dans la boîte de réception du destinataire",
             })}
             {field("Email de l'expéditeur", "senderEmail", {

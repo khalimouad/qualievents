@@ -86,7 +86,7 @@ export const TEMPLATES: Template[] = [
       { id: newId(), type: "paragraph", text: "Votre présence à {eventTitle} a fait toute la différence. Nous espérons que cette journée a été riche en échanges et en inspiration." },
       { id: newId(), type: "paragraph", text: "Nous reviendrons bientôt vers vous avec les contenus, photos et prochains événements. À très vite !" },
       { id: newId(), type: "spacer", height: 12 },
-      { id: newId(), type: "paragraph", text: "L'équipe QualiEvents", align: "center" },
+      { id: newId(), type: "paragraph", text: "L'équipe Qualivoire Connect", align: "center" },
     ],
   },
 ];

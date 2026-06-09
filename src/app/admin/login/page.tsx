@@ -64,7 +64,7 @@ export default function AdminLoginPage() {
                 value={email}
                 onChange={(e) => { setEmail(e.target.value); setError(""); }}
                 className="w-full px-4 py-3.5 bg-subtle border border-border rounded-xl focus:bg-card focus:border-primary focus:ring-2 focus:ring-primary/15 outline-none transition-all text-sm text-foreground placeholder:text-text-secondary/60"
-                placeholder="admin@qualievents.com"
+                placeholder="admin@qualivoire.com"
                 autoFocus
                 required
               />

@@ -94,7 +94,7 @@ export default function Navbar() {
                 isLight ? "text-white" : "text-foreground"
               }`}
             >
-              QualiEvents
+              Qualivoire Connect
             </span>
             <span
               className="text-[10px] font-black px-2 py-0.5 rounded-full text-white"
@@ -221,7 +221,7 @@ export default function Navbar() {
               <Link href="/" onClick={() => setIsOpen(false)} className="flex items-center gap-2.5">
                 <span className="logo-dot" />
                 <span className="font-serif font-black text-[1.1rem] leading-none tracking-tight text-foreground">
-                  QualiEvents
+                  Qualivoire Connect
                 </span>
               </Link>
               <button

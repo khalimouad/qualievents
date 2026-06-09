@@ -43,7 +43,7 @@ export async function POST(
     invoiceNumber = buildInvoiceNumber(yearCount);
   }
 
-  const orgName = process.env.ORG_NAME || "QualiEvents";
+  const orgName = process.env.ORG_NAME || "Qualivoire Connect";
   const orgEmail = process.env.SMTP_USER || null;
   const lineLabel = booking.tier
     ? `${booking.event.title} — ${booking.tier.name}`

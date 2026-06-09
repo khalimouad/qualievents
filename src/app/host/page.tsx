@@ -113,7 +113,7 @@ export default function HostRequestPage() {
                   Organiser un événement
                 </h1>
                 <p className="text-sm max-w-md mx-auto" style={{ color: "var(--muted)" }}>
-                  La plateforme QualiEvents est réservée aux partenaires de Qualivoire. Remplissez ce formulaire et notre équipe reviendra vers vous.
+                  La plateforme Qualivoire Connect est réservée aux partenaires de Qualivoire. Remplissez ce formulaire et notre équipe reviendra vers vous.
                 </p>
               </div>
 

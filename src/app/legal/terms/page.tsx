@@ -2,8 +2,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "Conditions d'utilisation — QualiEvents",
-  description: "Conditions générales d'utilisation de la plateforme QualiEvents by Qualivoire.",
+  title: "Conditions d'utilisation — Qualivoire Connect",
+  description: "Conditions générales d'utilisation de la plateforme Qualivoire Connect by Qualivoire.",
 };
 
 export default function TermsPage() {
@@ -29,13 +29,13 @@ export default function TermsPage() {
             <div>
               <h2 className="text-xl font-black mb-4" style={{ color: "var(--foreground)" }}>1. Acceptation des conditions</h2>
               <p className="leading-relaxed" style={{ color: "var(--muted)" }}>
-                En accédant à la plateforme QualiEvents et en utilisant ses services, vous acceptez
+                En accédant à la plateforme Qualivoire Connect et en utilisant ses services, vous acceptez
                 pleinement et sans réserve les présentes conditions générales d&apos;utilisation (CGU).
                 Si vous n&apos;acceptez pas ces conditions, vous devez cesser immédiatement d&apos;utiliser
                 la plateforme.
               </p>
               <p className="leading-relaxed mt-3" style={{ color: "var(--muted)" }}>
-                QualiEvents se réserve le droit de modifier ces CGU à tout moment. Les modifications
+                Qualivoire Connect se réserve le droit de modifier ces CGU à tout moment. Les modifications
                 prennent effet dès leur publication sur la plateforme. Il vous appartient de consulter
                 régulièrement ces conditions.
               </p>
@@ -44,7 +44,7 @@ export default function TermsPage() {
             <div>
               <h2 className="text-xl font-black mb-4" style={{ color: "var(--foreground)" }}>2. Description du service</h2>
               <p className="leading-relaxed" style={{ color: "var(--muted)" }}>
-                QualiEvents est une plateforme numérique de gestion d&apos;événements professionnels
+                Qualivoire Connect est une plateforme numérique de gestion d&apos;événements professionnels
                 opérée par Qualivoire SARL. Elle permet :
               </p>
               <ul className="space-y-2 pl-5 mt-3" style={{ color: "var(--muted)" }}>
@@ -63,7 +63,7 @@ export default function TermsPage() {
                 à nous notifier immédiatement de toute utilisation non autorisée de votre compte.
               </p>
               <p className="leading-relaxed mt-3" style={{ color: "var(--muted)" }}>
-                QualiEvents se réserve le droit de suspendre ou supprimer tout compte en cas de
+                Qualivoire Connect se réserve le droit de suspendre ou supprimer tout compte en cas de
                 violation des présentes CGU.
               </p>
             </div>
@@ -71,7 +71,7 @@ export default function TermsPage() {
             <div>
               <h2 className="text-xl font-black mb-4" style={{ color: "var(--foreground)" }}>4. Règles d&apos;utilisation</h2>
               <p className="leading-relaxed mb-3" style={{ color: "var(--muted)" }}>
-                En utilisant QualiEvents, vous vous engagez à ne pas :
+                En utilisant Qualivoire Connect, vous vous engagez à ne pas :
               </p>
               <ul className="space-y-2 pl-5" style={{ color: "var(--muted)" }}>
                 <li className="list-disc leading-relaxed">Fournir des informations fausses ou trompeuses lors de votre inscription.</li>
@@ -85,7 +85,7 @@ export default function TermsPage() {
             <div>
               <h2 className="text-xl font-black mb-4" style={{ color: "var(--foreground)" }}>5. Propriété intellectuelle</h2>
               <p className="leading-relaxed" style={{ color: "var(--muted)" }}>
-                L&apos;ensemble des éléments constituant la plateforme QualiEvents (logo, design, textes,
+                L&apos;ensemble des éléments constituant la plateforme Qualivoire Connect (logo, design, textes,
                 fonctionnalités, code source) est la propriété exclusive de Qualivoire SARL et est
                 protégé par les lois applicables en matière de propriété intellectuelle.
               </p>
@@ -98,13 +98,13 @@ export default function TermsPage() {
             <div>
               <h2 className="text-xl font-black mb-4" style={{ color: "var(--foreground)" }}>6. Limitation de responsabilité</h2>
               <p className="leading-relaxed" style={{ color: "var(--muted)" }}>
-                QualiEvents met tout en œuvre pour assurer la disponibilité et la fiabilité de sa
+                Qualivoire Connect met tout en œuvre pour assurer la disponibilité et la fiabilité de sa
                 plateforme, mais ne peut garantir un fonctionnement ininterrompu. En cas
-                d&apos;interruption de service, QualiEvents ne saurait être tenu responsable des
+                d&apos;interruption de service, Qualivoire Connect ne saurait être tenu responsable des
                 préjudices directs ou indirects qui en résulteraient.
               </p>
               <p className="leading-relaxed mt-3" style={{ color: "var(--muted)" }}>
-                La responsabilité de QualiEvents est limitée au montant des sommes effectivement
+                La responsabilité de Qualivoire Connect est limitée au montant des sommes effectivement
                 payées par l&apos;utilisateur pour le service en cause au cours des 12 derniers mois.
               </p>
             </div>
@@ -132,11 +132,11 @@ export default function TermsPage() {
                 <p className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
                   Email :{" "}
                   <a
-                    href="mailto:contact@qualievents.ci"
+                    href="mailto:contact@qualivoire.com"
                     style={{ color: "var(--primary)" }}
                     className="hover:opacity-80 transition-opacity"
                   >
-                    contact@qualievents.ci
+                    contact@qualivoire.com
                   </a>
                 </p>
                 <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>

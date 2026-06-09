@@ -67,14 +67,14 @@ export default function AboutPage() {
               color: "var(--primary)",
             }}
           >
-            À propos de QualiEvents
+            À propos de Qualivoire Connect
           </span>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-6" style={{ color: "var(--foreground)" }}>
             Bâtir l&apos;excellence,{" "}
             <span style={{ color: "var(--primary)" }}>événement par événement</span>
           </h1>
           <p className="text-lg max-w-2xl mx-auto leading-relaxed" style={{ color: "var(--muted)" }}>
-            QualiEvents est la plateforme événementielle de Qualivoire — conçue pour rendre les
+            Qualivoire Connect est la plateforme événementielle de Qualivoire — conçue pour rendre les
             événements professionnels en Afrique plus accessibles, plus digitaux et plus impactants.
           </p>
         </div>
@@ -97,7 +97,7 @@ export default function AboutPage() {
               </h2>
               <div className="space-y-4" style={{ color: "var(--muted)" }}>
                 <p className="leading-relaxed">
-                  QualiEvents a pour vocation de connecter les professionnels africains autour des
+                  Qualivoire Connect a pour vocation de connecter les professionnels africains autour des
                   thématiques de qualité, de management et de développement industriel. Nous croyons
                   que l&apos;excellence se construit collectivement, à travers des rencontres et des échanges
                   de haut niveau.
@@ -157,7 +157,7 @@ export default function AboutPage() {
             </p>
             <p className="leading-relaxed">
               Face à la demande croissante d&apos;événements professionnels de qualité sur le continent,{" "}
-              <strong style={{ color: "var(--foreground)" }}>QualiEvents</strong> est né de la volonté de Qualivoire de rendre
+              <strong style={{ color: "var(--foreground)" }}>Qualivoire Connect</strong> est né de la volonté de Qualivoire de rendre
               ses événements accessibles, professionnels et pleinement digitaux. La plateforme
               centralise l&apos;inscription, la gestion des participants, la billetterie et la communication,
               offrant une expérience fluide aux organisateurs comme aux participants.
@@ -214,7 +214,7 @@ export default function AboutPage() {
               De Abidjan à travers le continent
             </h2>
             <p className="max-w-xl mx-auto" style={{ color: "var(--muted)" }}>
-              QualiEvents est actif dans 10 pays africains, avec Abidjan comme hub principal pour
+              Qualivoire Connect est actif dans 10 pays africains, avec Abidjan comme hub principal pour
               l&apos;Afrique de l&apos;Ouest.
             </p>
           </div>
@@ -243,7 +243,7 @@ export default function AboutPage() {
             Organisez votre prochain événement
           </h2>
           <p className="mb-8 leading-relaxed" style={{ color: "var(--muted)" }}>
-            Rejoignez les organisations qui font confiance à QualiEvents pour leurs conférences,
+            Rejoignez les organisations qui font confiance à Qualivoire Connect pour leurs conférences,
             formations et forums professionnels en Afrique.
           </p>
           <Link

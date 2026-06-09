@@ -2,8 +2,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "Politique de confidentialité — QualiEvents",
-  description: "Politique de confidentialité de QualiEvents by Qualivoire.",
+  title: "Politique de confidentialité — Qualivoire Connect",
+  description: "Politique de confidentialité de Qualivoire Connect by Qualivoire.",
 };
 
 export default function PrivacyPage() {
@@ -29,12 +29,12 @@ export default function PrivacyPage() {
             <div>
               <h2 className="text-xl font-black mb-4" style={{ color: "var(--foreground)" }}>1. Introduction</h2>
               <p className="leading-relaxed" style={{ color: "var(--muted)" }}>
-                QualiEvents, plateforme opérée par Qualivoire SARL, s&apos;engage à protéger la vie
+                Qualivoire Connect, plateforme opérée par Qualivoire SARL, s&apos;engage à protéger la vie
                 privée de ses utilisateurs. La présente politique décrit quelles données nous
                 collectons, pourquoi nous les collectons et comment nous les utilisons.
               </p>
               <p className="leading-relaxed mt-3" style={{ color: "var(--muted)" }}>
-                En utilisant la plateforme QualiEvents, vous acceptez les termes de cette politique
+                En utilisant la plateforme Qualivoire Connect, vous acceptez les termes de cette politique
                 de confidentialité. Si vous n&apos;êtes pas d&apos;accord, veuillez cesser d&apos;utiliser nos services.
               </p>
             </div>
@@ -42,7 +42,7 @@ export default function PrivacyPage() {
             <div>
               <h2 className="text-xl font-black mb-4" style={{ color: "var(--foreground)" }}>2. Données collectées</h2>
               <p className="leading-relaxed mb-3" style={{ color: "var(--muted)" }}>
-                Nous collectons les données suivantes lors de votre utilisation de QualiEvents :
+                Nous collectons les données suivantes lors de votre utilisation de Qualivoire Connect :
               </p>
               <ul className="space-y-2 pl-5" style={{ color: "var(--muted)" }}>
                 <li className="list-disc leading-relaxed">
@@ -126,11 +126,11 @@ export default function PrivacyPage() {
                 <p className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
                   Email :{" "}
                   <a
-                    href="mailto:dpo@qualievents.ci"
+                    href="mailto:dpo@qualivoire.com"
                     style={{ color: "var(--primary)" }}
                     className="hover:opacity-80 transition-opacity"
                   >
-                    dpo@qualievents.ci
+                    dpo@qualivoire.com
                   </a>
                 </p>
                 <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>

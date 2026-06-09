@@ -59,7 +59,7 @@ export async function POST(
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(req.url).origin;
-  const orgName = process.env.ORG_NAME || "QualiEvents";
+  const orgName = process.env.ORG_NAME || "Qualivoire Connect";
 
   let issued = 0;
   let skipped = 0;
