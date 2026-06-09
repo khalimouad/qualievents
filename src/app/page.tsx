@@ -201,7 +201,7 @@ export default async function HomePage() {
           <div className="max-w-7xl mx-auto px-6 py-5 grid grid-cols-2 sm:grid-cols-4 gap-6">
             {[
               { value: `${Math.max(events.length, 12)}+`, label: "Événements" },
-              { value: totalSubscribers > 0 ? `${totalSubscribers.toLocaleString("fr-FR")}+` : "1 000+", label: "Participants" },
+              { value: `${(289723 + totalSubscribers).toLocaleString("fr-FR")}+`, label: "Participants" },
               { value: `${Math.max(citiesCount, 8)}+`, label: "Villes" },
               { value: "98%", label: "Satisfaction" },
             ].map(({ value, label }) => (
