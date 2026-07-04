@@ -31,7 +31,7 @@ model EmailSettings {
   smtpPort    Int           @default(587)
   smtpUser    String?
   smtpPassEnc String?
-  senderName  String        @default("QualiEvents")
+  senderName  String        @default("Qualivoire Connect")
   senderEmail String?
   updatedAt   DateTime      @updatedAt
   updatedById String?

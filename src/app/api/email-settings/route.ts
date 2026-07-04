@@ -57,32 +57,41 @@ export async function GET(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   try { requireAdmin(req); } catch (e) { return passThrough(e); }
 
-  const body = await req.json();
-  const { smtpHost, smtpPort, smtpUser, smtpPass, senderName, senderEmail } = body;
+  try {
+    const body = await req.json();
+    const { smtpHost, smtpPort, smtpUser, smtpPass, senderName, senderEmail } = body;
 
-  const session = (req as NextRequest & { session?: { userId?: string } }).session;
-  const updatedById = session?.userId ?? null;
+    const session = (req as NextRequest & { session?: { userId?: string } }).session;
+    const updatedById = session?.userId ?? null;
 
-  const data: Record<string, unknown> = {
-    smtpHost: smtpHost || "smtp.gmail.com",
-    smtpPort: parseInt(smtpPort) || 587,
-    smtpUser: smtpUser || null,
-    senderName: senderName || "Qualivoire Connect",
-    senderEmail: senderEmail || null,
-    updatedById,
-  };
+    const data: Record<string, unknown> = {
+      smtpHost: smtpHost || "smtp.gmail.com",
+      smtpPort: parseInt(smtpPort) || 587,
+      smtpUser: smtpUser || null,
+      senderName: senderName || "Qualivoire Connect",
+      senderEmail: senderEmail || null,
+      updatedById,
+    };
 
-  // Only update password if a new one was provided (non-empty)
-  if (smtpPass && smtpPass.trim()) {
-    data.smtpPassEnc = encrypt(smtpPass.trim());
+    // Only update password if a new one was provided (non-empty)
+    if (smtpPass && smtpPass.trim()) {
+      data.smtpPassEnc = encrypt(smtpPass.trim());
+    }
+
+    const existing = await prisma.emailSettings.findFirst();
+    const row = existing
+      ? await prisma.emailSettings.update({ where: { id: existing.id }, data })
+      : await prisma.emailSettings.create({ data: { ...data } as Parameters<typeof prisma.emailSettings.create>[0]["data"] });
+
+    audit(req, { action: "email-settings.update", metadata: { smtpHost: data.smtpHost } });
+
+    return NextResponse.json(maskRow(row));
+  } catch (error) {
+    console.error("Email settings save error:", error);
+    const message = error instanceof Error ? error.message : "Erreur lors de la sauvegarde";
+    return NextResponse.json(
+      { error: `Impossible de sauvegarder: ${message}` },
+      { status: 400 }
+    );
   }
-
-  const existing = await prisma.emailSettings.findFirst();
-  const row = existing
-    ? await prisma.emailSettings.update({ where: { id: existing.id }, data })
-    : await prisma.emailSettings.create({ data: { ...data } as Parameters<typeof prisma.emailSettings.create>[0]["data"] });
-
-  audit(req, { action: "email-settings.update", metadata: { smtpHost: data.smtpHost } });
-
-  return NextResponse.json(maskRow(row));
 }
