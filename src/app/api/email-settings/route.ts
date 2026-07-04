@@ -37,7 +37,7 @@ function maskRow(row: {
 export async function GET(req: NextRequest) {
   try { requireAdmin(req); } catch (e) { return passThrough(e); }
 
-  const row = await prisma.emailSettings.findFirst();
+  const row = await prisma.emailSettings.findFirst({ where: { orgId: null } });
   if (!row) {
     return NextResponse.json({
       id: null,
@@ -78,10 +78,10 @@ export async function PUT(req: NextRequest) {
       data.smtpPassEnc = encrypt(smtpPass.trim());
     }
 
-    const existing = await prisma.emailSettings.findFirst();
+    const existing = await prisma.emailSettings.findFirst({ where: { orgId: null } });
     const row = existing
       ? await prisma.emailSettings.update({ where: { id: existing.id }, data })
-      : await prisma.emailSettings.create({ data: { ...data } as Parameters<typeof prisma.emailSettings.create>[0]["data"] });
+      : await prisma.emailSettings.create({ data: { ...data, orgId: null } as Parameters<typeof prisma.emailSettings.create>[0]["data"] });
 
     audit(req, { action: "email-settings.update", metadata: { smtpHost: data.smtpHost } });
 
