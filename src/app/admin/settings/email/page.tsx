@@ -37,17 +37,21 @@ export default function EmailSettingsPage() {
 
   const load = async () => {
     setLoading(true);
-    const res = await fetch("/api/email-settings");
-    const data = await res.json();
-    setSettings(data);
-    setForm({
-      smtpHost: data.smtpHost || "",
-      smtpPort: String(data.smtpPort || 587),
-      smtpUser: data.smtpUser || "",
-      smtpPass: "",
-      senderName: data.senderName || "Qualivoire Connect",
-      senderEmail: data.senderEmail || "",
-    });
+    try {
+      const res = await fetch("/api/email-settings");
+      const data = await res.json();
+      setSettings(data);
+      setForm({
+        smtpHost: data.smtpHost || "",
+        smtpPort: String(data.smtpPort || 587),
+        smtpUser: data.smtpUser || "",
+        smtpPass: "",
+        senderName: data.senderName || "Qualivoire Connect",
+        senderEmail: data.senderEmail || "",
+      });
+    } catch {
+      setError("Impossible de charger les paramètres");
+    }
     setLoading(false);
   };
 
@@ -56,16 +60,20 @@ export default function EmailSettingsPage() {
   const save = async () => {
     setSaving(true);
     setError(null);
-    const res = await fetch("/api/email-settings", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    const data = await res.json();
-    if (!res.ok) { setError(data.error || "Échec de la sauvegarde"); setSaving(false); return; }
-    setSettings(data);
-    setSavedAt(Date.now());
-    setForm(f => ({ ...f, smtpPass: "" }));
+    try {
+      const res = await fetch("/api/email-settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || "Échec de la sauvegarde"); setSaving(false); return; }
+      setSettings(data);
+      setSavedAt(Date.now());
+      setForm(f => ({ ...f, smtpPass: "" }));
+    } catch (e) {
+      setError(e instanceof Error ? `Erreur réseau: ${e.message}` : "Erreur réseau inconnue");
+    }
     setSaving(false);
   };
 
@@ -73,13 +81,17 @@ export default function EmailSettingsPage() {
     if (!testTo) return;
     setTesting(true);
     setTestResult(null);
-    const res = await fetch("/api/email-settings/test", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ to: testTo }),
-    });
-    const data = await res.json();
-    setTestResult(data);
+    try {
+      const res = await fetch("/api/email-settings/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ to: testTo }),
+      });
+      const data = await res.json();
+      setTestResult(data);
+    } catch (e) {
+      setTestResult({ ok: false, error: e instanceof Error ? e.message : "Erreur réseau" });
+    }
     setTesting(false);
   };
 
