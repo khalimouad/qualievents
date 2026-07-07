@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth, passThrough } from "@/lib/requireRole";
 import { generateBadgeCode, generateQRDataURL } from "@/lib/qrcode";
 import { sendEmail, buildBadgeEmail } from "@/lib/email";
+import { buildBadgeAttachments } from "@/lib/badgeAttachments";
 import { decrypt } from "@/lib/crypto";
 import { generateBookingReference } from "@/lib/invoice";
 import { rateLimit } from "@/lib/rateLimit";
@@ -194,24 +195,34 @@ export async function POST(
       await prisma.badge.create({
         data: { code: badgeCode, badgeNumber, qrData, subscriberId: sub.id, eventId: event.id },
       });
+      const format = (event.format as "IN_PERSON" | "ONLINE" | "HYBRID") || "IN_PERSON";
       const html = buildBadgeEmail(
         `${sub.firstName} ${sub.lastName}`,
         event.title,
         badgeCode,
-        qrData,
         {
-          format: (event.format as "IN_PERSON" | "ONLINE" | "HYBRID") || "IN_PERSON",
+          format,
           streamUrl: event.streamUrl,
           streamPassword,
           platform: event.platform,
           streamInstructions: event.streamInstructions,
         }
       );
-      sendEmail({
-        to: sub.email,
-        subject: `Votre badge pour ${event.title}`,
-        html,
-      }).catch((err) => console.error("[group-booking] email failed:", err));
+      buildBadgeAttachments(format, {
+        code: badgeCode,
+        badgeNumber,
+        type: "STANDARD",
+        qrData,
+        subscriber: { firstName: sub.firstName, lastName: sub.lastName, jobTitle: sub.jobTitle, company: sub.company },
+        event: { title: event.title, date: event.date, city: event.city, themeColor: event.themeColor, logoUrl: event.logoUrl },
+      }).then((attachments) =>
+        sendEmail({
+          to: sub.email,
+          subject: `Votre badge pour ${event.title}`,
+          html,
+          attachments,
+        })
+      ).catch((err) => console.error("[group-booking] email failed:", err));
     }
   }
 

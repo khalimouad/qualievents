@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { generateBadgeCode, generateQRDataURL } from "@/lib/qrcode";
 import { requireAdmin, passThrough } from "@/lib/requireRole";
 import { sendEmail, buildBadgeEmail } from "@/lib/email";
+import { buildBadgeAttachments } from "@/lib/badgeAttachments";
 import { decrypt } from "@/lib/crypto";
 import { rateLimit } from "@/lib/rateLimit";
 
@@ -142,24 +143,34 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  const eventFormat = (event.format as "IN_PERSON" | "ONLINE" | "HYBRID") || "IN_PERSON";
   const emailHtml = buildBadgeEmail(
     `${subscriber.firstName} ${subscriber.lastName}`,
     event.title,
     badgeCode,
-    qrData,
     {
-      format: (event.format as "IN_PERSON" | "ONLINE" | "HYBRID") || "IN_PERSON",
+      format: eventFormat,
       streamUrl: event.streamUrl,
       streamPassword,
       platform: event.platform,
       streamInstructions: event.streamInstructions,
     }
   );
-  sendEmail({
-    to: subscriber.email,
-    subject: `Your badge for ${event.title} is ready!`,
-    html: emailHtml,
-  }).catch(() => {}); // Don't fail registration if email fails
+  buildBadgeAttachments(eventFormat, {
+    code: badgeCode,
+    badgeNumber,
+    type: body.isVip === true ? "VIP" : "STANDARD",
+    qrData,
+    subscriber: { firstName: subscriber.firstName, lastName: subscriber.lastName, jobTitle: subscriber.jobTitle, company: subscriber.company },
+    event: { title: event.title, date: event.date, city: event.city, themeColor: event.themeColor, logoUrl: event.logoUrl },
+  }).then((attachments) =>
+    sendEmail({
+      to: subscriber.email,
+      subject: `Your badge for ${event.title} is ready!`,
+      html: emailHtml,
+      attachments,
+    })
+  ).catch(() => {}); // Don't fail registration if email fails
 
   return NextResponse.json(
     { ...subscriber, badgeCode },

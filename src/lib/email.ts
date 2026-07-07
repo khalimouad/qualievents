@@ -41,6 +41,14 @@ async function getSmtpConfig(): Promise<SmtpConfig> {
   };
 }
 
+export interface EmailAttachment {
+  filename: string;
+  content: Buffer;
+  contentType?: string;
+  /** Content-ID for inline images referenced in the HTML as `cid:<cid>`. */
+  cid?: string;
+}
+
 interface SendEmailOptions {
   to: string;
   subject: string;
@@ -50,9 +58,10 @@ interface SendEmailOptions {
    * Adds List-Unsubscribe headers for Gmail / Apple Mail / Outlook.
    */
   unsubscribeUrl?: string;
+  attachments?: EmailAttachment[];
 }
 
-export async function sendEmail({ to, subject, html, unsubscribeUrl }: SendEmailOptions) {
+export async function sendEmail({ to, subject, html, unsubscribeUrl, attachments }: SendEmailOptions) {
   try {
     const cfg = await getSmtpConfig();
     const transporter = nodemailer.createTransport({
@@ -72,6 +81,7 @@ export async function sendEmail({ to, subject, html, unsubscribeUrl }: SendEmail
       subject,
       html,
       headers: Object.keys(headers).length ? headers : undefined,
+      attachments,
     });
     return { success: true, messageId: info.messageId };
   } catch (error) {
@@ -120,11 +130,17 @@ export interface BadgeEmailExtras {
   streamInstructions?: string | null;
 }
 
+/**
+ * Content-ID used to embed the QR code as an inline attachment. Gmail and
+ * most other clients strip `data:` URIs from received-mail <img> tags, so
+ * the QR must be sent as a real attachment referenced via `cid:`.
+ */
+export const BADGE_QR_CID = "badge-qrcode";
+
 export function buildBadgeEmail(
   name: string,
   eventTitle: string,
   badgeCode: string,
-  qrDataUrl: string,
   extras: BadgeEmailExtras = {}
 ) {
   const { format = "IN_PERSON", streamUrl, streamPassword, platform, streamInstructions } = extras;
@@ -145,14 +161,19 @@ export function buildBadgeEmail(
   // For pure-online events the QR code isn't strictly useful for door check-in,
   // but we keep it because some operators still scan online attendees on a
   // welcome page; the server-side scanner already handles both cases.
+  //
+  // The QR is sent as an inline `cid:` attachment rather than a `data:` URI —
+  // Gmail and most other mail clients strip base64 data URIs from received
+  // mail, which left the image broken. The long alphanumeric code is kept
+  // only as a small fallback for manual entry if the QR can't be scanned.
   const inPersonBlock = !isOnline
     ? `
-      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-        <p style="color: #666; margin: 0 0 5px;">Code du badge :</p>
-        <p style="font-size: 32px; font-weight: bold; color: #ff7a00; letter-spacing: 4px; margin: 0;">${badgeCode}</p>
+      <img src="cid:${BADGE_QR_CID}" alt="QR Code" style="width: 220px; height: 220px;" />
+      <p style="color: #666; font-size: 14px; margin: 12px 0 20px;">Présentez ce QR code à l'entrée de l'événement.</p>
+      <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin: 0 0 10px;">
+        <p style="color: #666; margin: 0 0 4px; font-size: 12px;">Code de secours (si le QR ne peut pas être scanné) :</p>
+        <p style="font-size: 14px; font-weight: bold; color: #ff7a00; letter-spacing: 1px; margin: 0; font-family: monospace;">${badgeCode}</p>
       </div>
-      <img src="${qrDataUrl}" alt="QR Code" style="width: 200px; height: 200px;" />
-      <p style="color: #666; font-size: 14px;">Présentez ce QR code à l'entrée de l'événement.</p>
     `
     : `
       <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin: 16px 0;">

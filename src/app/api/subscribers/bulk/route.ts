@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth, requireAdmin, passThrough } from "@/lib/requireRole";
 import { generateBadgeCode, generateQRDataURL } from "@/lib/qrcode";
 import { sendEmail, buildBadgeEmail } from "@/lib/email";
+import { buildBadgeAttachments } from "@/lib/badgeAttachments";
 import { decrypt } from "@/lib/crypto";
 import { audit } from "@/lib/audit";
 
@@ -70,11 +71,13 @@ export async function POST(req: NextRequest) {
 
     let badgeCode = sub.badge?.code;
     let qrData = sub.badge?.qrData;
-    if (!badgeCode || !qrData) {
+    let badgeNumber = sub.badge?.badgeNumber;
+    const badgeType = sub.badge?.type || "STANDARD";
+    if (!badgeCode || !qrData || badgeNumber == null) {
       badgeCode = generateBadgeCode();
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
       qrData = await generateQRDataURL(`${appUrl}/api/scan?code=${badgeCode}`);
-      const badgeNumber = await prisma.badge.count({ where: { eventId: sub.eventId } }) + 1;
+      badgeNumber = await prisma.badge.count({ where: { eventId: sub.eventId } }) + 1;
       await prisma.badge.create({
         data: {
           code: badgeCode,
@@ -92,13 +95,13 @@ export async function POST(req: NextRequest) {
       try { streamPassword = decrypt(sub.event.streamPasswordEnc); } catch { streamPassword = null; }
     }
 
+    const format = (sub.event.format as "IN_PERSON" | "ONLINE" | "HYBRID") || "IN_PERSON";
     const html = buildBadgeEmail(
       `${sub.firstName} ${sub.lastName}`,
       sub.event.title,
       badgeCode,
-      qrData,
       {
-        format: (sub.event.format as "IN_PERSON" | "ONLINE" | "HYBRID") || "IN_PERSON",
+        format,
         streamUrl: sub.event.streamUrl,
         streamPassword,
         platform: sub.event.platform,
@@ -106,10 +109,20 @@ export async function POST(req: NextRequest) {
       }
     );
 
+    const attachments = await buildBadgeAttachments(format, {
+      code: badgeCode,
+      badgeNumber,
+      type: badgeType,
+      qrData,
+      subscriber: { firstName: sub.firstName, lastName: sub.lastName, jobTitle: sub.jobTitle, company: sub.company },
+      event: { title: sub.event.title, date: sub.event.date, city: sub.event.city, themeColor: sub.event.themeColor, logoUrl: sub.event.logoUrl },
+    });
+
     const r = await sendEmail({
       to: sub.email,
       subject: `Votre badge pour ${sub.event.title}`,
       html,
+      attachments,
     });
     if (r.success) sent++;
   }

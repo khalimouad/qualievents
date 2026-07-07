@@ -9,6 +9,7 @@ import {
 import { decrypt } from "@/lib/crypto";
 import { generateBadgeCode, generateQRDataURL } from "@/lib/qrcode";
 import { sendEmail, buildBadgeEmail } from "@/lib/email";
+import { buildBadgeAttachments } from "@/lib/badgeAttachments";
 import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
@@ -169,24 +170,34 @@ export async function POST(req: NextRequest) {
         }
       }
 
+      const format = (payment.event.format as "IN_PERSON" | "ONLINE" | "HYBRID") || "IN_PERSON";
       const emailHtml = buildBadgeEmail(
         `${subscriber.firstName} ${subscriber.lastName}`,
         payment.event.title,
         badgeCode,
-        qrData,
         {
-          format: (payment.event.format as "IN_PERSON" | "ONLINE" | "HYBRID") || "IN_PERSON",
+          format,
           streamUrl: payment.event.streamUrl,
           streamPassword,
           platform: payment.event.platform,
           streamInstructions: payment.event.streamInstructions,
         }
       );
-      sendEmail({
-        to: subscriber.email,
-        subject: `Votre badge pour ${payment.event.title} est prêt !`,
-        html: emailHtml,
-      }).catch((err) => {
+      buildBadgeAttachments(format, {
+        code: badgeCode,
+        badgeNumber,
+        type: "STANDARD",
+        qrData,
+        subscriber: { firstName: subscriber.firstName, lastName: subscriber.lastName, jobTitle: subscriber.jobTitle, company: subscriber.company },
+        event: { title: payment.event.title, date: payment.event.date, city: payment.event.city, themeColor: payment.event.themeColor, logoUrl: payment.event.logoUrl },
+      }).then((attachments) =>
+        sendEmail({
+          to: subscriber.email,
+          subject: `Votre badge pour ${payment.event.title} est prêt !`,
+          html: emailHtml,
+          attachments,
+        })
+      ).catch((err) => {
         logger.error("payments.notify", "badge email failed", { error: err, subscriberId: subscriber.id });
       });
     }
