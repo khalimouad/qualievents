@@ -33,50 +33,54 @@ export async function POST(req: NextRequest) {
   // "not found" case, or the endpoint becomes an email-enumeration oracle
   // again. Log server-side for debugging and always return the same reply.
   try {
-    const subscriber = await prisma.subscriber.findFirst({
+    // The same email can be registered for several events — send a badge
+    // for every registration that has one, not just the most recent.
+    const subscribers = await prisma.subscriber.findMany({
       where: eventSlug ? { email, event: { slug: eventSlug } } : { email },
       include: { badge: true, event: true },
       orderBy: { createdAt: "desc" },
     });
 
-    if (!subscriber?.badge) return genericResponse;
+    for (const subscriber of subscribers) {
+      if (!subscriber.badge) continue;
 
-    let streamPassword: string | null = null;
-    if (subscriber.event.streamPasswordEnc) {
-      try { streamPassword = decrypt(subscriber.event.streamPasswordEnc); } catch { streamPassword = null; }
-    }
-
-    const format = (subscriber.event.format as "IN_PERSON" | "ONLINE" | "HYBRID") || "IN_PERSON";
-    const html = buildBadgeEmail(
-      `${subscriber.firstName} ${subscriber.lastName}`,
-      subscriber.event.title,
-      subscriber.badge.code,
-      {
-        format,
-        streamUrl: subscriber.event.streamUrl,
-        streamPassword,
-        platform: subscriber.event.platform,
-        streamInstructions: subscriber.event.streamInstructions,
+      let streamPassword: string | null = null;
+      if (subscriber.event.streamPasswordEnc) {
+        try { streamPassword = decrypt(subscriber.event.streamPasswordEnc); } catch { streamPassword = null; }
       }
-    );
 
-    const attachments = await buildBadgeAttachments(format, {
-      code: subscriber.badge.code,
-      badgeNumber: subscriber.badge.badgeNumber,
-      type: subscriber.badge.type,
-      qrData: subscriber.badge.qrData,
-      subscriber: { firstName: subscriber.firstName, lastName: subscriber.lastName, jobTitle: subscriber.jobTitle, company: subscriber.company },
-      event: { title: subscriber.event.title, date: subscriber.event.date, city: subscriber.event.city, themeColor: subscriber.event.themeColor, logoUrl: subscriber.event.logoUrl },
-    });
+      const format = (subscriber.event.format as "IN_PERSON" | "ONLINE" | "HYBRID") || "IN_PERSON";
+      const html = buildBadgeEmail(
+        `${subscriber.firstName} ${subscriber.lastName}`,
+        subscriber.event.title,
+        subscriber.badge.code,
+        {
+          format,
+          streamUrl: subscriber.event.streamUrl,
+          streamPassword,
+          platform: subscriber.event.platform,
+          streamInstructions: subscriber.event.streamInstructions,
+        }
+      );
 
-    const result = await sendEmail({
-      to: subscriber.email,
-      subject: `Votre badge pour ${subscriber.event.title}`,
-      html,
-      attachments,
-    });
-    if (!result.success) {
-      console.error("Badge resend: sendEmail failed", result.error);
+      const attachments = await buildBadgeAttachments(format, {
+        code: subscriber.badge.code,
+        badgeNumber: subscriber.badge.badgeNumber,
+        type: subscriber.badge.type,
+        qrData: subscriber.badge.qrData,
+        subscriber: { firstName: subscriber.firstName, lastName: subscriber.lastName, jobTitle: subscriber.jobTitle, company: subscriber.company },
+        event: { title: subscriber.event.title, date: subscriber.event.date, city: subscriber.event.city, themeColor: subscriber.event.themeColor, logoUrl: subscriber.event.logoUrl },
+      });
+
+      const result = await sendEmail({
+        to: subscriber.email,
+        subject: `Votre badge pour ${subscriber.event.title}`,
+        html,
+        attachments,
+      });
+      if (!result.success) {
+        console.error("Badge resend: sendEmail failed", result.error);
+      }
     }
   } catch (error) {
     console.error("Badge resend failed:", error);
