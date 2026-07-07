@@ -39,7 +39,8 @@ export default function BadgePage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email }),
         });
-        if (!res.ok) throw new Error("Erreur, veuillez réessayer");
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "Erreur, veuillez réessayer");
         setEmailSent(true);
       } catch (e) { setError(e instanceof Error ? e.message : "Erreur, veuillez réessayer"); }
       finally { setLoading(false); }
