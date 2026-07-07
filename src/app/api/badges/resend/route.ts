@@ -41,8 +41,14 @@ export async function POST(req: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
 
+    const now = Date.now();
     for (const subscriber of subscribers) {
       if (!subscriber.badge) continue;
+
+      // Skip events that have already ended — no point resending a badge
+      // for a past event.
+      const eventEnd = subscriber.event.endDate ?? subscriber.event.date;
+      if (new Date(eventEnd).getTime() < now) continue;
 
       let streamPassword: string | null = null;
       if (subscriber.event.streamPasswordEnc) {
