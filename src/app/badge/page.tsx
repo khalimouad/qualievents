@@ -27,12 +27,27 @@ export default function BadgePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [searchBy, setSearchBy] = useState<"code" | "email">("code");
+  const [emailSent, setEmailSent] = useState(false);
 
   const searchBadge = async () => {
     setLoading(true); setError(""); setBadge(null);
-    const params = searchBy === "code" ? `code=${encodeURIComponent(code)}` : `email=${encodeURIComponent(email)}`;
+
+    if (searchBy === "email") {
+      try {
+        const res = await fetch("/api/badges/resend", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+        if (!res.ok) throw new Error("Erreur, veuillez réessayer");
+        setEmailSent(true);
+      } catch (e) { setError(e instanceof Error ? e.message : "Erreur, veuillez réessayer"); }
+      finally { setLoading(false); }
+      return;
+    }
+
     try {
-      const res = await fetch(`/api/badges?${params}`);
+      const res = await fetch(`/api/badges?code=${encodeURIComponent(code)}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Badge not found");
       setBadge(data);
@@ -58,7 +73,27 @@ export default function BadgePage() {
             <ArrowLeft className="w-4 h-4" /> Back to home
           </Link>
 
-          {!badge ? (
+          {emailSent ? (
+            <div className="rounded-2xl p-8 border text-center" style={{ background: "var(--secondary)", borderColor: "var(--border)" }}>
+              <div
+                className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                style={{ background: "linear-gradient(135deg, var(--primary), var(--primary-dark))", boxShadow: "0 8px 24px rgba(255,122,0,0.3)" }}
+              >
+                <CheckCircle2 className="w-6 h-6 text-white" />
+              </div>
+              <h1 className="text-xl font-black mb-2" style={{ color: "var(--foreground)" }}>Check your inbox</h1>
+              <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>
+                If <strong>{email}</strong> is registered for an event, your badge was just emailed to that address.
+              </p>
+              <button
+                onClick={() => { setEmailSent(false); setEmail(""); }}
+                className="w-full py-3.5 rounded-xl text-sm font-semibold transition-colors border hover:opacity-80"
+                style={{ borderColor: "var(--border)", color: "var(--muted)" }}
+              >
+                Search Again
+              </button>
+            </div>
+          ) : !badge ? (
             <>
               <div className="text-center mb-8">
                 <div
@@ -78,7 +113,7 @@ export default function BadgePage() {
                   {(["code", "email"] as const).map((tab) => (
                     <button
                       key={tab}
-                      onClick={() => setSearchBy(tab)}
+                      onClick={() => { setSearchBy(tab); setError(""); }}
                       className="flex-1 py-2 px-3 rounded-lg text-sm font-bold transition-all"
                       style={searchBy === tab
                         ? { background: "var(--gold)", color: "#0C0B09" }
@@ -110,14 +145,19 @@ export default function BadgePage() {
                     maxLength={32}
                   />
                 ) : (
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-3.5 rounded-xl outline-none text-sm transition-all"
-                    style={{ background: "var(--background)", border: "1.5px solid var(--border)", color: "var(--foreground)" }}
-                    placeholder="john@example.com"
-                  />
+                  <>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-4 py-3.5 rounded-xl outline-none text-sm transition-all"
+                      style={{ background: "var(--background)", border: "1.5px solid var(--border)", color: "var(--foreground)" }}
+                      placeholder="john@example.com"
+                    />
+                    <p className="text-xs mt-2" style={{ color: "var(--muted)" }}>
+                      We&apos;ll email your badge to this address if it&apos;s registered for an event.
+                    </p>
+                  </>
                 )}
 
                 <button
@@ -127,8 +167,10 @@ export default function BadgePage() {
                   style={{ background: "var(--gold)", color: "#0C0B09" }}
                 >
                   {loading
-                    ? <><span className="w-4 h-4 border-2 border-black/20 border-t-black/60 rounded-full animate-spin" /> Searching...</>
-                    : <><Search className="w-4 h-4" /> Find My Badge</>
+                    ? <><span className="w-4 h-4 border-2 border-black/20 border-t-black/60 rounded-full animate-spin" /> {searchBy === "code" ? "Searching..." : "Sending..."}</>
+                    : searchBy === "code"
+                      ? <><Search className="w-4 h-4" /> Find My Badge</>
+                      : <><Search className="w-4 h-4" /> Email My Badge</>
                   }
                 </button>
               </div>
