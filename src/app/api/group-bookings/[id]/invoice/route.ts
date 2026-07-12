@@ -3,6 +3,7 @@ import { put } from "@vercel/blob";
 import { prisma } from "@/lib/prisma";
 import { requireAuth, passThrough } from "@/lib/requireRole";
 import { renderInvoicePdf, buildInvoiceNumber } from "@/lib/invoice";
+import { mediaUrl } from "@/lib/media";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -83,16 +84,17 @@ export async function POST(
   });
 
   const filename = `invoices/${booking.event.slug}/${booking.reference}.pdf`;
-  const blob = await put(filename, pdfBuffer, {
-    access: "public",
+  await put(filename, pdfBuffer, {
+    access: "private",
     contentType: "application/pdf",
     addRandomSuffix: false,
     allowOverwrite: true,
   });
+  const invoiceUrl = mediaUrl(filename);
 
   const updated = await prisma.groupBooking.update({
     where: { id: booking.id },
-    data: { invoiceNumber, invoiceUrl: blob.url },
+    data: { invoiceNumber, invoiceUrl },
   });
 
   return NextResponse.json({

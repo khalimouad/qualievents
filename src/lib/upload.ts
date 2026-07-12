@@ -1,4 +1,5 @@
 import { put } from "@vercel/blob";
+import { mediaUrl } from "@/lib/media";
 
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
@@ -20,11 +21,11 @@ export async function saveUploadedFile(
     const filename = `${timestamp}.${ext}`;
     const pathname = `${type}/${filename}`;
 
-    const blob = await put(pathname, file, {
-      access: "public",
+    await put(pathname, file, {
+      access: "private",
     });
 
-    return { url: blob.url };
+    return { url: mediaUrl(pathname) };
   } catch (error) {
     console.error("Upload error:", error);
     const msg = error instanceof Error ? error.message : String(error);

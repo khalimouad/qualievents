@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth, passThrough } from "@/lib/requireRole";
 import { generateVerificationCode, renderCertificatePdf, type CertificationType } from "@/lib/certificate";
 import { sendEmail } from "@/lib/email";
+import { mediaUrl } from "@/lib/media";
 import { audit } from "@/lib/audit";
 import { logger } from "@/lib/logger";
 
@@ -96,26 +97,27 @@ export async function POST(
         issuedAt: new Date(),
       });
 
-      // Upload to Vercel Blob — public URL is acceptable since the PDF is what
-      // the recipient is going to share anyway, and authenticity is ensured by
-      // the verification code printed on the document.
+      // Uploaded to a private Vercel Blob store — served back out through
+      // /api/media, which is publicly reachable. Authenticity is ensured by
+      // the verification code printed on the document, not by store access.
       const filename = `certifications/${event.slug}/${verificationCode}.pdf`;
-      const blob = await put(filename, pdfBuffer, {
-        access: "public",
+      await put(filename, pdfBuffer, {
+        access: "private",
         contentType: "application/pdf",
         addRandomSuffix: false,
         allowOverwrite: true,
       });
+      const pdfUrl = mediaUrl(filename);
 
       const issuedAt = new Date();
       const cert = await prisma.certification.upsert({
         where: { subscriberId: s.id },
-        update: { type, pdfUrl: blob.url, verificationCode, issuedAt, revoked: false },
+        update: { type, pdfUrl, verificationCode, issuedAt, revoked: false },
         create: {
           eventId: event.id,
           subscriberId: s.id,
           type,
-          pdfUrl: blob.url,
+          pdfUrl,
           verificationCode,
           issuedAt,
         },
